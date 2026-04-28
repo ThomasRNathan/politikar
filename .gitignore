@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.tox/
+.nox/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+pnpm-lock.yaml.bak
+
+# Vercel / Inngest
+.vercel/
+.inngest/
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.cursor/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Generated artifacts (audio, transcripts, scratch)
+data/raw/
+data/transcripts/
+data/scratch/
+*.mp3
+*.wav
+*.mp4
+!docs/assets/*.mp4
+
+# Secrets and credentials
+*.pem
+*.key
+secrets/
