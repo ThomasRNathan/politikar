@@ -12,7 +12,12 @@ import { HexMap } from "@/components/HexMap";
 import { ClaimRow } from "@/components/ClaimRow";
 import { PoliticianAvatar } from "@/components/PoliticianAvatar";
 import { ScoreBadge } from "@/components/ScoreBadge";
-import { formatRelativeShort } from "@/lib/format";
+import { formatRelativeShort, formatDate } from "@/lib/format";
+import {
+  recentRealSources,
+  recentFactchecks,
+  ingestionTotals,
+} from "@/lib/realdata";
 
 export default function Home() {
   const regionScores = regionAggregateScores();
@@ -207,6 +212,108 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {(() => {
+        const realRecent = recentRealSources(8);
+        const totals = ingestionTotals();
+        if (realRecent.length === 0) return null;
+        return (
+          <section className="bg-white border-y border-black/5 py-16">
+            <div className="max-w-6xl mx-auto px-6">
+              <div className="flex items-baseline justify-between mb-8 flex-wrap gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
+                    Pipeline d&apos;ingestion · {totals.sources} communications captées
+                  </p>
+                  <h2 className="font-serif text-3xl font-semibold tracking-tight">
+                    Dernières communications officielles.
+                  </h2>
+                </div>
+                <p className="text-xs text-[var(--color-ink-soft)] max-w-md text-right hidden sm:block">
+                  Ingérées depuis Élysée et Sénat. L&apos;extraction de claims
+                  et la vérification automatisée sont en construction.
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {realRecent.map((s) => {
+                  const p = politicianById(s.politician_id);
+                  return (
+                    <a
+                      key={s.id}
+                      href={s.url ?? "#"}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group rounded-2xl bg-[var(--color-bg-soft)] border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        {p && <PoliticianAvatar politician={p} size={28} />}
+                        <span className="text-xs font-medium truncate">
+                          {p?.full_name ?? "—"}
+                        </span>
+                      </div>
+                      <p className="font-serif text-sm font-medium leading-snug group-hover:text-[var(--color-accent)] line-clamp-3">
+                        {s.title}
+                      </p>
+                      <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--color-ink-soft)]">
+                        <span>{s.channel.split(" ")[0]}</span>
+                        <span>
+                          {s.occurred_at && formatDate(s.occurred_at)}
+                        </span>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        );
+      })()}
+
+      {(() => {
+        const fc = recentFactchecks(8);
+        if (fc.length === 0) return null;
+        return (
+          <section className="max-w-6xl mx-auto px-6 py-16">
+            <div className="flex items-baseline justify-between mb-8 flex-wrap gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
+                  Corpus de fact-checks de référence
+                </p>
+                <h2 className="font-serif text-3xl font-semibold tracking-tight">
+                  Recent fact-checks ingérés.
+                </h2>
+              </div>
+              <p className="text-xs text-[var(--color-ink-soft)] max-w-md text-right hidden sm:block">
+                Les Décodeurs (Le Monde) et Les Surligneurs. Citation
+                obligatoire ; lien direct vers l&apos;article original.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {fc.map((item) => (
+                <a
+                  key={item.id}
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group rounded-2xl bg-white border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
+                >
+                  <p className="text-[11px] uppercase tracking-widest text-[var(--color-ink-soft)] mb-2">
+                    {item.outlet}
+                  </p>
+                  <p className="font-serif text-base font-medium leading-snug group-hover:text-[var(--color-accent)] line-clamp-3">
+                    {item.title}
+                  </p>
+                  {item.published_at && (
+                    <p className="mt-3 text-[11px] text-[var(--color-ink-soft)]">
+                      {formatDate(item.published_at)}
+                    </p>
+                  )}
+                </a>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       <section className="bg-[var(--color-ink)] text-[var(--color-bg)] py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">

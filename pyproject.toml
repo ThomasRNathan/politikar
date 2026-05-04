@@ -1,0 +1,14 @@
+[tool.uv.workspace]
+members = ["apps/api", "apps/workers"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["apps/api/tests", "apps/workers/tests"]
+addopts = "-q"

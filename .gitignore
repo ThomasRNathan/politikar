@@ -75,3 +75,18 @@ site/node_modules/
 # Playwright
 site/test-results/
 site/playwright-report/
+
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+uv.lock
+
+# Local env
+.env
+.env.local
+apps/*/.env
+apps/*/.env.local

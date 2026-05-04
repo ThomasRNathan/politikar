@@ -1,45 +1,160 @@
 # politikar
 
-Plateforme open-source d'analyse systématique de la véracité du discours politique français.
+Plateforme open-source d'analyse systématique de la véracité du discours
+politique français.
 
-> Statut : design phase. Aucun code produit pour le moment. Les six documents de cadrage ci-dessous sont en cours de relecture avant l'écriture de la Phase 0.
+> Statut : phase 0/1 du master plan. Les fondations (référentiel, ingestion
+> partielle, scoring, prompts versionnés, schéma DB) sont en place. La
+> cascade de vérification automatisée et l'extraction LLM en production
+> arrivent au fur et à mesure que les pipelines sont branchés sur
+> Supabase et Inngest.
 
-## Mission
+## Démo en ligne
 
-Pour chaque homme et femme politique, parti, région et fonction, produire des métriques agrégées et traçables sur :
+👉 **<https://politikar.vercel.app>**
 
-1. **Discours et allocutions** : ce qui est dit factuellement, jugé vrai, faux, mixte ou non vérifiable selon une méthodologie publique.
-2. **Programmes et promesses de mandat** : ce qui a été promis, jugé tenu, partiellement tenu, non tenu ou abandonné.
-3. **Couverture presse** (post-MVP) : comment les médias relaient, contextualisent, ignorent ou amplifient ces propos.
+Ce que tu y vois aujourd'hui :
 
-Le projet est politiquement sensible. La neutralité méthodologique, la transparence totale (code, prompts, scores publics) et la traçabilité jusqu'aux sources sont des piliers de design.
+- Référentiel réel (16 figures nationales, 10 partis, 13 régions) avec
+  photos et logos depuis Wikimedia Commons.
+- Communications officielles ingérées en temps réel depuis Élysée RSS.
+- Corpus de fact-checks de référence (Les Décodeurs, Les Surligneurs).
+- Maquette d'analyse (TruthScore, intervalles de confiance,
+  décomposition par sujet et par fonction) sur des verdicts illustratifs
+  en attendant que la cascade tourne.
 
-## Documents de cadrage
+## Architecture
 
-L'écriture du code ne commence qu'après validation explicite des six documents suivants :
+```
+politikar/
+  apps/
+    api/              FastAPI admin + ingestion (Python 3.11+)
+    workers/          Inngest workers, scoring, extraction (Python 3.11+)
+  packages/
+    db/migrations/    Postgres 15 + pgvector schema
+  site/               Next.js 16 App Router, RSC, Tailwind 4
+                       (à déplacer dans apps/web/ post-Phase 0)
+  ARCHITECTURE.md
+  DATA_MODEL.md
+  SOURCES.md
+  PROMPTS.md
+  SCORING.md
+  RISKS.md
+```
 
-1. [ARCHITECTURE.md](./ARCHITECTURE.md) : choix de stack, topologie déploiement, observabilité, coûts.
-2. [DATA_MODEL.md](./DATA_MODEL.md) : schéma Postgres complet, indexes, migrations.
-3. [SOURCES.md](./SOURCES.md) : sources de données, accès, licences, fiabilité, priorité.
-4. [PROMPTS.md](./PROMPTS.md) : prompts LLM versionnés pour extraction, classification, vérification.
-5. [SCORING.md](./SCORING.md) : formule du TruthScore, pondérations, seuils, exemples chiffrés.
-6. [RISKS.md](./RISKS.md) : risques juridiques, éthiques, techniques, médiatiques, mitigations.
+Stack résumée :
 
-## Stack cible
-
-- Backend : Python 3.11+ (FastAPI, Pydantic)
-- Frontend : Next.js 16 App Router, TypeScript strict, Tailwind, shadcn/ui
-- Base de données : Supabase (Postgres 15 + pgvector + Storage + Auth)
-- Orchestration workers : Inngest
+- Frontend public : Next.js 16 + React 19 + Tailwind 4
+- API publique read-only : Next.js Route Handlers (à brancher sur Supabase)
+- API admin et ingestion : FastAPI (Python 3.11+)
+- Workers : Inngest (Python SDK)
+- DB : Supabase Postgres 15 + pgvector
 - LLM : Anthropic Claude (`claude-sonnet-4-6` / `claude-opus-4-7`)
 - Embeddings : Voyage AI `voyage-3-large`
 - Transcription : OpenAI Whisper API
-- Hébergement : Vercel (front), Inngest (workers), Supabase (DB)
+- Hébergement : Vercel (front), Inngest Cloud (workers), Railway (FastAPI),
+  Supabase (DB)
 
-## Périmètre MVP
+## Bootstrap (développeur)
 
-Top 50 figures politiques nationales françaises (Président, gouvernement, leaders de partis, têtes de listes principales). Architecture multi-pays prévue dès le départ.
+### Pré-requis
+
+- Node ≥ 20 (idéal : 24 LTS)
+- Python ≥ 3.11 (le scoring et les prompts utilisent `dataclass(slots=True)`)
+- [uv](https://docs.astral.sh/uv/) pour la gestion des deps Python
+- [Vercel CLI](https://vercel.com/docs/cli) ≥ 53
+- [Supabase CLI](https://supabase.com/docs/reference/cli) (optionnel mais
+  recommandé pour appliquer les migrations)
+
+### Installation
+
+```bash
+git clone https://github.com/ThomasRNathan/politikar.git
+cd politikar
+
+# 1. Front Next.js
+cd site && npm install && cd ..
+
+# 2. Python workspace (api + workers)
+uv sync --all-extras --workspace
+
+# 3. Variables d'environnement
+cp .env.example .env.local         # pour le front
+cp .env.example apps/api/.env      # pour la FastAPI
+cp .env.example apps/workers/.env  # pour les workers
+# Renseigner ANTHROPIC_API_KEY, VOYAGE_API_KEY, SUPABASE_*, ...
+```
+
+### Faire tourner localement
+
+```bash
+# Front
+cd site && npm run dev                 # → http://localhost:3000
+
+# API admin
+uv run uvicorn politikar_api.main:app --reload --port 8000
+
+# Refresh des données ingérées (Élysée + fact-checkers)
+cd site && npm run ingest
+
+# Tests Python
+uv run pytest apps/workers -q
+
+# Tests Playwright (contre la prod par défaut)
+cd site && npm test
+```
+
+### Appliquer les migrations Supabase
+
+```bash
+supabase login
+supabase link --project-ref <votre-ref>
+supabase db push                       # applique packages/db/migrations/*
+```
+
+Sans Supabase CLI :
+
+```bash
+export DATABASE_URL=postgresql://...
+for f in packages/db/migrations/*.sql; do
+  psql "$DATABASE_URL" -f "$f"
+done
+```
+
+## Statut d'implémentation par phase
+
+Référence : section "Plan de livraison" du master prompt.
+
+| Phase | Statut | Notes |
+|---|---|---|
+| 0. Fondations | ⏳ partiel | Monorepo, migrations Supabase, scaffolds Python, CI GitHub Actions, .env.example |
+| 1. Référentiel et données statiques | ✓ MVP | 16 figures via Wikidata + Wikipedia, photos + logos. Reste à pousser dans Supabase. |
+| 2. Pipeline d'ingestion v1 | ⏳ partiel | Élysée RSS + corpus fact-checkers. NosDéputés en attente XVIIe légis. AN open data à brancher. |
+| 3. Extraction et classification de claims | ⏳ scaffold | Prompts versionnés et runnable via `politikar extract`, nécessite ANTHROPIC_API_KEY |
+| 4. Moteur de vérification v1 | ⏳ scaffold | Prompt v1 + tool schema définis. Cascade Python à coder, après Supabase. |
+| 5. Agrégations et scoring | ✓ formule | TruthScore v1.0.0 implémenté en Python avec tests reproduisant les exemples de SCORING.md |
+| 6. Frontend complet | ✓ MVP | Carte hex, profils, partis, fonctions, régions, claims, méthode, docs |
+| 7. Suivi promesses | ⏳ TODO | Programme 2022 + 2024 à ingérer |
+| 8. Polish + lancement | ⏳ TODO | Audit éditorial, contributing guide, statut juridique |
+
+## Documents de cadrage
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md)
+- [DATA_MODEL.md](./DATA_MODEL.md)
+- [SOURCES.md](./SOURCES.md)
+- [PROMPTS.md](./PROMPTS.md)
+- [SCORING.md](./SCORING.md)
+- [RISKS.md](./RISKS.md)
 
 ## Licence
 
-À fixer dans `ARCHITECTURE.md`. Proposition : AGPL-3.0.
+Proposition AGPL-3.0 (cf. ARCHITECTURE section 11). À valider avant
+publication officielle.
+
+## Crédits
+
+- Photos et logos politiques : Wikimedia Commons (CC BY-SA majoritairement),
+  attribution dans le pied de page du site.
+- Communications officielles : Élysée (Licence Etalab 2.0).
+- Fact-checks : Les Décodeurs (Le Monde) et Les Surligneurs (citation
+  obligatoire, lien systématique).

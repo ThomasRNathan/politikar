@@ -15,7 +15,8 @@ import { ScoreBadge } from "@/components/ScoreBadge";
 import { ConfidenceBar } from "@/components/ConfidenceBar";
 import { ClaimRow } from "@/components/ClaimRow";
 import { VerdictPill } from "@/components/VerdictPill";
-import { scoreColor, scoreColorSoft } from "@/lib/format";
+import { scoreColor, scoreColorSoft, formatDate } from "@/lib/format";
+import { realSourcesFor } from "@/lib/realdata";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -297,17 +298,71 @@ export default async function PoliticianProfile({
             </div>
           )}
 
+          {(() => {
+            const realSources = realSourcesFor(p.id);
+            if (realSources.length === 0) return null;
+            return (
+              <section className="mb-10">
+                <div className="flex items-baseline justify-between gap-4 mb-2">
+                  <h2 className="font-serif text-2xl font-semibold">
+                    Communications récentes
+                  </h2>
+                  <span className="text-xs text-[var(--color-ink-soft)] font-mono">
+                    données réelles
+                  </span>
+                </div>
+                <p className="text-sm text-[var(--color-ink-soft)] mb-4">
+                  Ingérées en temps réel depuis les sources officielles. Le
+                  pipeline d&apos;extraction de claims et de vérification
+                  n&apos;est pas encore branché ; le verdict s&apos;affichera
+                  ici une fois la cascade opérationnelle.
+                </p>
+                <div className="bg-white rounded-2xl border border-black/5 divide-y divide-black/5">
+                  {realSources.slice(0, 8).map((s) => (
+                    <a
+                      key={s.id}
+                      href={s.url ?? "#"}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group flex items-start gap-4 p-4 hover:bg-[var(--color-bg-soft)] transition"
+                    >
+                      <span className="shrink-0 mt-1 px-2 py-0.5 text-[10px] uppercase tracking-wider rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-medium">
+                        à vérifier
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium group-hover:text-[var(--color-accent)] leading-snug">
+                          {s.title}
+                        </p>
+                        <p className="mt-1 text-xs text-[var(--color-ink-soft)]">
+                          {s.channel}
+                          {s.occurred_at && ` · ${formatDate(s.occurred_at)}`}
+                        </p>
+                      </div>
+                      <span
+                        aria-hidden
+                        className="text-[var(--color-ink-soft)] mt-1 shrink-0"
+                      >
+                        ↗
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
+
           <h2 className="font-serif text-2xl font-semibold mb-2">
-            Affirmations et promesses récentes
+            Affirmations et promesses
           </h2>
           <p className="text-sm text-[var(--color-ink-soft)] mb-6">
-            Échantillon illustratif. La plateforme MVP en couvrira plusieurs
-            centaines par politique.
+            Échantillon illustratif basé sur la méthode publiée. Les claims
+            seront remplacés par ceux extraits par le pipeline LLM dès que
+            celui-ci sera opérationnel.
           </p>
           <div className="bg-white rounded-2xl border border-black/5 p-2 sm:p-4">
             {claims.length === 0 ? (
               <p className="p-4 text-sm text-[var(--color-ink-soft)]">
-                Aucune affirmation  pour ce politique.
+                Aucune affirmation pour ce politique.
               </p>
             ) : (
               claims.map((c) => <ClaimRow key={c.id} claim={c} />)

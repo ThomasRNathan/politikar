@@ -1,0 +1,73 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  web:
+    name: web (Next.js)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - name: build
+        run: npm run build
+
+  python:
+    name: python (workers + api)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: install Python 3.11
+        run: uv python install 3.11
+      - name: sync workspace
+        run: uv sync --all-extras --workspace
+      - name: ruff check
+        run: uv run ruff check apps
+      - name: pytest workers
+        run: uv run pytest apps/workers -q
+
+  sql:
+    name: sql syntax (migrations)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: politikar_test
+        ports: [5432:5432]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: install pgvector
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-15-pgvector
+      - name: apply migrations
+        env:
+          PGPASSWORD: postgres
+        run: |
+          for f in packages/db/migrations/*.sql; do
+            echo "applying $f"
+            psql -h localhost -U postgres -d politikar_test -f "$f" -v ON_ERROR_STOP=1
+          done
