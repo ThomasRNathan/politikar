@@ -71,3 +71,7 @@ secrets/
 site/.next/
 site/.vercel/
 site/node_modules/
+
+# Playwright
+site/test-results/
+site/playwright-report/
