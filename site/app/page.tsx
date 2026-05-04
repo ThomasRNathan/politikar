@@ -1,251 +1,242 @@
 import Link from "next/link";
-import { DOCS } from "@/lib/docs";
+import {
+  CLAIMS,
+  POLITICIANS,
+  TOP_STORIES,
+  claimById,
+  politicianById,
+  regionAggregateScores,
+  sourceById,
+} from "@/lib/fixtures";
+import { HexMap } from "@/components/HexMap";
+import { ClaimRow } from "@/components/ClaimRow";
+import { PoliticianAvatar } from "@/components/PoliticianAvatar";
+import { ScoreBadge } from "@/components/ScoreBadge";
+import { formatRelativeShort } from "@/lib/format";
 
 export default function Home() {
+  const regionScores = regionAggregateScores();
+
+  const topPoliticians = [...POLITICIANS]
+    .filter((p) => p.stats.is_significant && p.stats.truth_score !== null)
+    .sort((a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0))
+    .slice(0, 5);
+
+  const recentClaims = [...CLAIMS]
+    .sort((a, b) => b.occurred_at.localeCompare(a.occurred_at))
+    .slice(0, 5);
+
+  const topStories = TOP_STORIES.map((t) => ({
+    ...t,
+    claim: claimById(t.claim_id)!,
+    politician: politicianById(claimById(t.claim_id)!.politician_id)!,
+  }));
+
   return (
     <div className="flex-1">
-      <section className="max-w-5xl mx-auto px-6 pt-20 pb-12">
-        <div className="max-w-3xl">
-          <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-6">
-            Phase de design : 28 avril 2026
-          </p>
-          <h1 className="font-serif text-5xl sm:text-6xl leading-[1.05] tracking-tight font-semibold text-[var(--color-ink)]">
-            La véracité du discours politique français,{" "}
-            <span className="text-[var(--color-accent)]">mesurée</span> en
-            méthode publique.
-          </h1>
-          <p className="mt-8 text-lg leading-relaxed text-[var(--color-ink-soft)]">
-            politikar est une plateforme open-source de fact-checking
-            systématique. Pour chaque homme et femme politique, parti, fonction
-            et région, des métriques agrégées sur les discours, les promesses
-            et la couverture presse, traçables jusqu&apos;à la source.
-          </p>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Link
-              href="/docs"
-              className="inline-flex items-center px-5 h-11 rounded-full bg-[var(--color-ink)] text-[var(--color-bg)] text-sm font-medium hover:bg-[var(--color-trust)] transition"
+      <section className="max-w-6xl mx-auto px-6 pt-16 pb-10">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-5">
+              Plateforme open-source de fact-checking systématique
+            </p>
+            <h1 className="font-serif text-5xl sm:text-6xl leading-[1.04] tracking-tight font-semibold">
+              La véracité du discours politique français,{" "}
+              <span className="text-[var(--color-accent)]">mesurée</span> en
+              méthode publique.
+            </h1>
+            <p className="mt-6 text-lg leading-relaxed text-[var(--color-ink-soft)] max-w-xl">
+              Pour chaque homme et femme politique, parti, fonction et région,
+              des métriques traçables sur les discours factuels, les promesses
+              de mandat et la couverture presse.
+            </p>
+            <form
+              action="/politiciens"
+              method="get"
+              className="mt-8 flex w-full max-w-md"
             >
-              Lire les six documents de cadrage
-            </Link>
-            <a
-              href="https://github.com/ThomasRNathan/politikar"
-              className="inline-flex items-center px-5 h-11 rounded-full border border-black/15 text-sm font-medium hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Code source GitHub
-            </a>
+              <input
+                type="search"
+                name="q"
+                placeholder="Chercher un politique, un parti, un sujet"
+                aria-label="Recherche"
+                className="flex-1 h-12 px-4 rounded-l-full border border-black/15 bg-white text-sm focus:outline-none focus:border-[var(--color-accent)]"
+              />
+              <button
+                type="submit"
+                className="h-12 px-6 rounded-r-full bg-[var(--color-ink)] text-[var(--color-bg)] text-sm font-medium hover:bg-[var(--color-trust)] transition"
+              >
+                Explorer
+              </button>
+            </form>
+            <div className="mt-6 flex flex-wrap gap-2 text-xs">
+              {[
+                { label: "Économie", topic: "economy" },
+                { label: "Immigration", topic: "immigration" },
+                { label: "Écologie", topic: "ecology_climate" },
+                { label: "Sécurité", topic: "security" },
+                { label: "Éducation", topic: "education" },
+              ].map((t) => (
+                <Link
+                  key={t.topic}
+                  href={`/politiciens?topic=${t.topic}`}
+                  className="px-3 py-1 rounded-full border border-black/15 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition"
+                >
+                  {t.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl border border-black/5 p-6 shadow-sm">
+            <div className="flex items-baseline justify-between mb-4">
+              <h2 className="font-serif text-xl font-semibold">Carte des régions</h2>
+              <span className="text-xs text-[var(--color-ink-soft)]">
+                Score moyen pondéré des élus suivis
+              </span>
+            </div>
+            <HexMap scores={regionScores} />
           </div>
         </div>
       </section>
 
-      <section className="bg-[var(--color-bg-soft)] border-y border-black/5 py-14">
-        <div className="max-w-5xl mx-auto px-6 grid sm:grid-cols-3 gap-8">
-          <div>
-            <p className="text-3xl font-serif font-semibold text-[var(--color-ink)]">
-              3
-            </p>
-            <p className="mt-2 text-sm uppercase tracking-wide text-[var(--color-ink-soft)]">
-              Axes mesurés
-            </p>
-            <p className="mt-3 text-sm text-[var(--color-ink-soft)] leading-relaxed">
-              Discours factuels. Promesses de mandat. Couverture presse en
-              stand-by.
-            </p>
+      <section className="bg-[var(--color-bg-soft)] border-y border-black/5 py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
+                Top stories de la semaine
+              </p>
+              <h2 className="font-serif text-3xl font-semibold tracking-tight">
+                Ce que la cascade a vérifié.
+              </h2>
+            </div>
+            <Link
+              href="/politiciens"
+              className="text-sm text-[var(--color-accent)] hover:underline hidden sm:inline"
+            >
+              Tous les politiques →
+            </Link>
           </div>
-          <div>
-            <p className="text-3xl font-serif font-semibold text-[var(--color-ink)]">
-              50
-            </p>
-            <p className="mt-2 text-sm uppercase tracking-wide text-[var(--color-ink-soft)]">
-              Figures nationales au MVP
-            </p>
-            <p className="mt-3 text-sm text-[var(--color-ink-soft)] leading-relaxed">
-              Président, gouvernement, leaders de partis, têtes de listes.
-              Architecture multi-pays prête.
-            </p>
-          </div>
-          <div>
-            <p className="text-3xl font-serif font-semibold text-[var(--color-ink)]">
-              100%
-            </p>
-            <p className="mt-2 text-sm uppercase tracking-wide text-[var(--color-ink-soft)]">
-              Open source et auditable
-            </p>
-            <p className="mt-3 text-sm text-[var(--color-ink-soft)] leading-relaxed">
-              Code, prompts, formules de scoring et liste des sources publiés.
-              Licence AGPL-3.0 proposée.
-            </p>
+          <div className="grid lg:grid-cols-2 gap-4">
+            {topStories.map((s) => {
+              const source = sourceById(s.claim.source_id);
+              return (
+                <Link
+                  key={s.claim_id}
+                  href={`/claims/${s.claim_id}`}
+                  className="group block bg-white rounded-2xl p-6 border border-black/5 hover:border-[var(--color-accent)] transition"
+                >
+                  <div className="flex items-start gap-4">
+                    <PoliticianAvatar politician={s.politician} size={44} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <p className="font-medium text-sm">{s.politician.full_name}</p>
+                        <span className="text-[11px] text-[var(--color-ink-soft)] shrink-0">
+                          {formatRelativeShort(s.claim.occurred_at)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[var(--color-ink-soft)]">
+                        {source?.channel}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="mt-4 font-serif text-lg leading-snug group-hover:text-[var(--color-accent)]">
+                    « {s.claim.claim_text} »
+                  </p>
+                  <p className="mt-3 text-xs text-[var(--color-ink-soft)] italic">
+                    {s.note}
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-6 py-20">
-        <div className="flex items-end justify-between mb-10">
-          <h2 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight">
-            Six documents de cadrage
-          </h2>
-          <Link
-            href="/docs"
-            className="text-sm text-[var(--color-accent)] hover:underline"
-          >
-            Tout consulter
-          </Link>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-          {DOCS.map((d, i) => (
-            <Link
-              key={d.slug}
-              href={`/docs/${d.slug}`}
-              className="group block p-6 rounded-2xl bg-white border border-black/5 hover:border-[var(--color-accent)] transition"
-            >
-              <p className="text-xs uppercase tracking-widest text-[var(--color-ink-soft)]">
-                Document {String(i + 1).padStart(2, "0")}
-              </p>
-              <p className="mt-3 font-serif text-xl font-semibold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
-                {d.label}
-              </p>
-              <p className="mt-2 text-sm text-[var(--color-ink-soft)] leading-relaxed">
-                {d.description}
-              </p>
-            </Link>
-          ))}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
+              Classement
+            </p>
+            <h2 className="font-serif text-3xl font-semibold tracking-tight mb-4">
+              Top 5 par véracité.
+            </h2>
+            <p className="text-sm text-[var(--color-ink-soft)] mb-6 leading-relaxed">
+              Calculé sur l&apos;ensemble des claims factuels et promesses
+              résolus de la période. Volume minimum requis pour entrer au
+              classement : 30 affirmations factuelles ou 5 promesses résolues.
+            </p>
+            <ol className="space-y-2">
+              {topPoliticians.map((p, i) => (
+                <li key={p.id}>
+                  <Link
+                    href={`/politiciens/${p.slug}`}
+                    className="group flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--color-bg-soft)] transition"
+                  >
+                    <span className="font-mono text-sm text-[var(--color-ink-soft)] w-6">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <PoliticianAvatar politician={p} size={36} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate group-hover:text-[var(--color-accent)]">
+                        {p.full_name}
+                      </p>
+                      <p className="text-[11px] text-[var(--color-ink-soft)] truncate">
+                        {p.bio_short.split(".")[0]}
+                      </p>
+                    </div>
+                    <ScoreBadge score={p.stats.truth_score} size="sm" />
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
+              Affirmations récentes
+            </p>
+            <h2 className="font-serif text-3xl font-semibold tracking-tight mb-4">
+              Dernières vérifications.
+            </h2>
+            <div className="bg-white rounded-2xl border border-black/5 p-2 sm:p-4">
+              {recentClaims.map((c) => (
+                <ClaimRow key={c.id} claim={c} />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
       <section className="bg-[var(--color-ink)] text-[var(--color-bg)] py-20">
-        <div className="max-w-5xl mx-auto px-6">
+        <div className="max-w-4xl mx-auto px-6 text-center">
           <p className="text-xs uppercase tracking-widest text-[var(--color-accent-soft)] mb-4">
-            Aperçu produit : données fictives
+            Méthode
           </p>
-          <h2 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight">
-            À quoi ressemblera une fiche politique.
+          <h2 className="font-serif text-4xl font-semibold tracking-tight">
+            Score traçable, méthode publique, code ouvert.
           </h2>
-          <p className="mt-4 text-base text-white/70 max-w-2xl leading-relaxed">
-            Cet exemple est un mockup à titre illustratif. Aucun politique réel
-            n&apos;a encore été évalué.
+          <p className="mt-6 text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
+            Chaque verdict cite ses sources avec URL et extraits courts. La
+            formule du TruthScore est publiée. Le code, les prompts et les
+            seuils sont open source.
           </p>
-          <div className="mt-10 grid lg:grid-cols-3 gap-6">
-            <MockupCard
-              name="Politicien fictif A"
-              role="Ministre, P0"
-              score={84}
-              ciLow={80}
-              ciHigh={88}
-              factual={50}
-              promises={4}
-              gradient="from-emerald-500 to-emerald-300"
-            />
-            <MockupCard
-              name="Politicien fictif B"
-              role="Présidente de groupe, P0"
-              score={60}
-              ciLow={55}
-              ciHigh={64}
-              factual={80}
-              promises={6}
-              gradient="from-amber-500 to-amber-300"
-            />
-            <MockupCard
-              name="Politicien fictif C"
-              role="Sénateur, P2"
-              score={null}
-              ciLow={null}
-              ciHigh={null}
-              factual={12}
-              promises={0}
-              gradient="from-zinc-500 to-zinc-300"
-            />
-          </div>
-          <p className="mt-10 text-xs text-white/50">
-            La méthode complète, les pondérations et les exemples chiffrés sont
-            détaillés dans{" "}
+          <div className="mt-10 flex justify-center gap-3 flex-wrap">
             <Link
-              href="/docs/scoring"
-              className="underline hover:text-[var(--color-accent-soft)]"
+              href="/methode"
+              className="inline-flex items-center px-6 h-11 rounded-full bg-[var(--color-accent)] text-white text-sm font-medium hover:bg-orange-700 transition"
             >
-              SCORING.md
+              Lire la méthodologie
             </Link>
-            .
-          </p>
+            <Link
+              href="/docs"
+              className="inline-flex items-center px-6 h-11 rounded-full border border-white/30 text-sm font-medium hover:border-white transition"
+            >
+              Documents techniques
+            </Link>
+          </div>
         </div>
       </section>
-    </div>
-  );
-}
-
-type MockupCardProps = {
-  name: string;
-  role: string;
-  score: number | null;
-  ciLow: number | null;
-  ciHigh: number | null;
-  factual: number;
-  promises: number;
-  gradient: string;
-};
-
-function MockupCard({
-  name,
-  role,
-  score,
-  ciLow,
-  ciHigh,
-  factual,
-  promises,
-  gradient,
-}: MockupCardProps) {
-  const significant = score !== null;
-  return (
-    <div className="rounded-2xl bg-white/5 border border-white/10 p-6 backdrop-blur">
-      <p className="text-xs uppercase tracking-widest text-white/50">{role}</p>
-      <p className="mt-2 font-serif text-xl font-semibold">{name}</p>
-      <div className="mt-6">
-        {significant ? (
-          <>
-            <div className="flex items-baseline gap-3">
-              <span className={`bg-gradient-to-br ${gradient} bg-clip-text text-transparent font-serif text-6xl font-semibold`}>
-                {score}
-              </span>
-              <span className="text-sm text-white/50">
-                intervalle {ciLow} à {ciHigh}
-              </span>
-            </div>
-            <div className="mt-4 h-2 rounded-full bg-white/10 relative overflow-hidden">
-              <div
-                className={`absolute top-0 h-full bg-gradient-to-r ${gradient} opacity-60`}
-                style={{
-                  left: `${ciLow}%`,
-                  width: `${(ciHigh ?? 0) - (ciLow ?? 0)}%`,
-                }}
-              />
-              <div
-                className="absolute top-0 h-full w-0.5 bg-white"
-                style={{ left: `${score}%` }}
-              />
-            </div>
-          </>
-        ) : (
-          <div>
-            <p className="font-serif text-2xl text-white/60">
-              Score non significatif
-            </p>
-            <p className="mt-1 text-xs text-white/40">
-              Volume sous-jacent insuffisant (N {"<"} 30 claims factuels).
-            </p>
-          </div>
-        )}
-      </div>
-      <div className="mt-6 grid grid-cols-2 gap-3 text-xs">
-        <div className="rounded-lg bg-white/5 p-3 border border-white/5">
-          <p className="text-white/50 uppercase tracking-wider">Factuels</p>
-          <p className="mt-1 font-medium text-white">{factual} affirmations</p>
-        </div>
-        <div className="rounded-lg bg-white/5 p-3 border border-white/5">
-          <p className="text-white/50 uppercase tracking-wider">Promesses</p>
-          <p className="mt-1 font-medium text-white">{promises} résolues</p>
-        </div>
-      </div>
     </div>
   );
 }
