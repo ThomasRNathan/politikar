@@ -1,6 +1,6 @@
 # SOURCES
 
-> Inventaire des sources de données de politkar. Politique de sourcing : strictement gratuit, open, scraping de contenus publics au MVP. Pas d'AFP licensing, pas d'API X/Twitter payante avant que le MVP soit validé. Toute source ajoutée doit passer par cette grille (URL, accès, licence, fiabilité, fréquence, priorité, plan B).
+> Inventaire des sources de données de politikar. Politique de sourcing : strictement gratuit, open, scraping de contenus publics au MVP. Pas d'AFP licensing, pas d'API X/Twitter payante avant que le MVP soit validé. Toute source ajoutée doit passer par cette grille (URL, accès, licence, fiabilité, fréquence, priorité, plan B).
 
 ## 1. Échelle de fiabilité
 
@@ -80,7 +80,7 @@
 - **Format** : JSON et XML pour open data ; HTML pour les séances.
 - **Parser cible** : `httpx + json` pour data.senat.fr, `selectolax` pour scrape HTML séances.
 - **Fréquence** : journalière 05:00 UTC.
-- **Rate limit** : courtoisie 1 req/s, identifiant `User-Agent: politkar/0.1 (https://politkar.fr)`.
+- **Rate limit** : courtoisie 1 req/s, identifiant `User-Agent: politikar/0.1 (https://politikar.fr)`.
 - **Plan B** : NosSénateurs.fr couvre 90 % du même contenu.
 
 ### 3.3 NosDéputés.fr et NosSénateurs.fr
@@ -284,7 +284,7 @@ Tous les scrapers respectent `robots.txt`. Politique : si un site désautorise n
 Tous les scrapers envoient :
 
 ```
-User-Agent: politkar/0.1 (+https://politkar.fr/about; contact@politkar.fr)
+User-Agent: politikar/0.1 (+https://politikar.fr/about; contact@politikar.fr)
 ```
 
 Identifiant clair pour permettre aux administrateurs de sites de nous contacter.

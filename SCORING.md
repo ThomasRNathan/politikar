@@ -1,6 +1,6 @@
 # SCORING
 
-> Méthodologie publique du `TruthScore` v1. Tout score affiché par politkar est calculé selon la formule de ce document, avec la version du modèle de prompt et la version du code de scoring tracées dans la table `politician_truth_scores`. Le code de référence vit dans `apps/workers/politkar_workers/scoring.py`. Toute évolution change la version, jamais en silence.
+> Méthodologie publique du `TruthScore` v1. Tout score affiché par politikar est calculé selon la formule de ce document, avec la version du modèle de prompt et la version du code de scoring tracées dans la table `politician_truth_scores`. Le code de référence vit dans `apps/workers/politikar_workers/scoring.py`. Toute évolution change la version, jamais en silence.
 
 ## 1. Objectifs et contraintes
 
@@ -202,13 +202,13 @@ Affichage public : **`Score non significatif (N = 12)`** avec lien vers la fiche
 
 ## 4. Comparaison avec d'autres systèmes
 
-| Système | Approche | Points forts | Points faibles | Différence avec politkar |
+| Système | Approche | Points forts | Points faibles | Différence avec politikar |
 |---|---|---|---|---|
-| PolitiFact (USA) | "Truth-O-Meter" 6 niveaux, agrégation simple par % de chaque niveau | popularité, lisibilité | pas de pondération vérifiabilité, pas d'IC, biais sélection | politkar pondère, donne un IC, et exclut les opinions |
-| Full Fact (UK) | pas de score numérique unique, fiches qualitatives | très soigné méthodologiquement | difficile à comparer entre politiques | politkar offre comparabilité tout en gardant le détail |
-| Faktisk (Norvège) | similaire à PolitiFact, échelle 5 niveaux | bonne couverture nordique | pas de différenciation par sujet | politkar décompose par topic |
-| Africa Check | rating qualitatif, pas de score | rigueur narrative | pas de classement | politkar produit un classement avec garde-fous |
-| Les Surligneurs (FR) | legal-checking sans score | excellence juridique | pas d'agrégation | politkar les ingère comme source dans la cascade |
+| PolitiFact (USA) | "Truth-O-Meter" 6 niveaux, agrégation simple par % de chaque niveau | popularité, lisibilité | pas de pondération vérifiabilité, pas d'IC, biais sélection | politikar pondère, donne un IC, et exclut les opinions |
+| Full Fact (UK) | pas de score numérique unique, fiches qualitatives | très soigné méthodologiquement | difficile à comparer entre politiques | politikar offre comparabilité tout en gardant le détail |
+| Faktisk (Norvège) | similaire à PolitiFact, échelle 5 niveaux | bonne couverture nordique | pas de différenciation par sujet | politikar décompose par topic |
+| Africa Check | rating qualitatif, pas de score | rigueur narrative | pas de classement | politikar produit un classement avec garde-fous |
+| Les Surligneurs (FR) | legal-checking sans score | excellence juridique | pas d'agrégation | politikar les ingère comme source dans la cascade |
 
 Notre différenciateurs : intervalle de confiance affiché, plancher de volume, décomposition par topic, transparence du code et des prompts.
 
@@ -251,7 +251,7 @@ Si un biais systémique est détecté, ajustement transparent dans les seuils ou
 - Bandeau d'incertitude : barre horizontale avec curseur sur le score, zone CI ombrée.
 - Volume sous-jacent : `Calculé sur 50 affirmations factuelles vérifiées et 4 promesses résolues, sur la période 2024-2026`.
 - Décomposition : grille de scores par topic, avec `-` si volume insuffisant.
-- Lien méthode : pied de page `Méthodologie complète : politkar.fr/methode`.
+- Lien méthode : pied de page `Méthodologie complète : politikar.fr/methode`.
 
 ### 6.2 Mention obligatoire si non significatif
 
@@ -264,7 +264,7 @@ Pas de page "Top 10 / Flop 10 des politiques français" en page d'accueil. Seuls
 ## 7. Code de référence
 
 ```python
-# apps/workers/politkar_workers/scoring.py
+# apps/workers/politikar_workers/scoring.py
 from dataclasses import dataclass
 from statistics import quantiles
 from typing import Iterable, Literal

@@ -22,7 +22,7 @@ export async function generateMetadata({
   const doc = DOCS.find((d) => d.slug === slug);
   if (!doc) return {};
   return {
-    title: `${doc.label} : politkar`,
+    title: `${doc.label} : politikar`,
     description: doc.description,
   };
 }
@@ -59,7 +59,7 @@ export default async function DocPage({
           {doc.description}
         </p>
       </header>
-      <article className="prose prose-politkar max-w-none">
+      <article className="prose prose-politikar max-w-none">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]]}

@@ -32,7 +32,7 @@ body {
   font-family: var(--font-serif, Georgia, serif);
 }
 
-.prose-politkar {
+.prose-politikar {
   --tw-prose-body: var(--color-ink-soft);
   --tw-prose-headings: var(--color-ink);
   --tw-prose-links: var(--color-accent);
@@ -44,22 +44,22 @@ body {
   --tw-prose-td-borders: rgba(26, 26, 46, 0.1);
 }
 
-.prose-politkar h1,
-.prose-politkar h2,
-.prose-politkar h3 {
+.prose-politikar h1,
+.prose-politikar h2,
+.prose-politikar h3 {
   font-family: var(--font-serif, Georgia, serif);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
-.prose-politkar pre {
+.prose-politikar pre {
   background: #f7eedd;
   color: var(--color-ink);
   border: 1px solid rgba(194, 65, 12, 0.15);
   border-radius: 0.5rem;
 }
 
-.prose-politkar code {
+.prose-politikar code {
   background: rgba(194, 65, 12, 0.08);
   color: var(--color-trust);
   padding: 0.1rem 0.3rem;
@@ -67,16 +67,16 @@ body {
   font-weight: 500;
 }
 
-.prose-politkar pre code {
+.prose-politikar pre code {
   background: transparent;
   color: inherit;
   padding: 0;
 }
 
-.prose-politkar table {
+.prose-politikar table {
   font-size: 0.9rem;
 }
 
-.prose-politkar a:hover {
+.prose-politikar a:hover {
   text-decoration-thickness: 2px;
 }

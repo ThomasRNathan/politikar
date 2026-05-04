@@ -1,6 +1,6 @@
 # RISKS
 
-> Inventaire des risques juridiques, éthiques, techniques et médiatiques de politkar, avec mitigations associées. Ce document est vivant : tout incident ou nouvelle menace identifiée doit ajouter une ligne ici.
+> Inventaire des risques juridiques, éthiques, techniques et médiatiques de politikar, avec mitigations associées. Ce document est vivant : tout incident ou nouvelle menace identifiée doit ajouter une ligne ici.
 
 ## 1. Risques juridiques
 
@@ -17,8 +17,8 @@
 - `verifications.reasoning` cite systématiquement au moins une source vérifiable et autorisée (institution ou fact-checker reconnu).
 - Verdicts `false` sur P0 obligatoirement passés par revue humaine avant publication (cf. `claim_review_queue` flag P0).
 - Conservation immuable de toute la chaîne (source brute, claim, prompt version, verdict, reviewer) pour défense en cas d'action.
-- Mention "Méthodologie publique" en pied de chaque verdict avec lien vers `politkar.fr/methode`.
-- Clause de bonne foi : politkar publie en s'appuyant sur une méthode rigoureuse et publique, n'a pas d'animosité envers la personne, agit dans un intérêt démocratique.
+- Mention "Méthodologie publique" en pied de chaque verdict avec lien vers `politikar.fr/methode`.
+- Clause de bonne foi : politikar publie en s'appuyant sur une méthode rigoureuse et publique, n'a pas d'animosité envers la personne, agit dans un intérêt démocratique.
 - Hébergement en Europe (Vercel EU + Supabase EU) pour s'inscrire dans le cadre légal européen.
 
 **Plan B si action en justice** : retrait temporaire du verdict contesté, ouverture immédiate d'une revue avec le comité éditorial, communication transparente sur la procédure.
@@ -32,13 +32,13 @@
 **Impact** : obligation de publication du droit de réponse, refus = amende.
 
 **Mitigations** :
-- Procédure formalisée et publique sur la page À propos : email dédié `droit-de-reponse@politkar.fr`, template à fournir, délai de traitement annoncé < 30 jours.
+- Procédure formalisée et publique sur la page À propos : email dédié `droit-de-reponse@politikar.fr`, template à fournir, délai de traitement annoncé < 30 jours.
 - Réponses publiées en regard du verdict contesté, lien réciproque.
 - Si le contenu de la réponse soulève un doute factuel sur le verdict, ouverture automatique d'une revue éditoriale avec republication potentielle d'une `verifications` mise à jour (avec `superseded_by_verification_id`).
 
 ### 1.3 Conformité RGPD et données personnelles
 
-**Risque** : qualification de politkar comme responsable de traitement de données à caractère personnel, action de la CNIL, droit d'accès et de rectification.
+**Risque** : qualification de politikar comme responsable de traitement de données à caractère personnel, action de la CNIL, droit d'accès et de rectification.
 
 **Vraisemblance** : haute (la CNIL a déjà commenté des projets civic tech).
 
@@ -63,7 +63,7 @@
 
 **Mitigations** :
 - Pas de classement "Top 10 des menteurs" ou expression équivalente. Vocabulaire éditorial neutre obligatoire (cf. PROMPTS section 1).
-- Refus systématique de moqueries, mèmes, contenu humoristique sur la plateforme officielle (les tiers peuvent en faire ce qu'ils veulent, mais politkar ne génère que du factuel).
+- Refus systématique de moqueries, mèmes, contenu humoristique sur la plateforme officielle (les tiers peuvent en faire ce qu'ils veulent, mais politikar ne génère que du factuel).
 - Modération des espaces communautaires (commentaires, contestations) si ouverts. Position MVP : pas de commentaires publics utilisateur, seulement formulaires de droit de réponse et signalement.
 
 ### 1.5 Présomption d'innocence
@@ -78,7 +78,7 @@
 
 ### 1.6 Loi sur la confiance dans l'économie numérique (LCEN) et statut d'éditeur
 
-**Risque** : politkar est qualifié d'éditeur de contenu (et non d'hébergeur) car il choisit, ordonne, et publie des verdicts. Responsabilité éditoriale pleine.
+**Risque** : politikar est qualifié d'éditeur de contenu (et non d'hébergeur) car il choisit, ordonne, et publie des verdicts. Responsabilité éditoriale pleine.
 
 **Vraisemblance** : forte (qualification probable).
 
@@ -108,7 +108,7 @@
 
 ### 2.2 Biais des sources de fact-checking
 
-**Risque** : les fact-checkers eux-mêmes (AFP Factuel, Décodeurs, etc.) ont leurs propres biais éditoriaux, en majorité positionnés au centre gauche. Si politkar utilise leurs verdicts comme evidence, le biais s'intègre.
+**Risque** : les fact-checkers eux-mêmes (AFP Factuel, Décodeurs, etc.) ont leurs propres biais éditoriaux, en majorité positionnés au centre gauche. Si politikar utilise leurs verdicts comme evidence, le biais s'intègre.
 
 **Vraisemblance** : avérée.
 
@@ -133,14 +133,14 @@
 
 ### 2.4 "Neutralité fausse" et fausse équivalence
 
-**Risque** : en traitant chaque parti à égalité quel que soit son comportement, politkar crée artificiellement une équivalence morale ("les uns mentent autant que les autres") qui peut être trompeuse.
+**Risque** : en traitant chaque parti à égalité quel que soit son comportement, politikar crée artificiellement une équivalence morale ("les uns mentent autant que les autres") qui peut être trompeuse.
 
 **Vraisemblance** : risque inhérent à toute mesure agrégée.
 
 **Mitigations** :
 - Affichage non agrégé en première intention : page d'accueil ne classe pas les partis sur un seul score, mais montre la distribution des verdicts.
 - Décomposition par topic : permet de voir où chaque parti est rigoureux ou pas.
-- Mention explicite dans la méthodologie : `politkar mesure la véracité du discours, pas la qualité morale ni la pertinence politique des positions`.
+- Mention explicite dans la méthodologie : `politikar mesure la véracité du discours, pas la qualité morale ni la pertinence politique des positions`.
 - Refus de produire des comparatifs partisans en page d'accueil. Le comparatif est consultable mais nécessite un drill-down explicite.
 
 ### 2.5 Dérive vers un journalisme automatisé
@@ -250,24 +250,24 @@
 
 ### 4.1 Récupération politique
 
-**Risque** : un parti politique reprend un score politkar pour attaquer un adversaire en campagne, dénaturant le contexte.
+**Risque** : un parti politique reprend un score politikar pour attaquer un adversaire en campagne, dénaturant le contexte.
 
 **Vraisemblance** : forte une fois le projet visible.
 
 **Mitigations** :
-- Charte de citation publique : politkar publie un encart `Comment citer politkar` qui rappelle de mentionner volume sous-jacent, période, intervalle de confiance.
+- Charte de citation publique : politikar publie un encart `Comment citer politikar` qui rappelle de mentionner volume sous-jacent, période, intervalle de confiance.
 - Pas d'API qui renvoie un seul score sans métadonnées : tout endpoint inclut `n_claims`, `ci_low`, `ci_high`, `period`.
 - Communication proactive au moment des élections : rappel public que le score n'est pas un programme et qu'il est dépendant de la couverture des sources.
 - Si un acteur reprend de manière manifestement trompeuse, communiqué de mise au point.
 
 ### 4.2 Attaque sur la liberté d'expression
 
-**Risque** : un acteur accuse politkar d'être un "ministère de la vérité", d'imposer un récit, de censurer la parole politique.
+**Risque** : un acteur accuse politikar d'être un "ministère de la vérité", d'imposer un récit, de censurer la parole politique.
 
 **Vraisemblance** : élevée.
 
 **Mitigations** :
-- Politkar ne supprime aucune parole politique : on ingère, on annote, on rend public. Le politique reste libre de dire ce qu'il veut.
+- Politikar ne supprime aucune parole politique : on ingère, on annote, on rend public. Le politique reste libre de dire ce qu'il veut.
 - Insister sur la nature complémentaire et non-prescriptive de l'outil (information du citoyen, pas censure).
 - Méthodologie complète et publique, audit ouvert annuel.
 - Ne pas se positionner comme "la vérité". Toujours formuler `selon notre méthode publique, ce propos est jugé X avec confiance Y %`.
@@ -285,13 +285,13 @@
 
 ### 4.4 Deepfakes et captures détournées
 
-**Risque** : un acteur photoshoppe une page politkar avec un score inventé, partagé en masse comme "preuve" sur réseaux.
+**Risque** : un acteur photoshoppe une page politikar avec un score inventé, partagé en masse comme "preuve" sur réseaux.
 
 **Mitigations** :
-- Watermark optionnel sur les screenshots officiels (mention `politkar.fr/<slug>` discrète).
+- Watermark optionnel sur les screenshots officiels (mention `politikar.fr/<slug>` discrète).
 - Signature de l'API : champ `signature` Ed25519 sur les réponses majeures (post-MVP).
 - Communication de mise au point rapide en cas d'incident détecté.
-- Surveillance proactive des hashtags `#politkar` sur réseaux (post-MVP).
+- Surveillance proactive des hashtags `#politikar` sur réseaux (post-MVP).
 
 ### 4.5 Risque de sortie de route éditoriale
 
@@ -308,7 +308,7 @@
 1. **Panel éditorial** : groupe consultatif parité gauche / centre / droite, pluraliste, audite annuellement la distribution des verdicts. Composition publique. Pouvoir de recommandation, pas de veto.
 2. **Open source intégral** : code, prompts (avec versions), seuils de scoring, et liste des sources sont publics. Quiconque peut fork et challenger.
 3. **API publique read-only** : permet aux chercheurs et journalistes de vérifier indépendamment.
-4. **Documentation de la méthode** : page `politkar.fr/methode` lien depuis chaque verdict, navigation claire vers ARCHITECTURE / PROMPTS / SCORING.
+4. **Documentation de la méthode** : page `politikar.fr/methode` lien depuis chaque verdict, navigation claire vers ARCHITECTURE / PROMPTS / SCORING.
 5. **Plancher de volume** : pas de score si donnée trop maigre, évite les faux positifs.
 6. **Mécanisme de contestation** : email dédié, procédure publique, délai annoncé, traitement tracé.
 7. **Audit annuel** : rapport publié au 1er trimestre de chaque année, signé par le panel éditorial, listant : distribution des verdicts par parti, biais détectés, ajustements appliqués.
@@ -318,7 +318,7 @@
 
 Même avec les mitigations, certains risques ne peuvent pas être complètement éliminés :
 
-- Aucun système de fact-checking n'est parfaitement neutre : politkar peut afficher un biais résiduel non détecté.
+- Aucun système de fact-checking n'est parfaitement neutre : politikar peut afficher un biais résiduel non détecté.
 - Une procédure judiciaire peut survenir et obliger à des retraits temporaires.
 - Le LLM peut produire un verdict erroné qui passe la revue par chance malheureuse.
 - La couverture des sources, par construction, sous-représente certaines voix (locales, marginales).
@@ -353,8 +353,8 @@ Ces risques sont assumés. La transparence est notre première ligne de défense
 
 ## 8. Questions ouvertes pour relecture
 
-1. **Statut juridique de politkar** : association loi 1901 ? SAS ? SCIC ? Détermine la responsabilité du directeur de publication. Position : association loi 1901 préférable pour signaler le caractère non lucratif.
+1. **Statut juridique de politikar** : association loi 1901 ? SAS ? SCIC ? Détermine la responsabilité du directeur de publication. Position : association loi 1901 préférable pour signaler le caractère non lucratif.
 2. **Composition initiale du panel éditorial** : combien de membres, comment recrutés, indemnisés ou bénévoles ?
 3. **Politique sur les contributions externes** : open contributions sur GitHub, mais quels rôles peut-on déléguer ? Position MVP : revue de code par mainteneur(s), pas de write direct sur main pour les contributeurs externes.
-4. **Position sur la presse** : politkar publie ses verdicts ; comment gérer si un média reprend en deformant ? Communiqué dédié vs rectification publique ?
+4. **Position sur la presse** : politikar publie ses verdicts ; comment gérer si un média reprend en deformant ? Communiqué dédié vs rectification publique ?
 5. **Plan de financement** : si une fondation finance le projet, comment garantir l'indépendance éditoriale (charte de gouvernance) ? Pas de financement par parti ou candidat, jamais.

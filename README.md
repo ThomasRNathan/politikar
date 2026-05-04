@@ -1,4 +1,4 @@
-# politkar
+# politikar
 
 Plateforme open-source d'analyse systématique de la véracité du discours politique français.
 

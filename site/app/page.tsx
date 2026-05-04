@@ -15,7 +15,7 @@ export default function Home() {
             méthode publique.
           </h1>
           <p className="mt-8 text-lg leading-relaxed text-[var(--color-ink-soft)]">
-            politkar est une plateforme open-source de fact-checking
+            politikar est une plateforme open-source de fact-checking
             systématique. Pour chaque homme et femme politique, parti, fonction
             et région, des métriques agrégées sur les discours, les promesses
             et la couverture presse, traçables jusqu&apos;à la source.
@@ -28,7 +28,7 @@ export default function Home() {
               Lire les six documents de cadrage
             </Link>
             <a
-              href="https://github.com/ThomasRNathan/politkar"
+              href="https://github.com/ThomasRNathan/politikar"
               className="inline-flex items-center px-5 h-11 rounded-full border border-black/15 text-sm font-medium hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition"
               target="_blank"
               rel="noreferrer"

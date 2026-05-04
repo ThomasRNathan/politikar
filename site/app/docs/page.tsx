@@ -2,7 +2,7 @@ import Link from "next/link";
 import { DOCS } from "@/lib/docs";
 
 export const metadata = {
-  title: "Documents de cadrage : politkar",
+  title: "Documents de cadrage : politikar",
   description: "Six documents de design publiés avant tout code.",
 };
 

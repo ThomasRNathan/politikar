@@ -16,7 +16,7 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "politkar : analyse de véracité du discours politique français",
+  title: "politikar : analyse de véracité du discours politique français",
   description:
     "Plateforme open-source de fact-checking systématique des discours politiques français. Phase de design : six documents de cadrage publiés.",
   robots: { index: false, follow: false },
@@ -37,7 +37,7 @@ export default function RootLayout({
               href="/"
               className="font-serif text-xl tracking-tight font-semibold text-[var(--color-ink)]"
             >
-              politkar
+              politikar
               <span className="ml-2 text-xs uppercase tracking-widest text-[var(--color-accent)] align-middle">
                 design
               </span>
@@ -50,7 +50,7 @@ export default function RootLayout({
                 Documents
               </Link>
               <a
-                href="https://github.com/ThomasRNathan/politkar"
+                href="https://github.com/ThomasRNathan/politikar"
                 className="text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition"
                 target="_blank"
                 rel="noreferrer"
@@ -64,12 +64,12 @@ export default function RootLayout({
         <footer className="border-t border-black/5 mt-24">
           <div className="max-w-5xl mx-auto px-6 py-10 text-sm text-[var(--color-ink-soft)] flex flex-col sm:flex-row sm:justify-between gap-4">
             <p>
-              politkar : phase de design, aucun verdict produit. Les chiffres
+              politikar : phase de design, aucun verdict produit. Les chiffres
               affichés à titre d&apos;illustration sont fictifs.
             </p>
             <p>
               <a
-                href="https://github.com/ThomasRNathan/politkar"
+                href="https://github.com/ThomasRNathan/politikar"
                 className="hover:text-[var(--color-accent)] transition"
                 target="_blank"
                 rel="noreferrer"

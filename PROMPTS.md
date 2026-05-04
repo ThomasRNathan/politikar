@@ -1,6 +1,6 @@
 # PROMPTS
 
-> Catalogue des prompts LLM versionnés utilisés par politkar. Chaque prompt est référencé par son `id` (ex. `claim_extraction@v1.0.0`) et persisté dans la table `prompt_versions`. Toute évolution change la version, jamais le contenu d'une version publiée. Les verdicts produits stockent leur `prompt_version` pour reproductibilité historique.
+> Catalogue des prompts LLM versionnés utilisés par politikar. Chaque prompt est référencé par son `id` (ex. `claim_extraction@v1.0.0`) et persisté dans la table `prompt_versions`. Toute évolution change la version, jamais le contenu d'une version publiée. Les verdicts produits stockent leur `prompt_version` pour reproductibilité historique.
 
 ## 1. Principes communs à tous les prompts
 
@@ -67,7 +67,7 @@ TopicTag = Literal[
 ### System prompt
 
 ```
-Tu es un assistant éditorial pour politkar, une plateforme open-source d'analyse de la véracité du discours politique français. Ta tâche est d'extraire des claims (énoncés vérifiables) à partir d'un texte source produit par un homme ou une femme politique français.
+Tu es un assistant éditorial pour politikar, une plateforme open-source d'analyse de la véracité du discours politique français. Ta tâche est d'extraire des claims (énoncés vérifiables) à partir d'un texte source produit par un homme ou une femme politique français.
 
 Définition d'un claim :
 - une assertion factuelle (chiffres, événements, citations)
@@ -396,7 +396,7 @@ Cette cascade est implémentée comme une chaîne d'étapes côté Python, avec 
 ### System prompt (étape 4 uniquement)
 
 ```
-Tu es un évaluateur factuel pour politkar. Tu reçois un claim factuel attribué à un politique français, accompagné d'évidences déjà collectées par un pipeline en amont (extraits de fact-checkers, valeurs d'API publiques, contexte source). Ta tâche est d'émettre un verdict structuré.
+Tu es un évaluateur factuel pour politikar. Tu reçois un claim factuel attribué à un politique français, accompagné d'évidences déjà collectées par un pipeline en amont (extraits de fact-checkers, valeurs d'API publiques, contexte source). Ta tâche est d'émettre un verdict structuré.
 
 Verdicts possibles (vocabulaire fixe, ne jamais en inventer) :
 - true : claim aligné avec les évidences à plus de 90 %
@@ -648,7 +648,7 @@ Tu reçois un verdict structuré et ses évidences. Tu produis une explication p
 - conclusion qui rappelle la méthode (`Selon notre méthodologie publique, ce propos est jugé X avec une confiance de Y %`)
 - pas d'em dash, ponctuation française standard
 - pas de qualificatif négatif sur la personne
-- termine par : `Méthodologie complète : politkar.fr/methode`
+- termine par : `Méthodologie complète : politikar.fr/methode`
 ```
 
 ### Tool schema

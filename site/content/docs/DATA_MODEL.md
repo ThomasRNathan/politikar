@@ -1,6 +1,6 @@
 # DATA MODEL
 
-> Schéma Postgres complet pour politkar. Postgres 15+ requis (cible : Supabase Pro, currently Postgres 15.x). Toute évolution doit passer par une migration numérotée et idempotente dans `packages/db/migrations/`.
+> Schéma Postgres complet pour politikar. Postgres 15+ requis (cible : Supabase Pro, currently Postgres 15.x). Toute évolution doit passer par une migration numérotée et idempotente dans `packages/db/migrations/`.
 
 ## 1. Conventions
 

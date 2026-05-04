@@ -256,9 +256,9 @@
 
 | Service | Hébergeur | Rôle | URL prévue |
 |---|---|---|---|
-| Frontend public + API read-only | Vercel | Pages, API publique | `politkar.fr` |
-| Frontend admin | Vercel (sous-domaine) | Panel revue + référentiel | `admin.politkar.fr` |
-| API interne (FastAPI) | Railway | Admin endpoints, callbacks | `api.politkar.fr` (proxied via Cloudflare) |
+| Frontend public + API read-only | Vercel | Pages, API publique | `politikar.fr` |
+| Frontend admin | Vercel (sous-domaine) | Panel revue + référentiel | `admin.politikar.fr` |
+| API interne (FastAPI) | Railway | Admin endpoints, callbacks | `api.politikar.fr` (proxied via Cloudflare) |
 | Workers Python | Inngest Cloud | Ingestion, extraction, cascade | n/a |
 | Postgres + Storage + Auth | Supabase Pro | DB single source of truth | n/a |
 | GPU Whisper (post-MVP) | Modal | Self-host transcription | n/a |
@@ -270,7 +270,7 @@ Toutes les URLs publiques passent par Cloudflare en proxy pour bénéficier d'un
 ## 6. Layout repository (monorepo)
 
 ```
-politkar/
+politikar/
   apps/
     web/                    # Next.js 16 (front public + admin + API publique)
       app/
@@ -281,14 +281,14 @@ politkar/
       lib/
       openapi.yaml
     api/                    # FastAPI (admin + ingestion API)
-      politkar_api/
+      politikar_api/
         main.py
         routers/
         schemas/
         services/
       pyproject.toml
     workers/                # Inngest functions Python
-      politkar_workers/
+      politikar_workers/
         functions/
         clients/            # wrappers Anthropic, Voyage, OpenAI, Supabase
         prompts/            # prompt versions as code
@@ -350,7 +350,7 @@ Gestion des deps : `pnpm` côté JS (workspaces), `uv` côté Python (workspaces
 
 ### 7.5 Politique de divulgation
 
-- `SECURITY.md` à la racine avec contact (`security@politkar.fr` à provisionner) et SLA 72h.
+- `SECURITY.md` à la racine avec contact (`security@politikar.fr` à provisionner) et SLA 72h.
 - Bug bounty informel : remerciements publics sur la page À propos.
 
 ## 8. Observabilité
@@ -414,7 +414,7 @@ Alternative considérée : MIT. Plus permissive, accélère l'adoption, mais ouv
 
 1. **Licence** : valider AGPL-3.0 ou trancher pour MIT.
 2. **Visibilité GitHub** : repo `private` au démarrage, basculer `public` à quel jalon (validation des 6 docs ? Phase 0 ? lancement officiel ?).
-3. **Domaine** : `politkar.fr` proposé. Vérifier disponibilité et préférences de nom de domaine.
-4. **Email contact** : `security@politkar.fr` et `contact@politkar.fr` à mettre en place via un fournisseur léger (Fastmail, ProtonMail).
+3. **Domaine** : `politikar.fr` proposé. Vérifier disponibilité et préférences de nom de domaine.
+4. **Email contact** : `security@politikar.fr` et `contact@politikar.fr` à mettre en place via un fournisseur léger (Fastmail, ProtonMail).
 5. **Hébergeur API interne** : Railway proposé. Modal valable si on veut converger vers une infra GPU à terme. À trancher.
 6. **Compte Anthropic, OpenAI, Voyage** : compte personnel ou structure dédiée (asso loi 1901 ?). Impact RGPD et facturation.
