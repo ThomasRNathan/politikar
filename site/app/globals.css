@@ -1,0 +1,82 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-bg: #fbf7ef;
+  --color-bg-soft: #f4ecdc;
+  --color-ink: #1a1a2e;
+  --color-ink-soft: #4b4b66;
+  --color-accent: #c2410c;
+  --color-accent-soft: #fed7aa;
+  --color-trust: #1e3a8a;
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-source-serif);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-feature-settings: "ss01", "cv11";
+}
+
+.font-serif {
+  font-family: var(--font-serif, Georgia, serif);
+}
+
+.prose-politkar {
+  --tw-prose-body: var(--color-ink-soft);
+  --tw-prose-headings: var(--color-ink);
+  --tw-prose-links: var(--color-accent);
+  --tw-prose-bold: var(--color-ink);
+  --tw-prose-code: var(--color-trust);
+  --tw-prose-quotes: var(--color-ink);
+  --tw-prose-quote-borders: var(--color-accent-soft);
+  --tw-prose-th-borders: rgba(26, 26, 46, 0.2);
+  --tw-prose-td-borders: rgba(26, 26, 46, 0.1);
+}
+
+.prose-politkar h1,
+.prose-politkar h2,
+.prose-politkar h3 {
+  font-family: var(--font-serif, Georgia, serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.prose-politkar pre {
+  background: #f7eedd;
+  color: var(--color-ink);
+  border: 1px solid rgba(194, 65, 12, 0.15);
+  border-radius: 0.5rem;
+}
+
+.prose-politkar code {
+  background: rgba(194, 65, 12, 0.08);
+  color: var(--color-trust);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.prose-politkar pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.prose-politkar table {
+  font-size: 0.9rem;
+}
+
+.prose-politkar a:hover {
+  text-decoration-thickness: 2px;
+}
