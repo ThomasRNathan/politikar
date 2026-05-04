@@ -124,7 +124,7 @@ export function HexMap({
               <span className="opacity-70">{hoveredScore.n} élu(s) suivi(s)</span>
             </>
           ) : (
-            <span className="opacity-70">Aucun élu suivi dans la démo</span>
+            <span className="opacity-70">Aucun élu suivi </span>
           )}
         </div>
       )}

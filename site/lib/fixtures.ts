@@ -1,12 +1,12 @@
 /**
- * FIXTURES DE DÉMONSTRATION
+ * FIXTURES POLITIKAR
  *
- * Toutes les données ci-dessous sont fictives et illustratives.
- * Aucune affirmation, aucun verdict, aucun score n'a été produit
- * par le pipeline de fact-checking de politikar. Les noms réels de
- * personnalités publiques sont employés uniquement pour rendre la
- * maquette concrète. Aucun jugement, factuel ou moral, n'est porté
- * sur ces personnes par cette démonstration.
+ * Données politiques (noms, partis, fonctions, régions, photos, logos)
+ * issues de Wikipedia / Wikidata. Données réelles.
+ *
+ * Scores, claims et verdicts ci-dessous : illustrations basées sur la
+ * méthode publiée. Le pipeline de fact-checking automatisé n'est pas
+ * encore branché. Aucun jugement n'est porté sur les personnes citées.
  */
 
 import type {
@@ -19,97 +19,56 @@ import type {
   Topic,
 } from "./types";
 
+// Logos : Wikimedia Commons via Special:FilePath ou thumbnails directs.
+// Récupérés via Wikidata P154 et l'API Wikipedia pageimages.
+const PARTY_LOGOS: Record<string, string> = {
+  "p-ren": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Renaissance-logotype-officiel.svg/500px-Renaissance-logotype-officiel.svg.png",
+  "p-rn": "https://commons.wikimedia.org/wiki/Special:FilePath/Logo%20Rassemblement%20National.svg?width=400",
+  "p-lfi": "https://upload.wikimedia.org/wikipedia/fr/thumb/0/07/La_France_insoumise_logo_2024.svg/500px-La_France_insoumise_logo_2024.svg.png",
+  "p-lr": "https://upload.wikimedia.org/wikipedia/fr/thumb/2/2c/Logo_Les_R%C3%A9publicains_-_2023.svg/500px-Logo_Les_R%C3%A9publicains_-_2023.svg.png",
+  "p-ps": "https://upload.wikimedia.org/wikipedia/fr/thumb/a/af/Logo_Parti_Socialiste_-_2024.svg/500px-Logo_Parti_Socialiste_-_2024.svg.png",
+  "p-eelv": "https://commons.wikimedia.org/wiki/Special:FilePath/Europe%20Ecologie-Les%20Verts%20Logo.svg?width=400",
+  "p-hor": "https://commons.wikimedia.org/wiki/Special:FilePath/Logo%20Parti%20Politique%20Horizons%20-%202021.svg?width=400",
+  "p-mdm": "https://commons.wikimedia.org/wiki/Special:FilePath/MoDem%20logo%202019.svg?width=400",
+  "p-rec": "https://commons.wikimedia.org/wiki/Special:FilePath/Logo%20du%20parti%20Reconqu%C3%AAte.svg?width=400",
+  "p-pcf": "https://upload.wikimedia.org/wikipedia/fr/thumb/6/6a/Logo_du_Parti_communiste_fran%C3%A7ais_%282018%2C_rouge%29.svg/500px-Logo_du_Parti_communiste_fran%C3%A7ais_%282018%2C_rouge%29.svg.png",
+};
+
+// Photos : Wikipedia FR pageimages thumbnails (500px de large).
+const POLITICIAN_PHOTOS: Record<string, string> = {
+  "pol-macron": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Emmanuel_Macron_2025_%28cropped%29.jpg/500px-Emmanuel_Macron_2025_%28cropped%29.jpg",
+  "pol-attal": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Gabriel_Attal_2025_%28close_crop%29.jpg/500px-Gabriel_Attal_2025_%28close_crop%29.jpg",
+  "pol-le-pen": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Marine_Le_Pen_2025_%28cropped%29.jpg/500px-Marine_Le_Pen_2025_%28cropped%29.jpg",
+  "pol-bardella": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/MEP_Jordan_Bardella.jpg/500px-MEP_Jordan_Bardella.jpg",
+  "pol-melenchon": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/JLM_EP_2016_cropped-2.jpg/500px-JLM_EP_2016_cropped-2.jpg",
+  "pol-philippe": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Edouard_Philippe_3x4_crop.jpg/500px-Edouard_Philippe_3x4_crop.jpg",
+  "pol-bayrou": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Bayrou_Matignon_%28cropped%29.jpg/500px-Bayrou_Matignon_%28cropped%29.jpg",
+  "pol-marechal": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Marion_Mar%C3%A9chal_MEP_%282024%29.jpg/500px-Marion_Mar%C3%A9chal_MEP_%282024%29.jpg",
+  "pol-faure": "https://commons.wikimedia.org/wiki/Special:FilePath/Portrait%20d%27Olivier%20Faure.jpg?width=500",
+  "pol-tondelier": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/20210819_tondelier.m-cr3.jpg/500px-20210819_tondelier.m-cr3.jpg",
+  "pol-roussel": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Roussel_Fabien_1.jpg/500px-Roussel_Fabien_1.jpg",
+  "pol-wauquiez": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Laurent_Wauquiez_2021.jpg",
+  "pol-borne": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/La_Premi%C3%A8re_ministre_fran%C3%A7aise_%C3%89lisabeth_Borne_%28cropped%29.jpg/500px-La_Premi%C3%A8re_ministre_fran%C3%A7aise_%C3%89lisabeth_Borne_%28cropped%29.jpg",
+  "pol-le-maire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/EU2024BE_240223_Informal_meeting_of_economic_and_financial_affairs_ministers_Gent_JNZT_0040_%2853545889372%29.jpg/500px-EU2024BE_240223_Informal_meeting_of_economic_and_financial_affairs_ministers_Gent_JNZT_0040_%2853545889372%29.jpg",
+  "pol-aubry": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/1720623827463_20190528_AUBRY_Manon_FR_9.jpg/500px-1720623827463_20190528_AUBRY_Manon_FR_9.jpg",
+  "pol-braun-pivet": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Ya%C3%ABl_Braun-Pivet_2023_%28cropped%29.jpg/500px-Ya%C3%ABl_Braun-Pivet_2023_%28cropped%29.jpg",
+};
+
+function withLogo(p: Omit<Party, "logo_url">): Party {
+  return { ...p, logo_url: PARTY_LOGOS[p.id] ?? null };
+}
+
 export const PARTIES: Party[] = [
-  {
-    id: "p-ren",
-    slug: "renaissance",
-    name: "Renaissance",
-    short_name: "RE",
-    political_family: "center",
-    color_hex: "#facc15",
-    leader_politician_id: "pol-macron",
-  },
-  {
-    id: "p-rn",
-    slug: "rassemblement-national",
-    name: "Rassemblement national",
-    short_name: "RN",
-    political_family: "far_right",
-    color_hex: "#0c4a6e",
-    leader_politician_id: "pol-bardella",
-  },
-  {
-    id: "p-lfi",
-    slug: "la-france-insoumise",
-    name: "La France insoumise",
-    short_name: "LFI",
-    political_family: "far_left",
-    color_hex: "#b91c1c",
-    leader_politician_id: "pol-melenchon",
-  },
-  {
-    id: "p-lr",
-    slug: "les-republicains",
-    name: "Les Républicains",
-    short_name: "LR",
-    political_family: "right",
-    color_hex: "#1e3a8a",
-    leader_politician_id: "pol-wauquiez",
-  },
-  {
-    id: "p-ps",
-    slug: "parti-socialiste",
-    name: "Parti socialiste",
-    short_name: "PS",
-    political_family: "center_left",
-    color_hex: "#fb7185",
-    leader_politician_id: "pol-faure",
-  },
-  {
-    id: "p-eelv",
-    slug: "les-ecologistes",
-    name: "Les Écologistes",
-    short_name: "EELV",
-    political_family: "green",
-    color_hex: "#16a34a",
-    leader_politician_id: "pol-tondelier",
-  },
-  {
-    id: "p-hor",
-    slug: "horizons",
-    name: "Horizons",
-    short_name: "HOR",
-    political_family: "center_right",
-    color_hex: "#0ea5e9",
-    leader_politician_id: "pol-philippe",
-  },
-  {
-    id: "p-mdm",
-    slug: "modem",
-    name: "MoDem",
-    short_name: "MoDem",
-    political_family: "center",
-    color_hex: "#f97316",
-    leader_politician_id: "pol-bayrou",
-  },
-  {
-    id: "p-rec",
-    slug: "reconquete",
-    name: "Reconquête",
-    short_name: "REC",
-    political_family: "far_right",
-    color_hex: "#475569",
-    leader_politician_id: "pol-marechal",
-  },
-  {
-    id: "p-pcf",
-    slug: "parti-communiste-francais",
-    name: "Parti communiste français",
-    short_name: "PCF",
-    political_family: "left",
-    color_hex: "#dc2626",
-    leader_politician_id: "pol-roussel",
-  },
+  withLogo({ id: "p-ren",  slug: "renaissance",                name: "Renaissance",                short_name: "RE",    political_family: "center",       color_hex: "#facc15", leader_politician_id: "pol-macron" }),
+  withLogo({ id: "p-rn",   slug: "rassemblement-national",     name: "Rassemblement national",     short_name: "RN",    political_family: "far_right",    color_hex: "#0c4a6e", leader_politician_id: "pol-bardella" }),
+  withLogo({ id: "p-lfi",  slug: "la-france-insoumise",        name: "La France insoumise",        short_name: "LFI",   political_family: "far_left",     color_hex: "#b91c1c", leader_politician_id: "pol-melenchon" }),
+  withLogo({ id: "p-lr",   slug: "les-republicains",           name: "Les Républicains",           short_name: "LR",    political_family: "right",        color_hex: "#1e3a8a", leader_politician_id: "pol-wauquiez" }),
+  withLogo({ id: "p-ps",   slug: "parti-socialiste",           name: "Parti socialiste",           short_name: "PS",    political_family: "center_left",  color_hex: "#fb7185", leader_politician_id: "pol-faure" }),
+  withLogo({ id: "p-eelv", slug: "les-ecologistes",            name: "Les Écologistes",            short_name: "EELV",  political_family: "green",        color_hex: "#16a34a", leader_politician_id: "pol-tondelier" }),
+  withLogo({ id: "p-hor",  slug: "horizons",                   name: "Horizons",                   short_name: "HOR",   political_family: "center_right", color_hex: "#0ea5e9", leader_politician_id: "pol-philippe" }),
+  withLogo({ id: "p-mdm",  slug: "modem",                      name: "MoDem",                      short_name: "MoDem", political_family: "center",       color_hex: "#f97316", leader_politician_id: "pol-bayrou" }),
+  withLogo({ id: "p-rec",  slug: "reconquete",                 name: "Reconquête",                 short_name: "REC",   political_family: "far_right",    color_hex: "#475569", leader_politician_id: "pol-marechal" }),
+  withLogo({ id: "p-pcf",  slug: "parti-communiste-francais",  name: "Parti communiste français",  short_name: "PCF",   political_family: "left",         color_hex: "#dc2626", leader_politician_id: "pol-roussel" }),
 ];
 
 export const FUNCTIONS: FunctionDef[] = [
@@ -178,6 +137,7 @@ function pol(
     region_id: args.region,
     tier: args.tier,
     bio_short: args.bio,
+    photo_url: POLITICIAN_PHOTOS[args.id] ?? null,
     stats: {
       truth_score: args.truth,
       factual_score: args.factual,

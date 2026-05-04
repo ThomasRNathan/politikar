@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Source_Serif_4, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
-import { DemoBanner } from "@/components/DemoBanner";
+import { StatusNotice } from "@/components/DemoBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "politikar : analyse de véracité du discours politique français",
   description:
-    "Plateforme open-source de fact-checking systématique des discours politiques français. Maquette de design, données fictives.",
+    "Plateforme open-source de fact-checking systématique des discours politiques français.",
   robots: { index: false, follow: false },
 };
 
@@ -38,17 +38,14 @@ export default function RootLayout({
       className={`${inter.variable} ${sourceSerif.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-screen flex flex-col bg-[var(--color-bg)] text-[var(--color-ink)]">
-        <DemoBanner />
+        <StatusNotice />
         <header className="border-b border-black/5 bg-[var(--color-bg)]/90 backdrop-blur sticky top-0 z-10">
           <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
             <Link
               href="/"
-              className="font-serif text-xl tracking-tight font-semibold text-[var(--color-ink)] flex items-baseline gap-2"
+              className="font-serif text-xl tracking-tight font-semibold text-[var(--color-ink)]"
             >
               politikar
-              <span className="text-[10px] uppercase tracking-widest text-[var(--color-accent)]">
-                démo
-              </span>
             </Link>
             <div className="flex items-center gap-6 text-sm">
               <Link
@@ -62,6 +59,12 @@ export default function RootLayout({
                 className="text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition hidden sm:inline"
               >
                 Partis
+              </Link>
+              <Link
+                href="/fonctions"
+                className="text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition hidden sm:inline"
+              >
+                Fonctions
               </Link>
               <Link
                 href="/methode"
@@ -83,8 +86,10 @@ export default function RootLayout({
           <div className="max-w-6xl mx-auto px-6 py-10 text-sm text-[var(--color-ink-soft)] grid sm:grid-cols-3 gap-6">
             <div>
               <p className="font-serif font-semibold text-[var(--color-ink)]">politikar</p>
-              <p className="mt-1 text-xs">
-                Maquette de design, phase pré-MVP. Aucun verdict réel produit.
+              <p className="mt-1 text-xs leading-relaxed">
+                Plateforme open-source de fact-checking du discours politique
+                français. Photos et logos via Wikimedia Commons (CC BY-SA).
+                Pipeline de vérification automatisé en construction.
               </p>
             </div>
             <div>
@@ -92,6 +97,7 @@ export default function RootLayout({
               <ul className="mt-2 space-y-1 text-xs">
                 <li><Link href="/politiciens" className="hover:text-[var(--color-accent)]">Annuaire des politiques</Link></li>
                 <li><Link href="/partis" className="hover:text-[var(--color-accent)]">Partis</Link></li>
+                <li><Link href="/fonctions" className="hover:text-[var(--color-accent)]">Fonctions</Link></li>
                 <li><Link href="/methode" className="hover:text-[var(--color-accent)]">Méthodologie</Link></li>
               </ul>
             </div>

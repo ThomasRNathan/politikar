@@ -307,7 +307,7 @@ export default async function PoliticianProfile({
           <div className="bg-white rounded-2xl border border-black/5 p-2 sm:p-4">
             {claims.length === 0 ? (
               <p className="p-4 text-sm text-[var(--color-ink-soft)]">
-                Aucune affirmation dans la démo pour ce politique.
+                Aucune affirmation  pour ce politique.
               </p>
             ) : (
               claims.map((c) => <ClaimRow key={c.id} claim={c} />)

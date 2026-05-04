@@ -82,10 +82,10 @@ export default function PoliticiansIndex() {
             Périmètre
           </p>
           <p className="text-sm text-[var(--color-ink-soft)] leading-relaxed">
-            La démo couvre 16 figures nationales. La cible MVP réelle est de
-            50 politiques actifs (Président, gouvernement, leaders de partis,
-            têtes de listes), avec extension prévue aux 925 parlementaires
-            français en post-MVP.
+            Le périmètre actuel couvre 16 figures nationales. La cible MVP
+            est de 50 politiques actifs (Président, gouvernement, leaders de
+            partis, têtes de listes), avec extension prévue aux 925
+            parlementaires français en post-MVP.
           </p>
         </div>
       </div>

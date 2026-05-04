@@ -71,6 +71,7 @@ export type Party = {
   short_name: string;
   political_family: PoliticalFamily;
   color_hex: string;
+  logo_url: string | null;
   leader_politician_id: string | null;
 };
 
@@ -129,6 +130,7 @@ export type Politician = {
   region_id: string | null;
   tier: Tier;
   bio_short: string;
+  photo_url: string | null;
   stats: PoliticianStats;
 };
 

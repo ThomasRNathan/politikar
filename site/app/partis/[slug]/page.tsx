@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PARTIES, partyBySlug, politiciansInParty } from "@/lib/fixtures";
 import { FAMILY_LABELS } from "@/lib/types";
 import { PoliticianCard } from "@/components/PoliticianCard";
+import { PartyLogo } from "@/components/PartyLogo";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -33,10 +34,7 @@ export default async function PartyPage({
       </Link>
 
       <header className="mt-8 mb-12 flex items-center gap-6">
-        <span
-          className="h-20 w-20 rounded-full shrink-0"
-          style={{ background: party.color_hex }}
-        />
+        <PartyLogo party={party} size={96} />
         <div>
           <p className="text-xs uppercase tracking-widest text-[var(--color-accent)]">
             {FAMILY_LABELS[party.political_family]}
@@ -45,7 +43,7 @@ export default async function PartyPage({
             {party.name}
           </h1>
           <p className="mt-3 text-sm text-[var(--color-ink-soft)]">
-            {members.length} politique{members.length > 1 ? "s" : ""} suivi{members.length > 1 ? "s" : ""} dans la démo
+            {members.length} politique{members.length > 1 ? "s" : ""} suivi{members.length > 1 ? "s" : ""}
           </p>
         </div>
       </header>
@@ -53,7 +51,7 @@ export default async function PartyPage({
       <h2 className="font-serif text-2xl font-semibold mb-6">Membres suivis</h2>
       {members.length === 0 ? (
         <p className="text-sm text-[var(--color-ink-soft)]">
-          Aucun politique de ce parti dans la démo.
+          Aucun politique de ce parti.
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -2,10 +2,11 @@ import Link from "next/link";
 import { PARTIES, politiciansInParty } from "@/lib/fixtures";
 import { FAMILY_LABELS } from "@/lib/types";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { PartyLogo } from "@/components/PartyLogo";
 
 export const metadata = {
   title: "Partis : politikar",
-  description: "Partis politiques suivis dans la démo politikar.",
+  description: "Partis politiques suivis par politikar, score moyen pondéré par membre.",
 };
 
 function partyAggScore(partyId: string): number | null {
@@ -54,10 +55,7 @@ export default function PartiesIndex() {
             className="group bg-white rounded-2xl border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
           >
             <div className="flex items-start gap-4">
-              <span
-                className="h-12 w-12 rounded-full shrink-0"
-                style={{ background: p.color_hex }}
-              />
+              <PartyLogo party={p} size={56} />
               <div className="flex-1 min-w-0">
                 <p className="font-serif text-lg font-semibold group-hover:text-[var(--color-accent)] truncate">
                   {p.name}

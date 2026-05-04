@@ -46,7 +46,7 @@ export default async function RegionPage({
             {region.name}
           </h1>
           <p className="mt-3 text-sm text-[var(--color-ink-soft)]">
-            {elus.length} élu{elus.length > 1 ? "s" : ""} suivi{elus.length > 1 ? "s" : ""} dans la démo
+            {elus.length} élu{elus.length > 1 ? "s" : ""} suivi{elus.length > 1 ? "s" : ""} 
           </p>
         </div>
         {agg && (
@@ -60,7 +60,7 @@ export default async function RegionPage({
       </header>
       {elus.length === 0 ? (
         <p className="text-sm text-[var(--color-ink-soft)]">
-          Aucun politique rattaché à cette région dans la démo.
+          Aucun politique rattaché à cette région.
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
