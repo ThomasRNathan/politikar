@@ -8,7 +8,7 @@ import {
   regionAggregateScores,
   sourceById,
 } from "@/lib/fixtures";
-import { HexMap } from "@/components/HexMap";
+import { FranceMap } from "@/components/FranceMap";
 import { ClaimRow } from "@/components/ClaimRow";
 import { PoliticianAvatar } from "@/components/PoliticianAvatar";
 import { ScoreBadge } from "@/components/ScoreBadge";
@@ -99,7 +99,7 @@ export default function Home() {
                 Score moyen pondéré des élus suivis
               </span>
             </div>
-            <HexMap scores={regionScores} />
+            <FranceMap scores={regionScores} />
           </div>
         </div>
       </section>

@@ -186,12 +186,13 @@ test.describe("politikar platform", () => {
     expect(res?.status()).toBe(404);
   });
 
-  test("homepage hex map regions are clickable and navigate to region pages", async ({
+  test("homepage France map regions are clickable and navigate to region pages", async ({
     page,
   }) => {
     await page.goto("/");
+    // FranceMap renders an SVG with short_name labels per region; click IDF
     await page
-      .locator("svg[aria-label='Carte de France des scores moyens par région']")
+      .locator("svg[aria-label^='Carte de France']")
       .getByText("IDF", { exact: true })
       .click();
     await expect(page).toHaveURL(/\/regions\/ile-de-france/);
