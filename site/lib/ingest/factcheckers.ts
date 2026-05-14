@@ -1,24 +1,38 @@
-// Fact-checker RSS connectors. We capture recent fact-checks as a
-// reference corpus that the verification cascade will eventually search
-// against. Citations courtes + lien obligatoires.
+// Fact-checker RSS connectors. Citation courte + lien obligatoires.
 
-import { fetchText, parseRss, isoDate, sha256Short } from "./util.mjs";
+import { fetchText, parseRss, isoDate, sha256Short } from "./util";
 
 const FEEDS = [
   {
     outlet: "Les Décodeurs (Le Monde)",
     url: "https://www.lemonde.fr/les-decodeurs/rss_full.xml",
-    note: "Fil complet Les Décodeurs. Articles non strictement fact-check, à filtrer côté ingestion.",
   },
   {
     outlet: "Les Surligneurs",
     url: "https://www.lessurligneurs.eu/feed",
-    note: "Legal-checking de l'actualité. CC BY-NC-SA.",
   },
 ];
 
-export async function fetchFactchecks({ limitPerOutlet = 20 } = {}) {
-  const out = [];
+export type IngestedFactcheck = {
+  id: string;
+  outlet: string;
+  title: string;
+  summary: string | null;
+  url: string;
+  published_at: string | null;
+  ingested_from: string;
+};
+
+export type FetchResult = {
+  items: IngestedFactcheck[];
+  errors: { outlet: string; message: string }[];
+};
+
+export async function fetchFactchecks(
+  { limitPerOutlet = 20 }: { limitPerOutlet?: number } = {},
+): Promise<FetchResult> {
+  const out: IngestedFactcheck[] = [];
+  const errors: { outlet: string; message: string }[] = [];
   for (const f of FEEDS) {
     try {
       const xml = await fetchText(f.url, { accept: "application/rss+xml" });
@@ -36,10 +50,11 @@ export async function fetchFactchecks({ limitPerOutlet = 20 } = {}) {
         });
       }
     } catch (e) {
-      console.warn(`factcheckers: ${f.outlet} failed: ${e.message}`);
+      errors.push({ outlet: f.outlet, message: (e as Error).message });
     }
   }
-  return out.sort((a, b) =>
+  out.sort((a, b) =>
     (b.published_at ?? "").localeCompare(a.published_at ?? "")
   );
+  return { items: out, errors };
 }

@@ -1,6 +1,6 @@
 {
-  "fetched_at": "2026-05-04T13:08:42.020Z",
-  "pipeline_version": "ingest-v0.1",
+  "fetched_at": "2026-05-14T14:40:48.685Z",
+  "pipeline_version": "ingest-v0.2",
   "counts": {
     "total": 50,
     "by_politician": {
@@ -9,7 +9,211 @@
   },
   "sources": [
     {
-      "id": "elysee-5b1a8b5689ae",
+      "id": "elysee-5fec49a374ce",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-13T10:00:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/13/declaration-de-nairobi-pour-la-paix-et-la-securite-en-afrique",
+      "title": "Déclaration de Nairobi pour la paix et la securité en Afrique.",
+      "summary": "Lire la déclaration.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-029036988638",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-12T21:20:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/12/sommet-africa-forward-au-kenya-deuxieme-journee",
+      "title": "Sommet Africa Forward au Kenya : deuxième journée.",
+      "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-8685eec81cd4",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-11T18:00:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/11/sommet-africa-forward-au-kenya-premiere-journee",
+      "title": "Sommet Africa Forward au Kenya : première journée.",
+      "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-e40d2c45e92e",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-11T06:00:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/sommet-africa-forward-au-kenya",
+      "title": "Sommet Africa Forward au Kenya.",
+      "summary": "Co-organisé avec le Kenya les 11 et 12 mai 2026, ce Sommet est une étape importante qui témoigne du renouvellement en actes des relations de la France avec les pays africains.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-505d9fd69d7d",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-10T20:00:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/10/deplacement-au-kenya",
+      "title": "Déplacement au Kenya.",
+      "summary": "Le Président de la République se rend au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-3bd286061a3a",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-09T20:00:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/09/deplacement-en-republique-arabe-degypte",
+      "title": "Déplacement en République arabe d'Égypte.",
+      "summary": "Le Président de la République s'est rendu en République arabe d'Égypte le samedi 9 mai 2026.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-4c39c3bbef48",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-08T07:55:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/08/ceremonie-de-commemoration-du-81e-anniversaire-de-la-victoire-du-8-mai-1945",
+      "title": "Cérémonie de commémoration du 81e anniversaire de la Victoire du 8 mai 1945.",
+      "summary": "Le chef de l’État a présidé la cérémonie de commémoration du 81e anniversaire de la Victoire du 8 mai 1945, le vendredi 8 mai 2026.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-047768aedc52",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-08T07:30:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/08/le-president-de-la-republique-a-charge-la-ministre-deleguee-aupres-de-la-ministre-des-armees-et-des-anciens-combattants-mme-alice-rufo-de-se-rendre-en-algerie-ce-8-mai",
+      "title": "Le Président de la République a chargé la Ministre déléguée auprès de la Ministre des Armées et des Anciens combattants, Mme Alice Rufo, de se rendre en Algérie ce 8 mai.",
+      "summary": "Lire le communiqué.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-ad17fce4d153",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-06T20:55:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/06/compte-rendu-du-conseil-des-ministres-du-6-mai-2026",
+      "title": "Compte rendu du conseil des ministres du 6 mai 2026.",
+      "summary": "Retrouvez le compte rendu du conseil des ministres du 6 mai 2026.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-0ea3c2e836bd",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-06T14:30:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/06/disparition-de-pierre-francois-veil",
+      "title": "Disparition de Pierre-François Veil.",
+      "summary": "Avocat, homme d’engagement, héritier et passeur d’une mémoire qu’il n’a cessé de faire vivre avec dignité et exigence, Pierre-François Veil aura consacré sa vie au service du droit, de la justice et du souvenir.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-a84dc4090a8a",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-06T08:55:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/06/sommet-africa-forward-partenariats-entre-lafrique-et-la-france-pour-linnovation-et-la-croissance",
+      "title": "Sommet « Africa Forward : Partenariats entre l’Afrique et la France pour l’innovation et la croissance ».",
+      "summary": "Le Kenya et la France co-organiseront le sommet « Africa Forward : des partenariats entre l’Afrique et la France pour l’innovation et la croissance », qui se tiendra à Nairobi les 11 et 12 mai 2026.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-b8d2ecfde06e",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-05T16:00:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/05/proposition-de-nomination-de-emmanuel-moulin-en-qualite-de-gouverneur-de-la-banque-de-france",
+      "title": "Proposition de nomination de Emmanuel Moulin en qualité de gouverneur de la Banque de France.",
+      "summary": "Lire le communiqué.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-ec6ec76ab138",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-05T14:30:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/05/visite-detat-en-republique-darmenie",
+      "title": "Visite d'État en République d'Arménie.",
+      "summary": "À l’issue du Sommet de la Communauté politique européenne à Erevan, le Président de la République a débuté une visite d’État en Arménie les 4 et 5 mai 2026.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-04211f8b094e",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-04T17:00:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/04/sommet-de-la-communaute-politique-europeenne-a-erevan-en-armenie",
+      "title": "Sommet de la Communauté politique européenne à Erevan en Arménie.",
+      "summary": "Le Président de la République a participé au Sommet de la Communauté politique européenne le 4 mai 2026.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-ecd6fa3a7baf",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-04T11:40:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/04/declaration-conjointe-des-dirigeants-de-la-france-de-la-lituanie-de-lestonie-de-la-norvege-de-la-pologne-du-royaume-uni-du-president-du-conseil-europeen-et-de-la-haute-representante-de-lunion-pour-les-affaires-etrangeres-et-la-politique-de-securite",
+      "title": "Déclaration conjointe des dirigeants de la France, de la Lituanie, de l’Estonie, de la Norvège, de la Pologne, du Royaume-Uni, du Président du Conseil européen et de la Haute Représentante de l’Union pour les affaires étrangères et la politique de sécurité.",
+      "summary": "Lire la déclaration.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-c8dd45dbee94",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-02T11:35:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/02/avril-2026-deplacements-et-rendez-vous-de-madame-brigitte-macron",
+      "title": "Avril 2026 - Déplacements et rendez-vous de Madame Brigitte Macron.",
+      "summary": "Retrouvez les déplacements et rendez-vous de Madame Brigitte Macron en avril 2026.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-97ece96773f8",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-04-30T20:00:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/30/exercice-de-preparation-des-armees-a-la-haute-intensite-orion-26",
+      "title": "Exercice de préparation des armées à la haute intensité ORION 26.",
+      "summary": "Le Président de la République a participé à l'exercice de préparation des armées à la haute intensité ORION 26, ce jeudi 30 avril 2026.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-6cf7cb80296a",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -21,7 +225,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-cc2b0616d956",
+      "id": "elysee-47562da6eb01",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -33,7 +237,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-201fb27b56e0",
+      "id": "elysee-27533a5c8fc1",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -45,7 +249,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-831d49a85af6",
+      "id": "elysee-4bcfadd8d5ed",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -57,7 +261,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-729d717f3ca0",
+      "id": "elysee-ddaccb3b62b2",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -69,7 +273,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-b76108347031",
+      "id": "elysee-e278bba3038d",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -81,7 +285,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-6a562460de93",
+      "id": "elysee-5a97235acdd8",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -93,7 +297,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-266616ae6908",
+      "id": "elysee-fe4d4b54ec41",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -105,7 +309,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-c0031e84fac8",
+      "id": "elysee-f797ff968423",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -117,199 +321,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-a6b4f5b5792d",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-24T15:20:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/24/deplacement-a-chypre-deuxieme-journee",
-      "title": "Déplacement à Chypre : deuxième journée.",
-      "summary": "Le Président de la République s'est rendu à Chypre à l'occasion de la réunion informelle du Conseil Européen, le 23 et le 24 avril 2026.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-4051fd8c0aed",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-23T18:25:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/23/deplacement-a-chypre-premiere-journee",
-      "title": "Déplacement à Chypre : première journée.",
-      "summary": "Le Président de la République s'est rendu à Chypre à l'occasion de la réunion informelle du Conseil Européen, le 23 et le 24 avril 2026.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-546506417fb2",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-23T14:30:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/23/disparition-de-michel-bassompierre",
-      "title": "Disparition de Michel Bassompierre.",
-      "summary": "Le sculpteur français Michel Bassompierre nous as quittés à l'âge de 78 ans.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-ddb247b48a20",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-22T16:00:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/22/deplacement-dans-lallier",
-      "title": "Déplacement dans l'Allier.",
-      "summary": "Le Président de la République s'est rendu à Montluçon et Échassières dans l'Allier le mercredi 22 avril 2026.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-59ed92b6e13f",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-22T15:20:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/22/compte-rendu-du-conseil-des-ministres-du-22-avril-2026",
-      "title": "Compte rendu du conseil des ministres du 22 avril 2026.",
-      "summary": "Retrouvez le compte rendu du conseil des ministres du 22 avril 2026.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-1b5338da60c0",
-      "politician_id": "pol-macron",
-      "source_type": "interview",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-21T19:00:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/21/entretien-avec-nawaf-salam-premier-ministre-de-la-republique-libanaise",
-      "title": "Entretien avec Nawaf Salam, Premier ministre de la République libanaise.",
-      "summary": "Le Président Emmanuel Macron a reçu Nawaf Salam, Premier ministre de la République libanaise, le mardi 21 avril 2026 au Palais de l'Élysée.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-baf24e5560d1",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-21T14:35:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/21/remise-de-decoration-collective-aux-forces-de-polices-intervenues-au-bataclan",
-      "title": "Remise de décoration collective aux forces de polices intervenues au Bataclan.",
-      "summary": "Ce mardi 21 avril 2026, le chef de l'État Emmanuel Macron a présidé une cérémonie de remise de décoration collective en l'honneur des forces de polices intervenues dans le Bataclan le 13 novembre 2015.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-565e1b6e85e0",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-20T19:05:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/20/premier-sommet-bilateral-franco-polonais-a-gdansk",
-      "title": "Premier Sommet bilatéral franco-polonais à Gdańsk.",
-      "summary": "Le Président de la République s'est rendu le lundi 20 avril 2026 à Gdańsk, en Pologne, à l’occasion du premier Sommet bilatéral franco-polonais.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-e8c0ac50f645",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-20T16:50:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/20/declaration-conjointe-franco-polonaise-a-loccasion-du-premier-sommet-bilateral-franco-polonais-au-titre-du-traite-de-nancy",
-      "title": "Déclaration conjointe franco-polonaise à l’occasion du premier Sommet bilatéral franco-polonais au titre du Traité de Nancy.",
-      "summary": "Lire la déclaration.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-9d93225517f8",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-18T15:15:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/18/disparition-de-nathalie-baye",
-      "title": "Disparition de Nathalie Baye.",
-      "summary": "Nathalie Baye avait tracé par ses choix et son talent un chemin singulier dans notre cinéma français, côtoyant les grands auteurs, ne renonçant jamais à l’ambition populaire.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-32362f7a7939",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-17T18:00:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/17/declaration-conjointe-du-president-macron-et-du-premier-ministre-starmer-co-presidents-du-sommet-international-sur-le-detroit-dormuz",
-      "title": "Déclaration conjointe du Président Macron et du Premier ministre Starmer, co-présidents du sommet international sur le détroit d’Ormuz.",
-      "summary": "Lire la déclaration.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-caefebe62dba",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-17T16:30:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/17/initiative-pour-la-navigation-maritime-dans-le-detroit-dormuz",
-      "title": "Initiative pour la navigation maritime dans le détroit d'Ormuz.",
-      "summary": "Ce vendredi 17 avril 2026, le Président Emmanuel Macron et le Premier ministre britannique Keir Starmer ont présidé une conférence relative à l'Initiative pour la navigation dans le détroit d'Ormuz.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-e30d54609081",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-17T13:30:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/17/deplacement-au-festival-du-livre-de-paris",
-      "title": "Déplacement au Festival du Livre de Paris.",
-      "summary": "Ce vendredi 17 avril 2026, le Président de la République s'est rendu au Festival du livre de Paris au Grand Palais.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-1a1bb3b026f6",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-16T18:40:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/16/reception-des-maires-au-palais-de-lelysee",
-      "title": "Réception des maires au Palais de l’Elysée.",
-      "summary": "A l’issue de la journée de travail organisée par le Gouvernement, le Président de la République a reçu des maires de France au Palais de l’Elysée, ce jeudi 16 avril 2026.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-57926a8b95d9",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-16T16:35:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/16/reunion-sur-la-majorite-numerique-pour-acceder-aux-reseaux-sociaux",
-      "title": "Réunion sur la majorité numérique pour accéder aux réseaux sociaux.",
-      "summary": "Le Président de la République a organisé ce jeudi 16 avril, une réunion en visioconférence, sur la majorité numérique pour accéder aux réseaux sociaux.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-70a3b0a61b96",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-04-16T14:50:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/04/16/lancement-de-la-journee-hors-ligne-a-villers-cotterets",
-      "title": "Lancement de la « Journée hors ligne » à Villers-Cotterêts.",
-      "summary": "Le Président de la République s'est rendu à la Cité internationale de la langue française pour le lancement de la journée hors ligne, ce jeudi 16 avril 2026.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-b06f3e06d5da",
+      "id": "elysee-95f26d5bc79e",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -321,7 +333,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-0e589852ca71",
+      "id": "elysee-19c93418deb0",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -333,7 +345,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-cff0493ee1db",
+      "id": "elysee-22e46b97a119",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -345,7 +357,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-2bc6f048b0ab",
+      "id": "elysee-86702884ca71",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -357,7 +369,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-72a8b18b1b5e",
+      "id": "elysee-8a5e924e1185",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -369,7 +381,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-758c30d0497b",
+      "id": "elysee-5477593654d1",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -381,7 +393,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-7665756ac407",
+      "id": "elysee-e63e25a65b8c",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -393,7 +405,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-d88fbffdf6f9",
+      "id": "elysee-c816fe4ebaba",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -405,7 +417,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-afaf4f2b6d2f",
+      "id": "elysee-a492949cf71a",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -417,7 +429,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-7e90f8209bfe",
+      "id": "elysee-8a1172da074c",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -429,7 +441,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-4d5ef46d8512",
+      "id": "elysee-02b3a3db1893",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -441,7 +453,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-4e41ee8a8b3f",
+      "id": "elysee-a038ddd58b3b",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -453,7 +465,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-e2fee863d1d1",
+      "id": "elysee-0d2848e13a22",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -465,7 +477,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-095196463eae",
+      "id": "elysee-4b1719ba24f0",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -477,7 +489,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-e4e42065492e",
+      "id": "elysee-5b3c3cb1eb4e",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -489,7 +501,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-bcd4c1095fc8",
+      "id": "elysee-9162a1eeca1b",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -501,7 +513,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-fd0cbfa3d013",
+      "id": "elysee-00c4b880d4c5",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -513,7 +525,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-7983b81d57d2",
+      "id": "elysee-6a3c7b2d8c72",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -525,7 +537,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-cc9165f73b3c",
+      "id": "elysee-b887df016f30",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -537,7 +549,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-274d3b16993c",
+      "id": "elysee-3465decd0509",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -549,7 +561,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-d1bdf88ec008",
+      "id": "elysee-168b38a3442c",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -561,19 +573,19 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-7e5849bf1ba7",
+      "id": "elysee-140fb819092a",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
-      "occurred_at": "2024-02-28T10:41:00.000Z",
+      "occurred_at": "2024-02-28T10:40:00.000Z",
       "url": "https://www.elysee.fr/emmanuel-macron/la-grande-exposition-du-fabrique-en-france",
       "title": "La Grande Exposition du Fabriqué en France.",
-      "summary": "La Grande Exposition du Fabriqué en France fait son retour en 2024 au palais de l’Elysée.",
+      "summary": "La Grande Exposition du Fabriqué en France fait son retour en 2026 au palais de l’Elysée.",
       "license": "Etalab 2.0",
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-8370323d6b9d",
+      "id": "elysee-10a1918de079",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -585,7 +597,7 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-2b6d639be73c",
+      "id": "elysee-c96457175b65",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
       "channel": "Élysée (communiqué)",
@@ -595,24 +607,216 @@
       "summary": "Le Président Emmanuel Macron s'est rendu en Inde pour participer en tant qu’invité d’honneur à la fête de la Constitution indienne, \r\n« Republic Day ».",
       "license": "Etalab 2.0",
       "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-979ba01549d7",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2023-12-02T20:45:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/deplacement-a-la-cop28-de-dubai",
-      "title": "Déplacement à la COP28 de Dubaï.",
-      "summary": "Le Président Emmanuel Macron s'est rendu les 1er et 2 décembre 2023 à Dubaï aux Emirats arabes unis dans le cadre de la COP28.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
     }
   ],
   "by_politician": {
     "pol-macron": [
       {
-        "id": "elysee-5b1a8b5689ae",
+        "id": "elysee-5fec49a374ce",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-13T10:00:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/13/declaration-de-nairobi-pour-la-paix-et-la-securite-en-afrique",
+        "title": "Déclaration de Nairobi pour la paix et la securité en Afrique.",
+        "summary": "Lire la déclaration.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-029036988638",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-12T21:20:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/12/sommet-africa-forward-au-kenya-deuxieme-journee",
+        "title": "Sommet Africa Forward au Kenya : deuxième journée.",
+        "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-8685eec81cd4",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-11T18:00:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/11/sommet-africa-forward-au-kenya-premiere-journee",
+        "title": "Sommet Africa Forward au Kenya : première journée.",
+        "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-e40d2c45e92e",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-11T06:00:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/sommet-africa-forward-au-kenya",
+        "title": "Sommet Africa Forward au Kenya.",
+        "summary": "Co-organisé avec le Kenya les 11 et 12 mai 2026, ce Sommet est une étape importante qui témoigne du renouvellement en actes des relations de la France avec les pays africains.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-505d9fd69d7d",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-10T20:00:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/10/deplacement-au-kenya",
+        "title": "Déplacement au Kenya.",
+        "summary": "Le Président de la République se rend au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-3bd286061a3a",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-09T20:00:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/09/deplacement-en-republique-arabe-degypte",
+        "title": "Déplacement en République arabe d'Égypte.",
+        "summary": "Le Président de la République s'est rendu en République arabe d'Égypte le samedi 9 mai 2026.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-4c39c3bbef48",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-08T07:55:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/08/ceremonie-de-commemoration-du-81e-anniversaire-de-la-victoire-du-8-mai-1945",
+        "title": "Cérémonie de commémoration du 81e anniversaire de la Victoire du 8 mai 1945.",
+        "summary": "Le chef de l’État a présidé la cérémonie de commémoration du 81e anniversaire de la Victoire du 8 mai 1945, le vendredi 8 mai 2026.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-047768aedc52",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-08T07:30:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/08/le-president-de-la-republique-a-charge-la-ministre-deleguee-aupres-de-la-ministre-des-armees-et-des-anciens-combattants-mme-alice-rufo-de-se-rendre-en-algerie-ce-8-mai",
+        "title": "Le Président de la République a chargé la Ministre déléguée auprès de la Ministre des Armées et des Anciens combattants, Mme Alice Rufo, de se rendre en Algérie ce 8 mai.",
+        "summary": "Lire le communiqué.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-ad17fce4d153",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-06T20:55:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/06/compte-rendu-du-conseil-des-ministres-du-6-mai-2026",
+        "title": "Compte rendu du conseil des ministres du 6 mai 2026.",
+        "summary": "Retrouvez le compte rendu du conseil des ministres du 6 mai 2026.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-0ea3c2e836bd",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-06T14:30:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/06/disparition-de-pierre-francois-veil",
+        "title": "Disparition de Pierre-François Veil.",
+        "summary": "Avocat, homme d’engagement, héritier et passeur d’une mémoire qu’il n’a cessé de faire vivre avec dignité et exigence, Pierre-François Veil aura consacré sa vie au service du droit, de la justice et du souvenir.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-a84dc4090a8a",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-06T08:55:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/06/sommet-africa-forward-partenariats-entre-lafrique-et-la-france-pour-linnovation-et-la-croissance",
+        "title": "Sommet « Africa Forward : Partenariats entre l’Afrique et la France pour l’innovation et la croissance ».",
+        "summary": "Le Kenya et la France co-organiseront le sommet « Africa Forward : des partenariats entre l’Afrique et la France pour l’innovation et la croissance », qui se tiendra à Nairobi les 11 et 12 mai 2026.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-b8d2ecfde06e",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-05T16:00:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/05/proposition-de-nomination-de-emmanuel-moulin-en-qualite-de-gouverneur-de-la-banque-de-france",
+        "title": "Proposition de nomination de Emmanuel Moulin en qualité de gouverneur de la Banque de France.",
+        "summary": "Lire le communiqué.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-ec6ec76ab138",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-05T14:30:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/05/visite-detat-en-republique-darmenie",
+        "title": "Visite d'État en République d'Arménie.",
+        "summary": "À l’issue du Sommet de la Communauté politique européenne à Erevan, le Président de la République a débuté une visite d’État en Arménie les 4 et 5 mai 2026.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-04211f8b094e",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-04T17:00:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/04/sommet-de-la-communaute-politique-europeenne-a-erevan-en-armenie",
+        "title": "Sommet de la Communauté politique européenne à Erevan en Arménie.",
+        "summary": "Le Président de la République a participé au Sommet de la Communauté politique européenne le 4 mai 2026.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-ecd6fa3a7baf",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-04T11:40:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/04/declaration-conjointe-des-dirigeants-de-la-france-de-la-lituanie-de-lestonie-de-la-norvege-de-la-pologne-du-royaume-uni-du-president-du-conseil-europeen-et-de-la-haute-representante-de-lunion-pour-les-affaires-etrangeres-et-la-politique-de-securite",
+        "title": "Déclaration conjointe des dirigeants de la France, de la Lituanie, de l’Estonie, de la Norvège, de la Pologne, du Royaume-Uni, du Président du Conseil européen et de la Haute Représentante de l’Union pour les affaires étrangères et la politique de sécurité.",
+        "summary": "Lire la déclaration.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-c8dd45dbee94",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-02T11:35:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/02/avril-2026-deplacements-et-rendez-vous-de-madame-brigitte-macron",
+        "title": "Avril 2026 - Déplacements et rendez-vous de Madame Brigitte Macron.",
+        "summary": "Retrouvez les déplacements et rendez-vous de Madame Brigitte Macron en avril 2026.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-97ece96773f8",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-04-30T20:00:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/30/exercice-de-preparation-des-armees-a-la-haute-intensite-orion-26",
+        "title": "Exercice de préparation des armées à la haute intensité ORION 26.",
+        "summary": "Le Président de la République a participé à l'exercice de préparation des armées à la haute intensité ORION 26, ce jeudi 30 avril 2026.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-6cf7cb80296a",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -624,7 +828,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-cc2b0616d956",
+        "id": "elysee-47562da6eb01",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -636,7 +840,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-201fb27b56e0",
+        "id": "elysee-27533a5c8fc1",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -648,7 +852,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-831d49a85af6",
+        "id": "elysee-4bcfadd8d5ed",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -660,7 +864,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-729d717f3ca0",
+        "id": "elysee-ddaccb3b62b2",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -672,7 +876,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-b76108347031",
+        "id": "elysee-e278bba3038d",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -684,7 +888,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-6a562460de93",
+        "id": "elysee-5a97235acdd8",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -696,7 +900,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-266616ae6908",
+        "id": "elysee-fe4d4b54ec41",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -708,7 +912,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-c0031e84fac8",
+        "id": "elysee-f797ff968423",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -720,199 +924,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-a6b4f5b5792d",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-24T15:20:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/24/deplacement-a-chypre-deuxieme-journee",
-        "title": "Déplacement à Chypre : deuxième journée.",
-        "summary": "Le Président de la République s'est rendu à Chypre à l'occasion de la réunion informelle du Conseil Européen, le 23 et le 24 avril 2026.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-4051fd8c0aed",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-23T18:25:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/23/deplacement-a-chypre-premiere-journee",
-        "title": "Déplacement à Chypre : première journée.",
-        "summary": "Le Président de la République s'est rendu à Chypre à l'occasion de la réunion informelle du Conseil Européen, le 23 et le 24 avril 2026.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-546506417fb2",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-23T14:30:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/23/disparition-de-michel-bassompierre",
-        "title": "Disparition de Michel Bassompierre.",
-        "summary": "Le sculpteur français Michel Bassompierre nous as quittés à l'âge de 78 ans.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-ddb247b48a20",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-22T16:00:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/22/deplacement-dans-lallier",
-        "title": "Déplacement dans l'Allier.",
-        "summary": "Le Président de la République s'est rendu à Montluçon et Échassières dans l'Allier le mercredi 22 avril 2026.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-59ed92b6e13f",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-22T15:20:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/22/compte-rendu-du-conseil-des-ministres-du-22-avril-2026",
-        "title": "Compte rendu du conseil des ministres du 22 avril 2026.",
-        "summary": "Retrouvez le compte rendu du conseil des ministres du 22 avril 2026.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-1b5338da60c0",
-        "politician_id": "pol-macron",
-        "source_type": "interview",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-21T19:00:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/21/entretien-avec-nawaf-salam-premier-ministre-de-la-republique-libanaise",
-        "title": "Entretien avec Nawaf Salam, Premier ministre de la République libanaise.",
-        "summary": "Le Président Emmanuel Macron a reçu Nawaf Salam, Premier ministre de la République libanaise, le mardi 21 avril 2026 au Palais de l'Élysée.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-baf24e5560d1",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-21T14:35:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/21/remise-de-decoration-collective-aux-forces-de-polices-intervenues-au-bataclan",
-        "title": "Remise de décoration collective aux forces de polices intervenues au Bataclan.",
-        "summary": "Ce mardi 21 avril 2026, le chef de l'État Emmanuel Macron a présidé une cérémonie de remise de décoration collective en l'honneur des forces de polices intervenues dans le Bataclan le 13 novembre 2015.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-565e1b6e85e0",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-20T19:05:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/20/premier-sommet-bilateral-franco-polonais-a-gdansk",
-        "title": "Premier Sommet bilatéral franco-polonais à Gdańsk.",
-        "summary": "Le Président de la République s'est rendu le lundi 20 avril 2026 à Gdańsk, en Pologne, à l’occasion du premier Sommet bilatéral franco-polonais.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-e8c0ac50f645",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-20T16:50:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/20/declaration-conjointe-franco-polonaise-a-loccasion-du-premier-sommet-bilateral-franco-polonais-au-titre-du-traite-de-nancy",
-        "title": "Déclaration conjointe franco-polonaise à l’occasion du premier Sommet bilatéral franco-polonais au titre du Traité de Nancy.",
-        "summary": "Lire la déclaration.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-9d93225517f8",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-18T15:15:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/18/disparition-de-nathalie-baye",
-        "title": "Disparition de Nathalie Baye.",
-        "summary": "Nathalie Baye avait tracé par ses choix et son talent un chemin singulier dans notre cinéma français, côtoyant les grands auteurs, ne renonçant jamais à l’ambition populaire.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-32362f7a7939",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-17T18:00:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/17/declaration-conjointe-du-president-macron-et-du-premier-ministre-starmer-co-presidents-du-sommet-international-sur-le-detroit-dormuz",
-        "title": "Déclaration conjointe du Président Macron et du Premier ministre Starmer, co-présidents du sommet international sur le détroit d’Ormuz.",
-        "summary": "Lire la déclaration.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-caefebe62dba",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-17T16:30:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/17/initiative-pour-la-navigation-maritime-dans-le-detroit-dormuz",
-        "title": "Initiative pour la navigation maritime dans le détroit d'Ormuz.",
-        "summary": "Ce vendredi 17 avril 2026, le Président Emmanuel Macron et le Premier ministre britannique Keir Starmer ont présidé une conférence relative à l'Initiative pour la navigation dans le détroit d'Ormuz.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-e30d54609081",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-17T13:30:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/17/deplacement-au-festival-du-livre-de-paris",
-        "title": "Déplacement au Festival du Livre de Paris.",
-        "summary": "Ce vendredi 17 avril 2026, le Président de la République s'est rendu au Festival du livre de Paris au Grand Palais.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-1a1bb3b026f6",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-16T18:40:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/16/reception-des-maires-au-palais-de-lelysee",
-        "title": "Réception des maires au Palais de l’Elysée.",
-        "summary": "A l’issue de la journée de travail organisée par le Gouvernement, le Président de la République a reçu des maires de France au Palais de l’Elysée, ce jeudi 16 avril 2026.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-57926a8b95d9",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-16T16:35:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/16/reunion-sur-la-majorite-numerique-pour-acceder-aux-reseaux-sociaux",
-        "title": "Réunion sur la majorité numérique pour accéder aux réseaux sociaux.",
-        "summary": "Le Président de la République a organisé ce jeudi 16 avril, une réunion en visioconférence, sur la majorité numérique pour accéder aux réseaux sociaux.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-70a3b0a61b96",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-04-16T14:50:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/04/16/lancement-de-la-journee-hors-ligne-a-villers-cotterets",
-        "title": "Lancement de la « Journée hors ligne » à Villers-Cotterêts.",
-        "summary": "Le Président de la République s'est rendu à la Cité internationale de la langue française pour le lancement de la journée hors ligne, ce jeudi 16 avril 2026.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-b06f3e06d5da",
+        "id": "elysee-95f26d5bc79e",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -924,7 +936,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-0e589852ca71",
+        "id": "elysee-19c93418deb0",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -936,7 +948,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-cff0493ee1db",
+        "id": "elysee-22e46b97a119",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -948,7 +960,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-2bc6f048b0ab",
+        "id": "elysee-86702884ca71",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -960,7 +972,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-72a8b18b1b5e",
+        "id": "elysee-8a5e924e1185",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -972,7 +984,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-758c30d0497b",
+        "id": "elysee-5477593654d1",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -984,7 +996,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-7665756ac407",
+        "id": "elysee-e63e25a65b8c",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -996,7 +1008,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-d88fbffdf6f9",
+        "id": "elysee-c816fe4ebaba",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1008,7 +1020,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-afaf4f2b6d2f",
+        "id": "elysee-a492949cf71a",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1020,7 +1032,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-7e90f8209bfe",
+        "id": "elysee-8a1172da074c",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1032,7 +1044,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-4d5ef46d8512",
+        "id": "elysee-02b3a3db1893",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1044,7 +1056,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-4e41ee8a8b3f",
+        "id": "elysee-a038ddd58b3b",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1056,7 +1068,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-e2fee863d1d1",
+        "id": "elysee-0d2848e13a22",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1068,7 +1080,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-095196463eae",
+        "id": "elysee-4b1719ba24f0",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1080,7 +1092,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-e4e42065492e",
+        "id": "elysee-5b3c3cb1eb4e",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1092,7 +1104,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-bcd4c1095fc8",
+        "id": "elysee-9162a1eeca1b",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1104,7 +1116,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-fd0cbfa3d013",
+        "id": "elysee-00c4b880d4c5",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1116,7 +1128,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-7983b81d57d2",
+        "id": "elysee-6a3c7b2d8c72",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1128,7 +1140,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-cc9165f73b3c",
+        "id": "elysee-b887df016f30",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1140,7 +1152,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-274d3b16993c",
+        "id": "elysee-3465decd0509",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1152,7 +1164,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-d1bdf88ec008",
+        "id": "elysee-168b38a3442c",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1164,19 +1176,19 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-7e5849bf1ba7",
+        "id": "elysee-140fb819092a",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
-        "occurred_at": "2024-02-28T10:41:00.000Z",
+        "occurred_at": "2024-02-28T10:40:00.000Z",
         "url": "https://www.elysee.fr/emmanuel-macron/la-grande-exposition-du-fabrique-en-france",
         "title": "La Grande Exposition du Fabriqué en France.",
-        "summary": "La Grande Exposition du Fabriqué en France fait son retour en 2024 au palais de l’Elysée.",
+        "summary": "La Grande Exposition du Fabriqué en France fait son retour en 2026 au palais de l’Elysée.",
         "license": "Etalab 2.0",
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-8370323d6b9d",
+        "id": "elysee-10a1918de079",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1188,7 +1200,7 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-2b6d639be73c",
+        "id": "elysee-c96457175b65",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
         "channel": "Élysée (communiqué)",
@@ -1196,18 +1208,6 @@
         "url": "https://www.elysee.fr/emmanuel-macron/visite-detat-en-inde",
         "title": "Visite d'État en Inde.",
         "summary": "Le Président Emmanuel Macron s'est rendu en Inde pour participer en tant qu’invité d’honneur à la fête de la Constitution indienne, \r\n« Republic Day ».",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-979ba01549d7",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2023-12-02T20:45:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/deplacement-a-la-cop28-de-dubai",
-        "title": "Déplacement à la COP28 de Dubaï.",
-        "summary": "Le Président Emmanuel Macron s'est rendu les 1er et 2 décembre 2023 à Dubaï aux Emirats arabes unis dans le cadre de la COP28.",
         "license": "Etalab 2.0",
         "ingested_from": "elysee.fr/feed"
       }
