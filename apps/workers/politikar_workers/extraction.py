@@ -10,7 +10,7 @@ from typing import Any
 
 from loguru import logger
 
-from politikar_workers.clients.anthropic_client import AnthropicClient
+from politikar_workers.clients.provider import LLMClient, get_llm_client
 from politikar_workers.prompts.claim_extraction import CLAIM_EXTRACTION_V1
 
 
@@ -40,26 +40,24 @@ def build_user_prompt(inp: ExtractionInput) -> str:
 
 def extract_claims(
     inp: ExtractionInput,
-    client: AnthropicClient | None = None,
+    client: LLMClient | None = None,
 ) -> dict[str, Any]:
-    """Call Claude to extract claims. Raises on missing API key, retries on
-    transient errors via the wrapped client. Returns the tool input dict, ie
+    """Extract claims via the configured LLM provider (Mistral free tier
+    by default, Anthropic if set). Returns the tool input dict, ie
     `{"claims": [...]}` or `{"reason": "..."}` if the model refuses.
     """
-    client = client or AnthropicClient(model=CLAIM_EXTRACTION_V1.llm_model)
+    client = client or get_llm_client()
     prompt = CLAIM_EXTRACTION_V1
     user = build_user_prompt(inp)
     logger.info(
-        "extraction.start prompt={} model={} text_len={}",
+        "extraction.start prompt={} text_len={}",
         prompt.id,
-        prompt.llm_model,
         len(inp.text),
     )
     call = client.call_with_tool(
         system=prompt.system_prompt,
         user_text=user,
         tools=prompt.tools,
-        model=prompt.llm_model,
     )
     if call.name == "refuse_extraction":
         logger.warning("extraction.refused reason={}", call.input.get("reason"))

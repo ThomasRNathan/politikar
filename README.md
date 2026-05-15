@@ -3,11 +3,11 @@
 Plateforme open-source d'analyse systématique de la véracité du discours
 politique français.
 
-> Statut : phase 0/1 du master plan. Les fondations (référentiel, ingestion
-> partielle, scoring, prompts versionnés, schéma DB) sont en place. La
-> cascade de vérification automatisée et l'extraction LLM en production
-> arrivent au fur et à mesure que les pipelines sont branchés sur
-> Supabase et Inngest.
+> Statut : phase 0/1 du master plan. Les fondations (référentiel,
+> ingestion partielle, scoring, prompts versionnés, schéma DB, cron
+> Vercel) sont en place. L'extraction LLM et la cascade de vérification
+> s'activent dès qu'on provisionne Mistral + Neon + Vercel Blob (tous
+> trois en free tier).
 
 ## Démo en ligne
 
@@ -42,18 +42,24 @@ politikar/
   RISKS.md
 ```
 
-Stack résumée :
+Stack résumée (cible MVP à 0 €/mois) :
 
 - Frontend public : Next.js 16 + React 19 + Tailwind 4
-- API publique read-only : Next.js Route Handlers (à brancher sur Supabase)
-- API admin et ingestion : FastAPI (Python 3.11+)
-- Workers : Inngest (Python SDK)
-- DB : Supabase Postgres 15 + pgvector
-- LLM : Anthropic Claude (`claude-sonnet-4-6` / `claude-opus-4-7`)
-- Embeddings : Voyage AI `voyage-3-large`
-- Transcription : OpenAI Whisper API
-- Hébergement : Vercel (front), Inngest Cloud (workers), Railway (FastAPI),
-  Supabase (DB)
+- API publique read-only : Next.js Route Handlers
+- API admin et ingestion : FastAPI servi via **Vercel Python Functions**
+  (Fluid Compute supporte Python 3.13/3.14 nativement)
+- Workers / crons : **Vercel Cron** (1 cron quotidien Hobby) +
+  Vercel Workflow DevKit ou Inngest plus tard si pipelines multi-étapes
+- DB : **Neon Postgres** via Vercel Marketplace (free, pgvector, pas
+  d'auto-pause) ; alternative Supabase si tu préfères
+- LLM : **Mistral La Plateforme** `mistral-small-latest` (free tier, FR) ;
+  fallback Anthropic Claude pour verdicts P0 sensibles si budget débloqué
+- Embeddings : Voyage AI `voyage-3-large` (free tier 50M tokens/mo)
+- File storage : **Vercel Blob** (free 1 GB sur Hobby) pour les snapshots
+  d'ingestion
+- Transcription audio : skip MVP ; OpenAI Whisper si on ajoute des
+  sources audio plus tard
+- Hébergement : **Vercel Hobby** pour le front, l'API admin et les crons
 
 ## Bootstrap (développeur)
 
@@ -120,6 +126,23 @@ for f in packages/db/migrations/*.sql; do
   psql "$DATABASE_URL" -f "$f"
 done
 ```
+
+## Provisionner la stack à 0 €/mois
+
+Tout ce qui suit a un free tier suffisant pour le MVP politikar. Aucune
+carte bancaire requise.
+
+| Service | Pourquoi | Action |
+|---|---|---|
+| Mistral La Plateforme | LLM extraction + verdicts | console.mistral.ai → API Keys → copier dans `MISTRAL_API_KEY` |
+| Voyage AI | Embeddings claims | voyageai.com → générer une clé → `VOYAGE_API_KEY` |
+| Neon Postgres | DB + pgvector, sans auto-pause | Vercel dashboard → Storage → Marketplace → Neon → Free → Connect to politikar |
+| Vercel Blob | Snapshots d'ingestion | Vercel dashboard → Storage → Create Blob Store → Connect to politikar |
+| Vercel Cron | 1 cron quotidien | déjà configuré dans `site/vercel.ts`, actif au prochain deploy |
+| Sentry | Monitoring erreurs | sentry.io → projet free → `SENTRY_DSN` |
+
+Une fois ces services connectés, faire un `vercel env pull .env.local`
+pour rapatrier les variables auto-injectées par Vercel Marketplace.
 
 ## Statut d'implémentation par phase
 
