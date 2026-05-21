@@ -17,8 +17,11 @@ import { ClaimRow } from "@/components/ClaimRow";
 import { VerdictPill } from "@/components/VerdictPill";
 import { scoreColor, scoreColorSoft, formatDate } from "@/lib/format";
 import { realSourcesFor } from "@/lib/realdata";
+import { getClaimsForPolitician } from "@/lib/db/reads";
 
-export const dynamic = "force-static";
+// ISR : politician profiles regenerate at most every 5 minutes so the
+// daily extraction cron's new claims appear without a redeploy.
+export const revalidate = 300;
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -70,6 +73,11 @@ export default async function PoliticianProfile({
   );
 
   const sig = p.stats.is_significant;
+
+  // Real claims extracted by the LLM pipeline and persisted in Neon.
+  // Falls back to an empty array on DB failure ; illustrative claims
+  // below remain available so the page never breaks.
+  const dbClaims = await getClaimsForPolitician(p.slug, 20);
 
   // Distribution of factual verdicts (for the dot strip)
   const verdictCounts: Record<string, number> = {};
@@ -296,6 +304,70 @@ export default async function PoliticianProfile({
                 </div>
               </div>
             </div>
+          )}
+
+          {dbClaims.length > 0 && (
+            <section className="mb-10">
+              <div className="flex items-baseline justify-between gap-4 mb-2">
+                <h2 className="font-serif text-2xl font-semibold">
+                  Claims extraits par le pipeline
+                </h2>
+                <span className="text-xs text-[var(--color-trust)] font-mono">
+                  pipeline live · {dbClaims[0].llm_model}
+                </span>
+              </div>
+              <p className="text-sm text-[var(--color-ink-soft)] mb-4">
+                Affirmations atomiques extraites en temps réel à partir des
+                communications officielles, via le prompt versionné{" "}
+                <code className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-[var(--color-bg-soft)]">
+                  {dbClaims[0].prompt_version}
+                </code>
+                . Le verdict factuel sera ajouté par la cascade de
+                vérification (Phase 4).
+              </p>
+              <div className="bg-white rounded-2xl border border-black/5 divide-y divide-black/5">
+                {dbClaims.slice(0, 8).map((c) => (
+                  <article key={c.id} className="p-4">
+                    <div className="flex items-baseline gap-3 mb-2">
+                      <span className="shrink-0 px-2 py-0.5 text-[10px] uppercase tracking-wider rounded-full bg-[var(--color-trust)] text-white font-medium">
+                        {c.claim_type.replace("_", " ")}
+                      </span>
+                      <span className="text-xs text-[var(--color-ink-soft)] font-mono">
+                        conf {(c.extraction_confidence ?? 0).toFixed(2)}
+                      </span>
+                      {c.occurred_at && (
+                        <span className="text-xs text-[var(--color-ink-soft)] ml-auto">
+                          {formatDate(c.occurred_at)}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-base text-[var(--color-ink)] leading-snug">
+                      « {c.claim_text} »
+                    </p>
+                    <div className="mt-2 flex items-center gap-2 text-xs text-[var(--color-ink-soft)] flex-wrap">
+                      {c.topic_tags.map((t) => (
+                        <span
+                          key={t}
+                          className="px-1.5 py-0.5 rounded bg-black/5 font-medium"
+                        >
+                          {TOPIC_LABELS[t as keyof typeof TOPIC_LABELS] ?? t}
+                        </span>
+                      ))}
+                      {c.source_url && (
+                        <a
+                          href={c.source_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="ml-auto text-[var(--color-accent)] hover:underline"
+                        >
+                          {c.source_channel ?? "source"} ↗
+                        </a>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
           )}
 
           {(() => {
