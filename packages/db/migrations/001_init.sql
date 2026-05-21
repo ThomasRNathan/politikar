@@ -134,7 +134,9 @@ create table if not exists mandates (
   party_at_election_id uuid null references parties(id) on delete set null,
   start_date date not null,
   end_date date null,
-  is_active boolean generated always as (end_date is null or end_date >= current_date) stored,
+  -- is_active is computed at query time (see view `mandates_active` below).
+  -- Postgres disallows non-immutable expressions like current_date in a
+  -- STORED generated column, hence the view instead of a column.
   election_program_url text null,
   election_program_text text null,
   created_at timestamptz not null default now(),
@@ -142,8 +144,14 @@ create table if not exists mandates (
   deleted_at timestamptz null,
   check (end_date is null or end_date >= start_date)
 );
-create index if not exists ix_mandates_politician_active on mandates (politician_id, is_active) where deleted_at is null;
+create index if not exists ix_mandates_politician_active on mandates (politician_id, end_date) where deleted_at is null;
 create index if not exists ix_mandates_function on mandates (function_id) where deleted_at is null;
 drop trigger if exists trg_mandates_updated_at on mandates;
 create trigger trg_mandates_updated_at before update on mandates
   for each row execute function set_updated_at();
+
+create or replace view mandates_active as
+select *
+from mandates
+where deleted_at is null
+  and (end_date is null or end_date >= current_date);

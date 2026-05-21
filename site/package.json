@@ -11,18 +11,23 @@
     "test:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@ai-sdk/mistral": "^3.0.37",
+    "@neondatabase/serverless": "^1.1.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/d3-geo": "^3.1.0",
     "@vercel/blob": "^2.3.3",
     "@vercel/config": "^0.4.0",
+    "ai": "^6.0.188",
     "d3-geo": "^3.1.1",
+    "dotenv": "^17.4.2",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
@@ -30,8 +35,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.1",
     "tailwindcss": "^4",
     "tsx": "^4.22.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "ws": "^8.20.1"
   }
 }
