@@ -37,20 +37,102 @@ export async function fetchJson<T = unknown>(
   return JSON.parse(text) as T;
 }
 
+// Named HTML entities we expect to encounter on Élysée / Matignon pages.
+// Not exhaustive — covers French accented characters, common punctuation,
+// and the typographic quotes commonly used in French presidential prose.
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  // Accented lowercase
+  aacute: "á",
+  acirc: "â",
+  agrave: "à",
+  aelig: "æ",
+  atilde: "ã",
+  auml: "ä",
+  ccedil: "ç",
+  eacute: "é",
+  ecirc: "ê",
+  egrave: "è",
+  euml: "ë",
+  iacute: "í",
+  icirc: "î",
+  igrave: "ì",
+  iuml: "ï",
+  oacute: "ó",
+  ocirc: "ô",
+  ograve: "ò",
+  oslash: "ø",
+  otilde: "õ",
+  ouml: "ö",
+  szlig: "ß",
+  uacute: "ú",
+  ucirc: "û",
+  ugrave: "ù",
+  uuml: "ü",
+  yacute: "ý",
+  yuml: "ÿ",
+  // Accented uppercase
+  Aacute: "Á",
+  Acirc: "Â",
+  Agrave: "À",
+  AElig: "Æ",
+  Atilde: "Ã",
+  Auml: "Ä",
+  Ccedil: "Ç",
+  Eacute: "É",
+  Ecirc: "Ê",
+  Egrave: "È",
+  Euml: "Ë",
+  Iacute: "Í",
+  Icirc: "Î",
+  Igrave: "Ì",
+  Iuml: "Ï",
+  Oacute: "Ó",
+  Ocirc: "Ô",
+  Ograve: "Ò",
+  Oslash: "Ø",
+  Otilde: "Õ",
+  Ouml: "Ö",
+  Uacute: "Ú",
+  Ucirc: "Û",
+  Ugrave: "Ù",
+  Uuml: "Ü",
+  // Punctuation / typography
+  ndash: "–",
+  mdash: "—",
+  hellip: "…",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+  laquo: "«",
+  raquo: "»",
+  copy: "©",
+  reg: "®",
+  trade: "™",
+  euro: "€",
+  pound: "£",
+  cent: "¢",
+  sect: "§",
+  para: "¶",
+  middot: "·",
+  bull: "•",
+  deg: "°",
+};
+
 export function decodeEntities(s: string | null | undefined): string {
   if (!s) return "";
   return s
     .replace(/&#x([0-9a-fA-F]+);/g, (_, h) =>
-      String.fromCharCode(parseInt(h, 16))
+      String.fromCodePoint(parseInt(h, 16)),
     )
-    .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(parseInt(d, 10)))
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&nbsp;/g, " ")
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
+    .replace(/&([a-zA-Z][a-zA-Z0-9]+);/g, (m, name) => NAMED_ENTITIES[name] ?? m)
     .trim();
 }
 

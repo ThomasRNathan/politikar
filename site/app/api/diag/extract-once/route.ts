@@ -11,7 +11,7 @@
 // by correlation_id when investigating a specific invocation.
 
 import { NextResponse } from "next/server";
-import { fetchElysee } from "@/lib/ingest/elysee";
+import { fetchElysee, fetchArticleBody } from "@/lib/ingest/elysee";
 import { extractClaims } from "@/lib/llm/extract";
 import { upsertSource, insertClaims } from "@/lib/db/writes";
 
@@ -20,10 +20,15 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 function authorized(req: Request): boolean {
-  const expected = process.env.DIAG_TOKEN;
-  const got = new URL(req.url).searchParams.get("diag");
-  if (!expected) return process.env.NODE_ENV !== "production";
-  return got === expected;
+  // Accept either ?diag=<DIAG_TOKEN> or Authorization: Bearer <CRON_SECRET>.
+  const diag = new URL(req.url).searchParams.get("diag");
+  const expectedDiag = process.env.DIAG_TOKEN;
+  if (expectedDiag && diag === expectedDiag) return true;
+  const cron = process.env.CRON_SECRET;
+  const bearer = req.headers.get("authorization");
+  if (cron && bearer === `Bearer ${cron}`) return true;
+  if (!expectedDiag && !cron) return process.env.NODE_ENV !== "production";
+  return false;
 }
 
 function log(
@@ -118,8 +123,22 @@ export async function GET(req: Request) {
   let totalInserted = 0;
 
   for (const target of targets) {
-    const rawText = [target.title, target.summary].filter(Boolean).join("\n\n");
+    // Try to enrich the source with the full article body. RSS summaries
+    // are 100-200 chars whereas full bodies run 1-5 KB, giving the LLM
+    // a much richer surface to extract claims from.
+    let body: string | null = null;
+    if (target.url) {
+      body = await fetchArticleBody(target.url);
+    }
+    const rawText = body && body.length > 200
+      ? `${target.title}\n\n${body}`
+      : [target.title, target.summary].filter(Boolean).join("\n\n");
     if (!rawText.trim() || rawText.length < 30) continue;
+    log("info", correlationId, "diag.target_text", {
+      url: target.url,
+      raw_text_len: rawText.length,
+      used_full_body: body !== null && body.length > 200,
+    });
     try {
       const extraction = await extractClaims({
         politicianFullName: "Emmanuel Macron",

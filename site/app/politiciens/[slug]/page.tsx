@@ -322,16 +322,34 @@ export default async function PoliticianProfile({
                 <code className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-[var(--color-bg-soft)]">
                   {dbClaims[0].prompt_version}
                 </code>
-                . Le verdict factuel sera ajouté par la cascade de
-                vérification (Phase 4).
+                . Verdicts produits par la cascade de vérification : les
+                claims sans evidence solide retournent{" "}
+                <em>unverifiable</em>{" "}plutôt qu&apos;une supposition.
               </p>
               <div className="bg-white rounded-2xl border border-black/5 divide-y divide-black/5">
                 {dbClaims.slice(0, 8).map((c) => (
                   <article key={c.id} className="p-4">
-                    <div className="flex items-baseline gap-3 mb-2">
+                    <div className="flex items-baseline gap-3 mb-2 flex-wrap">
                       <span className="shrink-0 px-2 py-0.5 text-[10px] uppercase tracking-wider rounded-full bg-[var(--color-trust)] text-white font-medium">
                         {c.claim_type.replace("_", " ")}
                       </span>
+                      {c.verdict && c.verdict_is_published ? (
+                        <VerdictPill
+                          verdict={c.verdict as never}
+                          size="sm"
+                        />
+                      ) : c.verdict ? (
+                        <span
+                          className="px-2 py-0.5 text-[10px] uppercase tracking-wider rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-medium"
+                          title="Verdict produit, en attente de revue éditoriale"
+                        >
+                          en revue
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 text-[10px] uppercase tracking-wider rounded-full bg-black/5 text-[var(--color-ink-soft)] font-medium">
+                          à vérifier
+                        </span>
+                      )}
                       <span className="text-xs text-[var(--color-ink-soft)] font-mono">
                         conf {(c.extraction_confidence ?? 0).toFixed(2)}
                       </span>
@@ -344,6 +362,13 @@ export default async function PoliticianProfile({
                     <p className="text-base text-[var(--color-ink)] leading-snug">
                       « {c.claim_text} »
                     </p>
+                    {c.verdict && c.verdict_is_published && c.verdict_reasoning && (
+                      <p className="mt-2 text-xs text-[var(--color-ink-soft)] leading-relaxed italic border-l-2 border-[var(--color-accent-soft)] pl-3">
+                        {c.verdict_reasoning.length > 280
+                          ? c.verdict_reasoning.slice(0, 277) + "…"
+                          : c.verdict_reasoning}
+                      </p>
+                    )}
                     <div className="mt-2 flex items-center gap-2 text-xs text-[var(--color-ink-soft)] flex-wrap">
                       {c.topic_tags.map((t) => (
                         <span

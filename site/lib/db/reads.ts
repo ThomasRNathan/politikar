@@ -18,6 +18,13 @@ export type DbClaim = {
   source_channel: string | null;
   source_type: string | null;
   occurred_at: string | null;
+  // Live verdict from the verification cascade. Null when the claim
+  // hasn't been verified yet or when the verdict is still pending review.
+  verdict: string | null;
+  verdict_confidence: number | null;
+  verdict_reasoning: string | null;
+  verdict_is_published: boolean;
+  verdict_human_reviewed: boolean;
 };
 
 export async function getClaimsForPolitician(
@@ -26,6 +33,9 @@ export async function getClaimsForPolitician(
 ): Promise<DbClaim[]> {
   try {
     const sql = getSql();
+    // Only published verifications surface on the public page. Claims
+    // whose verdict landed in claim_review_queue render with a "pending
+    // review" badge instead of a verdict pill.
     const rows = (await sql`
       select
         c.id::text,
@@ -39,13 +49,27 @@ export async function getClaimsForPolitician(
         s.url as source_url,
         s.channel as source_channel,
         s.source_type,
-        s.occurred_at
+        s.occurred_at,
+        v.verdict,
+        v.confidence_score::float as verdict_confidence,
+        v.reasoning as verdict_reasoning,
+        coalesce(v.is_published, false) as verdict_is_published,
+        coalesce(v.human_reviewed, false) as verdict_human_reviewed
       from claims c
       join politicians p on p.id = c.politician_id
       left join sources s on s.id = c.source_id
+      left join lateral (
+        select v.verdict, v.confidence_score, v.reasoning,
+               v.is_published, v.human_reviewed
+        from verifications v
+        where v.claim_id = c.id
+          and v.superseded_by_verification_id is null
+        order by v.created_at desc
+        limit 1
+      ) v on true
       where p.slug = ${slug}
         and c.deleted_at is null
-        and (c.duplicate_of_claim_id is null)
+        and c.duplicate_of_claim_id is null
       order by s.occurred_at desc nulls last, c.created_at desc
       limit ${limit}
     `) as DbClaim[];
