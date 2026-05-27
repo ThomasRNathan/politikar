@@ -71,7 +71,18 @@ export type VerifyInput = {
   politicianFunction: string;
   occurredAt: string;
   channel: string;
-  factCheckHits: Array<{ outlet: string; title: string; url: string }>;
+  factCheckHits: Array<{
+    outlet: string;
+    title: string;
+    url: string;
+    /** Plain-text excerpt of the fact-check article body when the feed
+     * publishes it. Allows Mistral to use the actual analysis rather
+     * than infer from the title. */
+    body?: string | null;
+    /** Cosine similarity score with the claim embedding (0-1). Higher
+     * values indicate stronger topical alignment. */
+    sim?: number;
+  }>;
 };
 
 export function buildVerifyUserPrompt(inp: VerifyInput): string {
@@ -86,21 +97,35 @@ export function buildVerifyUserPrompt(inp: VerifyInput): string {
   );
   lines.push(`TAGS : ${inp.topicTags.join(", ")}`);
   lines.push("");
-  lines.push(`ÉVIDENCES PRÉ-COLLECTÉES :`);
+  lines.push(`ÉVIDENCES PRÉ-COLLECTÉES (par similarité sémantique) :`);
   if (inp.factCheckHits.length === 0) {
-    lines.push("  (aucun fact-check correspondant trouvé via similarité sémantique)");
+    lines.push("  (aucun fact-check correspondant trouvé)");
   } else {
     for (const fc of inp.factCheckHits) {
-      lines.push(`  [FACT-CHECKER : ${fc.outlet}]`);
-      lines.push(`    Titre : ${fc.title}`);
-      lines.push(`    URL : ${fc.url}`);
-      lines.push("");
+      lines.push(`---`);
+      lines.push(`Outlet : ${fc.outlet}`);
+      lines.push(`Titre : ${fc.title}`);
+      lines.push(`URL : ${fc.url}`);
+      if (typeof fc.sim === "number") {
+        lines.push(`Similarité sémantique : ${fc.sim.toFixed(2)}`);
+      }
+      if (fc.body && fc.body.trim().length > 40) {
+        // Cap each body at 1500 chars so several hits fit. Mistral
+        // small handles 32k context so this is conservative.
+        const excerpt = fc.body.slice(0, 1500);
+        lines.push(`Extrait du fact-check :`);
+        lines.push(`"""`);
+        lines.push(excerpt);
+        lines.push(`"""`);
+      }
     }
   }
   lines.push("");
   lines.push(
-    "Émets ton verdict. Tu n'as pas accès au corps des articles de fact-check, " +
-      "uniquement leurs titres : utilise-les comme indices, pas comme preuves définitives.",
+    "Émets ton verdict. Si l'extrait d'un fact-check contredit clairement le claim, " +
+      "verdict 'false'. S'il le confirme, 'true'. Si la similarité est faible (< 0.6) ou " +
+      "si les extraits ne portent pas sur le même fait précis, choisis 'unverifiable'. " +
+      "Cite systématiquement l'URL du fact-check utilisé dans evidence.",
   );
   return lines.join("\n");
 }

@@ -20,7 +20,13 @@ if (
   neonConfig.webSocketConstructor = ws;
 }
 
-type Factcheck = { id: string; outlet: string; title: string; url: string };
+type Factcheck = {
+  id: string;
+  outlet: string;
+  title: string;
+  url: string;
+  body?: string | null;
+};
 const FACTCHECKS = (factchecksJson as { items: Factcheck[] }).items;
 
 function authorized(req: Request): boolean {
@@ -101,13 +107,20 @@ export async function GET(req: Request) {
       log("info", cid, "claims_embedded", { n: embedded, tokens: embedTokens });
     }
 
-    // 2) Embed the fact-check corpus titles once per run
-    const fcEmb = await embed(
-      FACTCHECKS.map((f) => f.title),
-      { inputType: "document" },
-    );
+    // 2) Embed the fact-check corpus once per run. When a body is
+    // available we embed title + first 400 chars of body — that gives
+    // the matcher more signal than the title alone.
+    const fcInputs = FACTCHECKS.map((f) => {
+      const head = f.body ? `${f.title}\n\n${f.body.slice(0, 400)}` : f.title;
+      return head;
+    });
+    const fcEmb = await embed(fcInputs, { inputType: "document" });
     const fcEmbeddings = FACTCHECKS.map((fc, i) => ({ fc, vec: fcEmb.embeddings[i] }));
-    log("info", cid, "factchecks_embedded", { n: FACTCHECKS.length, tokens: fcEmb.total_tokens });
+    log("info", cid, "factchecks_embedded", {
+      n: FACTCHECKS.length,
+      with_body: FACTCHECKS.filter((f) => f.body && f.body.length > 80).length,
+      tokens: fcEmb.total_tokens,
+    });
 
     // 3) Pick claims with no active verification and verify them
     const { rows: targets } = await pool.query<{
@@ -164,7 +177,13 @@ export async function GET(req: Request) {
               .sort((a, b) => b.sim - a.sim)
               .slice(0, 3)
               .filter((x) => x.sim > 0.5)
-              .map((r) => ({ outlet: r.fc.outlet, title: r.fc.title, url: r.fc.url }))
+              .map((r) => ({
+                outlet: r.fc.outlet,
+                title: r.fc.title,
+                url: r.fc.url,
+                body: r.fc.body ?? null,
+                sim: r.sim,
+              }))
           : [];
 
         const res = await verifyClaim({

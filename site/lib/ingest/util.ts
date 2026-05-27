@@ -144,9 +144,36 @@ export type RssItem = {
   pubDate: string | null;
   author: string | null;
   category: string | null;
+  // <content:encoded> from RSS 1.0 content module — full article body
+  // when the feed publishes it (Surligneurs, Le Monde, etc.). Strip
+  // HTML before persisting.
+  contentEncoded: string | null;
 };
 
-// Tiny RSS parser : grabs <item> blocks and their child fields.
+/**
+ * Strip HTML tags and normalise whitespace to readable plain text.
+ * Used both for feed content:encoded bodies and for article body
+ * scraping. Keeps paragraph breaks ; drops `<script>`, `<style>`, and
+ * navigation classes.
+ */
+export function htmlToPlainText(html: string): string {
+  let s = html;
+  s = s.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ");
+  s = s.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ");
+  s = s.replace(/<(p|h\d|li|br)[^>]*>/gi, "\n");
+  s = s.replace(/<\/(p|h\d|li|div)>/gi, "\n");
+  s = s.replace(/<[^>]+>/g, " ");
+  s = decodeEntities(s);
+  s = s
+    .split("\n")
+    .map((l) => l.replace(/\s+/g, " ").trim())
+    .filter((l) => l.length > 0)
+    .join("\n");
+  return s;
+}
+
+// Tiny RSS parser : grabs <item> blocks and their child fields,
+// including <content:encoded> (RSS Content module).
 export function parseRss(xml: string): RssItem[] {
   const items: RssItem[] = [];
   const itemRegex = /<item\b[^>]*>([\s\S]*?)<\/item>/g;
@@ -170,6 +197,7 @@ export function parseRss(xml: string): RssItem[] {
       pubDate: get("pubDate"),
       author: get("author") ?? get("dc:creator"),
       category: get("category"),
+      contentEncoded: get("content:encoded"),
     });
   }
   return items;
