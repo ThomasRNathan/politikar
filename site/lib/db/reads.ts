@@ -483,6 +483,80 @@ export type DbRankedPolitician = {
   n_verdicts: number;
 };
 
+export type DbClassementRow = {
+  slug: string;
+  full_name: string;
+  photo_url: string | null;
+  party_color: string | null;
+  truth_score: number;
+  n_verdicts: number;
+  // Verdict breakdown counts
+  n_true: number;
+  n_mostly_true: number;
+  n_mixed: number;
+  n_misleading: number;
+  n_mostly_false: number;
+  n_false: number;
+  n_unverifiable: number;
+};
+
+/**
+ * Full classement: all politicians with published verdicts, ranked by
+ * confidence-weighted TruthScore with per-verdict breakdown counts.
+ * Used by the /classement page.
+ */
+export async function getClassementData(
+  minVerdicts = 1,
+): Promise<DbClassementRow[]> {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      select
+        p.slug,
+        p.full_name,
+        p.photo_url,
+        pa.color_hex as party_color,
+        count(*)::int as n_verdicts,
+        round(
+          sum(
+            v.confidence_score::float *
+            case v.verdict
+              when 'true'               then 100
+              when 'mostly_true'        then 80
+              when 'mixed'              then 50
+              when 'misleading_context' then 35
+              when 'mostly_false'       then 20
+              when 'false'              then 0
+              when 'unverifiable'       then 50
+              else 50
+            end
+          ) / nullif(sum(v.confidence_score::float), 0)
+        )::int as truth_score,
+        count(*) filter (where v.verdict = 'true')::int          as n_true,
+        count(*) filter (where v.verdict = 'mostly_true')::int   as n_mostly_true,
+        count(*) filter (where v.verdict = 'mixed')::int         as n_mixed,
+        count(*) filter (where v.verdict = 'misleading_context')::int as n_misleading,
+        count(*) filter (where v.verdict = 'mostly_false')::int  as n_mostly_false,
+        count(*) filter (where v.verdict = 'false')::int         as n_false,
+        count(*) filter (where v.verdict = 'unverifiable')::int  as n_unverifiable
+      from verifications v
+      join claims c on c.id = v.claim_id
+      join politicians p on p.id = c.politician_id
+      left join parties pa on pa.id = p.current_party_id
+      where v.is_published
+        and v.superseded_by_verification_id is null
+        and c.deleted_at is null
+      group by p.id, p.slug, p.full_name, p.photo_url, pa.color_hex
+      having count(*) >= ${minVerdicts}
+      order by truth_score desc
+    `) as DbClassementRow[];
+    return rows;
+  } catch (e) {
+    console.warn("getClassementData failed:", (e as Error).message);
+    return [];
+  }
+}
+
 /**
  * Return top N politicians ranked by confidence-weighted TruthScore from
  * published DB verifications. Requires at least `minVerdicts` to appear.
