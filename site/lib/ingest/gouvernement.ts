@@ -58,27 +58,32 @@ const GOVERNMENT_POLITICIANS: PoliticianSpec[] = [
   {
     id: "pol-vautrin",
     full_name: "Catherine Vautrin",
-    patterns: ["vautrin", "travail", "sante", "santé"],
+    // "travail" and "sante" appear in ministry URL slugs on gouvernement.fr
+    patterns: ["vautrin", "ministre-du-travail", "ministre-de-la-sante", "ministere-du-travail"],
   },
   {
     id: "pol-barrot",
     full_name: "Jean-Noël Barrot",
-    patterns: ["barrot", "affaires-etrangeres", "affaires-étrangères", "europe"],
+    patterns: ["barrot", "affaires-etrangeres", "affaires-étrangères"],
   },
   {
     id: "pol-dati",
     full_name: "Rachida Dati",
-    patterns: ["dati", "culture"],
+    // "culture" is too broad; match name or ministry URL slug only
+    patterns: ["dati", "ministre-de-la-culture", "ministere-de-la-culture"],
   },
   {
     id: "pol-le-maire",
     full_name: "Bruno Le Maire",
-    patterns: ["le-maire", "lemaire", "economie", "économie", "finances"],
+    // Former minister: only match by name to avoid misattributing current
+    // economy/finance articles to him now that he left government.
+    patterns: ["le-maire", "lemaire"],
   },
   {
     id: "pol-borne",
     full_name: "Élisabeth Borne",
-    patterns: ["borne", "education", "éducation"],
+    // Former PM / Education minister: name-only matching (same reason).
+    patterns: ["borne"],
   },
   {
     id: "pol-fesneau",
