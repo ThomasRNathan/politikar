@@ -6,10 +6,11 @@
 //
 // Manual trigger :
 //   curl -H "Authorization: Bearer $CRON_SECRET" \
-//        https://politikar.vercel.app/api/cron/extract?limit=10
+//        https://politikar.vercel.app/api/cron/extract?limit=15
 //
-// Default limit is 10 (round-robin across connectors: ~3-4 items per
-// politician group) to fit in the 300 s Fluid Compute budget.
+// Default limit is 15 (round-robin across 32 connectors: ~0.5 items per
+// connector per run). Each item takes ~8-10 s (fetch + Mistral + Voyage),
+// so 15 items ≈ 120-150 s — well within the 300 s Fluid Compute budget.
 
 import { NextResponse } from "next/server";
 import { runFullPipeline } from "@/lib/pipeline/run";
@@ -75,8 +76,8 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const limit = Math.min(
-    Math.max(parseInt(url.searchParams.get("limit") ?? "10", 10) || 10, 1),
-    20,
+    Math.max(parseInt(url.searchParams.get("limit") ?? "15", 10) || 15, 1),
+    30,
   );
   const startedAt = Date.now();
   log("info", correlationId, "cron.start", { limit });
