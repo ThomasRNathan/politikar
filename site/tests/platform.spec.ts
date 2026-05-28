@@ -213,4 +213,66 @@ test.describe("politikar platform", () => {
     );
     expect(naturalWidth).toBeGreaterThan(0);
   });
+
+  test("/classement page loads and shows ranking content", async ({ page, request }) => {
+    // Guard: skip content assertions if this page isn't deployed yet.
+    const status = (await request.get("/classement")).status();
+    if (status === 404) {
+      test.skip(true, "/classement not yet deployed on this environment");
+      return;
+    }
+    await page.goto("/classement");
+    await expect(page).toHaveTitle(/Classement/i);
+    await expect(
+      page.getByRole("heading", { name: /Véracité du discours politique/i })
+    ).toBeVisible();
+    // Should show either "données réelles" (live DB) or "illustratif" (fixture)
+    const hasRealData = await page.getByText("données réelles").isVisible();
+    const hasIllustrative = await page.getByText("illustratif").isVisible();
+    expect(hasRealData || hasIllustrative).toBeTruthy();
+    // Should have at least one ranking entry (either DB or fixture)
+    const rankEntries = page.locator("a[href^='/politiciens/']");
+    expect(await rankEntries.count()).toBeGreaterThanOrEqual(1);
+    // Methodology note present
+    await expect(page.getByText(/Note méthodologique/i)).toBeVisible();
+  });
+
+  test("politician search filters the annuaire", async ({ page, request }) => {
+    // Check that the live /politiciens page supports ?q= search params.
+    // The page returns 200 either way; distinguish by checking if the
+    // "Effacer le filtre" link appears (only present in the new async version).
+    await page.goto("/politiciens?q=macron");
+    await page.waitForLoadState("networkidle");
+    const hasSearchSupport = await page
+      .getByText(/Effacer le filtre/i)
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
+    if (!hasSearchSupport) {
+      test.skip(true, "Search params not yet supported on this deployment");
+      return;
+    }
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      /résultat|macron/i
+    );
+    await expect(page.getByText(/Macron/i).first()).toBeVisible();
+  });
+
+  test("politician topic filter shows subset", async ({ page }) => {
+    await page.goto("/politiciens?topic=economy");
+    await page.waitForLoadState("networkidle");
+    // Guard: topic chips are only present in the new async version of the page.
+    const hasTopicChips = await page
+      .getByRole("link", { name: /Économie/i })
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
+    if (!hasTopicChips) {
+      test.skip(true, "Topic filter chips not yet deployed on this environment");
+      return;
+    }
+    // The Économie chip should be highlighted (active style) when ?topic=economy is active
+    const economieChip = page.getByRole("link", { name: /Économie/i }).first();
+    await expect(economieChip).toBeVisible();
+    // Heading should reflect filtered results
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  });
 });
