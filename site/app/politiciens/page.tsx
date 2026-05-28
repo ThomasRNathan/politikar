@@ -3,6 +3,7 @@ import { CLAIMS, POLITICIANS, FUNCTIONS, PARTIES } from "@/lib/fixtures";
 import { PoliticianCard } from "@/components/PoliticianCard";
 import type { Topic } from "@/lib/types";
 import { TOPIC_LABELS } from "@/lib/types";
+import { getTopPoliticiansByScore } from "@/lib/db/reads";
 
 export const metadata = {
   title: "Politiques : politikar",
@@ -51,6 +52,13 @@ export default async function PoliticiansIndex({
   const topicLabel = topic
     ? (TOPIC_LABELS[topic as Topic] ?? topic)
     : null;
+
+  // Fetch real DB scores for all politicians (min 1 verdict).
+  // getTopPoliticiansByScore with limit=50 covers our full fixture set.
+  const dbScores = await getTopPoliticiansByScore(50, 1);
+  const dbScoreMap = new Map(
+    dbScores.map((s) => [s.slug, { score: s.truth_score, n: s.n_verdicts }]),
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-16">
@@ -177,9 +185,17 @@ export default async function PoliticiansIndex({
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sorted.map((p) => (
-            <PoliticianCard key={p.id} politician={p} />
-          ))}
+          {sorted.map((p) => {
+            const db = dbScoreMap.get(p.slug);
+            return (
+              <PoliticianCard
+                key={p.id}
+                politician={p}
+                realScore={db?.score}
+                realVerdicts={db?.n}
+              />
+            );
+          })}
         </div>
       )}
 
