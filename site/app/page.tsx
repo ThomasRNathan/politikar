@@ -118,10 +118,10 @@ export default async function Home() {
             </div>
           </div>
           <div className="bg-white rounded-2xl border border-black/5 p-6 shadow-sm">
-            <div className="flex items-baseline justify-between mb-4">
+            <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
               <h2 className="font-serif text-xl font-semibold">Carte des régions</h2>
               <span className="text-xs text-[var(--color-ink-soft)]">
-                Score moyen pondéré des élus suivis
+                Score moyen pondéré · données illustratives
               </span>
             </div>
             <FranceMap scores={regionScores} />
