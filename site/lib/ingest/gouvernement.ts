@@ -69,8 +69,9 @@ const GOVERNMENT_POLITICIANS: PoliticianSpec[] = [
   {
     id: "pol-dati",
     full_name: "Rachida Dati",
-    // "culture" is too broad; match name or ministry URL slug only
-    patterns: ["dati", "ministre-de-la-culture", "ministere-de-la-culture"],
+    // Left the Bayrou government. Name-only matching to avoid attributing
+    // current culture ministry articles to her successor.
+    patterns: ["dati"],
   },
   {
     id: "pol-le-maire",
@@ -88,7 +89,10 @@ const GOVERNMENT_POLITICIANS: PoliticianSpec[] = [
   {
     id: "pol-fesneau",
     full_name: "Marc Fesneau",
-    patterns: ["fesneau", "agriculture"],
+    // Former Agriculture minister (Attal govt). Left Bayrou govt.
+    // Name-only matching to avoid attributing current agriculture articles
+    // to his successor (Annie Genevard, LR).
+    patterns: ["fesneau"],
   },
 ];
 
