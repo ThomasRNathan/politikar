@@ -19,7 +19,7 @@ import {
   recentFactchecks,
   ingestionTotals,
 } from "@/lib/realdata";
-import { getRecentPublishedVerdicts } from "@/lib/db/reads";
+import { getRecentPublishedVerdicts, getTopPoliticiansByScore } from "@/lib/db/reads";
 import { politicianBySlug } from "@/lib/fixtures";
 
 // ISR: homepage refreshes every 5 minutes so new verdicts appear without a
@@ -44,9 +44,13 @@ export default async function Home() {
     politician: politicianById(claimById(t.claim_id)!.politician_id)!,
   }));
 
-  // Fetch real verdicts from DB; fall back to fixture stories when empty.
-  const liveVerdicts = await getRecentPublishedVerdicts(6);
+  // Fetch real verdicts + ranking from DB; fall back to fixtures when empty.
+  const [liveVerdicts, dbTopPoliticians] = await Promise.all([
+    getRecentPublishedVerdicts(6),
+    getTopPoliticiansByScore(5, 3),
+  ]);
   const hasLiveVerdicts = liveVerdicts.length > 0;
+  const hasDbRanking = dbTopPoliticians.length > 0;
 
   return (
     <div className="flex-1">
@@ -149,7 +153,7 @@ export default async function Home() {
                   return (
                     <Link
                       key={v.claim_id}
-                      href={`/politiciens/${v.politician_slug}`}
+                      href={`/claims/${v.claim_id}`}
                       className="group block bg-white rounded-2xl p-6 border border-black/5 hover:border-[var(--color-accent)] transition"
                     >
                       <div className="flex items-start gap-4">
@@ -232,40 +236,82 @@ export default async function Home() {
       <section className="max-w-6xl mx-auto px-6 py-16">
         <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12">
           <div>
-            <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
-              Classement
-            </p>
+            <div className="flex items-baseline gap-3 mb-2">
+              <p className="text-xs uppercase tracking-widest text-[var(--color-accent)]">
+                Classement
+              </p>
+              {hasDbRanking && (
+                <span className="text-[10px] text-[var(--color-trust)] font-mono">
+                  données réelles
+                </span>
+              )}
+            </div>
             <h2 className="font-serif text-3xl font-semibold tracking-tight mb-4">
               Top 5 par véracité.
             </h2>
             <p className="text-sm text-[var(--color-ink-soft)] mb-6 leading-relaxed">
-              Calculé sur l&apos;ensemble des claims factuels et promesses
-              résolus de la période. Volume minimum requis pour entrer au
-              classement : 30 affirmations factuelles ou 5 promesses résolues.
+              {hasDbRanking
+                ? `Calculé sur les vérifications publiées dans la base. Minimum ${dbTopPoliticians[0]?.n_verdicts ?? 3} verdicts requis.`
+                : "Calculé sur l'ensemble des claims factuels et promesses résolus de la période. Volume minimum requis pour entrer au classement : 30 affirmations factuelles ou 5 promesses résolues."}
             </p>
             <ol className="space-y-2">
-              {topPoliticians.map((p, i) => (
-                <li key={p.id}>
-                  <Link
-                    href={`/politiciens/${p.slug}`}
-                    className="group flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--color-bg-soft)] transition"
-                  >
-                    <span className="font-mono text-sm text-[var(--color-ink-soft)] w-6">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <PoliticianAvatar politician={p} size={36} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate group-hover:text-[var(--color-accent)]">
-                        {p.full_name}
-                      </p>
-                      <p className="text-[11px] text-[var(--color-ink-soft)] truncate">
-                        {p.bio_short.split(".")[0]}
-                      </p>
-                    </div>
-                    <ScoreBadge score={p.stats.truth_score} size="sm" />
-                  </Link>
-                </li>
-              ))}
+              {hasDbRanking
+                ? dbTopPoliticians.map((p, i) => {
+                    const fixPol = politicianBySlug(p.slug);
+                    return (
+                      <li key={p.slug}>
+                        <Link
+                          href={`/politiciens/${p.slug}`}
+                          className="group flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--color-bg-soft)] transition"
+                        >
+                          <span className="font-mono text-sm text-[var(--color-ink-soft)] w-6">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          {fixPol ? (
+                            <PoliticianAvatar politician={fixPol} size={36} />
+                          ) : (
+                            <div
+                              className="h-9 w-9 rounded-full shrink-0 flex items-center justify-center text-white text-sm font-bold"
+                              style={{ background: p.party_color ?? "#94a3b8" }}
+                            >
+                              {p.full_name[0]}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate group-hover:text-[var(--color-accent)]">
+                              {p.full_name}
+                            </p>
+                            <p className="text-[11px] text-[var(--color-ink-soft)]">
+                              {p.n_verdicts} verdict{p.n_verdicts > 1 ? "s" : ""} publiés
+                            </p>
+                          </div>
+                          <ScoreBadge score={p.truth_score} size="sm" />
+                        </Link>
+                      </li>
+                    );
+                  })
+                : topPoliticians.map((p, i) => (
+                    <li key={p.id}>
+                      <Link
+                        href={`/politiciens/${p.slug}`}
+                        className="group flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--color-bg-soft)] transition"
+                      >
+                        <span className="font-mono text-sm text-[var(--color-ink-soft)] w-6">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <PoliticianAvatar politician={p} size={36} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate group-hover:text-[var(--color-accent)]">
+                            {p.full_name}
+                          </p>
+                          <p className="text-[11px] text-[var(--color-ink-soft)] truncate">
+                            {p.bio_short.split(".")[0]}
+                          </p>
+                        </div>
+                        <ScoreBadge score={p.stats.truth_score} size="sm" />
+                      </Link>
+                    </li>
+                  ))}
             </ol>
           </div>
           <div>

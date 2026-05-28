@@ -471,3 +471,66 @@ export async function getRecentPublishedVerdicts(
     return [];
   }
 }
+
+// --------- Homepage ranking: top politicians by real truth score ----------
+
+export type DbRankedPolitician = {
+  slug: string;
+  full_name: string;
+  photo_url: string | null;
+  party_color: string | null;
+  truth_score: number;
+  n_verdicts: number;
+};
+
+/**
+ * Return top N politicians ranked by confidence-weighted TruthScore from
+ * published DB verifications. Requires at least `minVerdicts` to appear.
+ * Falls back to [] on DB failure — caller uses fixture top list instead.
+ */
+export async function getTopPoliticiansByScore(
+  limit = 5,
+  minVerdicts = 3,
+): Promise<DbRankedPolitician[]> {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      select
+        p.slug,
+        p.full_name,
+        p.photo_url,
+        pa.color_hex as party_color,
+        count(*)::int as n_verdicts,
+        round(
+          sum(
+            v.confidence_score::float *
+            case v.verdict
+              when 'true'               then 100
+              when 'mostly_true'        then 80
+              when 'mixed'              then 50
+              when 'misleading_context' then 35
+              when 'mostly_false'       then 20
+              when 'false'              then 0
+              when 'unverifiable'       then 50
+              else 50
+            end
+          ) / nullif(sum(v.confidence_score::float), 0)
+        )::int as truth_score
+      from verifications v
+      join claims c on c.id = v.claim_id
+      join politicians p on p.id = c.politician_id
+      left join parties pa on pa.id = p.current_party_id
+      where v.is_published
+        and v.superseded_by_verification_id is null
+        and c.deleted_at is null
+      group by p.id, p.slug, p.full_name, p.photo_url, pa.color_hex
+      having count(*) >= ${minVerdicts}
+      order by truth_score desc
+      limit ${limit}
+    `) as DbRankedPolitician[];
+    return rows;
+  } catch (e) {
+    console.warn("getTopPoliticiansByScore failed:", (e as Error).message);
+    return [];
+  }
+}
