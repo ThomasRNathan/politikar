@@ -7,7 +7,12 @@ test.describe("politikar platform", () => {
     await page.goto("/");
     await expect(page).toHaveTitle(/politikar/);
     // Discreet status notice on every page
-    await expect(page.getByText(/Plateforme en construction/i)).toBeVisible();
+    // Banner now shows live counters when DB has claims, falls back to
+    // "Plateforme en construction" when empty. Either message confirms
+    // the StatusNotice renders.
+    await expect(
+      page.getByText(/Pipeline live\.|Plateforme en construction/i),
+    ).toBeVisible();
     // Hero
     await expect(
       page.getByRole("heading", { name: /véracité du discours politique/i })
@@ -173,7 +178,7 @@ test.describe("politikar platform", () => {
     ]) {
       await page.goto(route);
       await expect(
-        page.getByText(/Plateforme en construction/i),
+        page.getByText(/Pipeline live\.|Plateforme en construction/i),
         `Status notice missing on ${route}`
       ).toBeVisible();
     }

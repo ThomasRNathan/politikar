@@ -2,7 +2,29 @@ import type { Metadata } from "next";
 import { Inter, Source_Serif_4, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+import { Suspense } from "react";
 import { StatusNotice } from "@/components/DemoBanner";
+
+// Static fallback rendered while StatusNotice fetches live DB counts.
+// Keeps the layout shell instant even on cold DB starts.
+function StatusNoticeFallback() {
+  return (
+    <div className="bg-[var(--color-bg-soft)] border-b border-black/5 text-xs text-[var(--color-ink-soft)]">
+      <div className="max-w-6xl mx-auto px-6 py-2 flex items-center gap-2 justify-center text-center">
+        <span aria-hidden className="text-[var(--color-accent)]">●</span>
+        <p>
+          Pipeline politikar — chargement des compteurs…{" "}
+          <a
+            href="/methode"
+            className="underline hover:text-[var(--color-accent)]"
+          >
+            Méthode
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+}
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,7 +60,9 @@ export default function RootLayout({
       className={`${inter.variable} ${sourceSerif.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-screen flex flex-col bg-[var(--color-bg)] text-[var(--color-ink)]">
-        <StatusNotice />
+        <Suspense fallback={<StatusNoticeFallback />}>
+          <StatusNotice />
+        </Suspense>
         <header className="border-b border-black/5 bg-[var(--color-bg)]/90 backdrop-blur sticky top-0 z-10">
           <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
             <Link

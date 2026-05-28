@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { getDbTotals, getLatestPublishedVerdict } from "@/lib/db/reads";
+import { VerdictPill } from "@/components/VerdictPill";
 
 export const metadata = {
   title: "Méthodologie : politikar",
@@ -6,7 +8,16 @@ export const metadata = {
     "Comment politikar évalue les discours politiques : sources, prompts, scoring, garde-fous.",
 };
 
-export default function MethodPage() {
+// ISR : pipeline panel refreshes every 5 minutes — fast enough to
+// reflect a freshly-published verdict, slow enough to keep Neon load
+// negligible under public traffic.
+export const revalidate = 300;
+
+export default async function MethodPage() {
+  const [totals, latest] = await Promise.all([
+    getDbTotals(),
+    getLatestPublishedVerdict(),
+  ]);
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
       <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-3">
@@ -20,6 +31,68 @@ export default function MethodPage() {
         avec les schémas, les prompts versionnés et les formules, est dans
         les six documents de cadrage.
       </p>
+
+      <section className="mt-10 rounded-2xl border border-[var(--color-trust)]/20 bg-gradient-to-br from-[var(--color-bg-soft)] to-transparent p-6">
+        <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
+          <h2 className="font-serif text-xl font-semibold">
+            Pipeline live
+          </h2>
+          <span className="text-[10px] uppercase tracking-widest text-[var(--color-trust)] font-medium">
+            mis à jour toutes les 5 min
+          </span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+          <Stat label="Politiques" value={totals.politicians} />
+          <Stat label="Communications" value={totals.sources} />
+          <Stat label="Claims extraits" value={totals.claims} />
+          <Stat
+            label="Verdicts publiés"
+            value={totals.verifications_published}
+            accent={totals.verdicts_true > 0}
+            sub={
+              totals.verdicts_true > 0
+                ? `dont ${totals.verdicts_true} vrais`
+                : undefined
+            }
+          />
+        </div>
+        {latest ? (
+          <div className="border-t border-[var(--color-trust)]/15 pt-4">
+            <p className="text-xs uppercase tracking-widest text-[var(--color-ink-soft)] mb-2">
+              Dernier verdict publié
+            </p>
+            <div className="flex items-baseline gap-3 mb-2 flex-wrap">
+              <VerdictPill verdict={latest.verdict as never} size="sm" />
+              <span className="text-xs text-[var(--color-ink-soft)] font-mono">
+                confiance {latest.confidence.toFixed(2)}
+              </span>
+              <Link
+                href={`/politiciens/${latest.politician_slug}`}
+                className="text-xs text-[var(--color-accent)] hover:underline ml-auto"
+              >
+                {latest.politician} →
+              </Link>
+            </div>
+            <p className="font-serif text-sm leading-snug">
+              « {latest.claim_text} »
+            </p>
+            {latest.source_url && (
+              <a
+                href={latest.source_url}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-block text-[11px] text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] underline"
+              >
+                Source originale ↗
+              </a>
+            )}
+          </div>
+        ) : (
+          <p className="text-xs text-[var(--color-ink-soft)] italic">
+            Aucun verdict publié pour le moment.
+          </p>
+        )}
+      </section>
 
       <section className="mt-12 space-y-10">
         <Step
@@ -85,6 +158,36 @@ export default function MethodPage() {
           Code source
         </a>
       </div>
+    </div>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  sub,
+  accent = false,
+}: {
+  label: string;
+  value: number;
+  sub?: string;
+  accent?: boolean;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-widest text-[var(--color-ink-soft)]">
+        {label}
+      </p>
+      <p
+        className={`mt-1 font-serif text-3xl font-semibold ${accent ? "text-[var(--color-trust)]" : "text-[var(--color-ink)]"}`}
+      >
+        {value}
+      </p>
+      {sub && (
+        <p className="mt-0.5 text-[11px] text-[var(--color-ink-soft)]">
+          {sub}
+        </p>
+      )}
     </div>
   );
 }

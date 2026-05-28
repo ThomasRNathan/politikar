@@ -123,6 +123,8 @@ export type DbTotals = {
   politicians: number;
   sources: number;
   claims: number;
+  verifications_published: number;
+  verdicts_true: number;
 };
 
 export async function getDbTotals(): Promise<DbTotals> {
@@ -132,11 +134,73 @@ export async function getDbTotals(): Promise<DbTotals> {
       select
         (select count(*) from politicians where deleted_at is null)::int as politicians,
         (select count(*) from sources where deleted_at is null)::int as sources,
-        (select count(*) from claims where deleted_at is null)::int as claims
+        (select count(*) from claims where deleted_at is null)::int as claims,
+        (select count(*) from verifications
+           where is_published and superseded_by_verification_id is null)::int
+          as verifications_published,
+        (select count(*) from verifications
+           where is_published and superseded_by_verification_id is null
+             and verdict in ('true', 'mostly_true'))::int
+          as verdicts_true
     `) as DbTotals[];
-    return rows[0] ?? { politicians: 0, sources: 0, claims: 0 };
+    return rows[0] ?? {
+      politicians: 0,
+      sources: 0,
+      claims: 0,
+      verifications_published: 0,
+      verdicts_true: 0,
+    };
   } catch (e) {
     console.warn("getDbTotals failed:", (e as Error).message);
-    return { politicians: 0, sources: 0, claims: 0 };
+    return {
+      politicians: 0,
+      sources: 0,
+      claims: 0,
+      verifications_published: 0,
+      verdicts_true: 0,
+    };
+  }
+}
+
+export type LatestVerdict = {
+  claim_id: string;
+  claim_text: string;
+  verdict: string;
+  confidence: number;
+  politician: string;
+  politician_slug: string;
+  source_url: string | null;
+  created_at: string;
+} | null;
+
+/** Most recently published non-unverifiable verdict, for the "Pipeline
+ * live" callout on the homepage and /methode page. */
+export async function getLatestPublishedVerdict(): Promise<LatestVerdict> {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      select
+        c.id::text as claim_id,
+        c.claim_text,
+        v.verdict,
+        v.confidence_score::float as confidence,
+        p.full_name as politician,
+        p.slug as politician_slug,
+        s.url as source_url,
+        v.created_at
+      from verifications v
+      join claims c on c.id = v.claim_id
+      join politicians p on p.id = c.politician_id
+      left join sources s on s.id = c.source_id
+      where v.is_published
+        and v.superseded_by_verification_id is null
+        and v.verdict != 'unverifiable'
+      order by v.created_at desc
+      limit 1
+    `) as Array<NonNullable<LatestVerdict>>;
+    return rows[0] ?? null;
+  } catch (e) {
+    console.warn("getLatestPublishedVerdict failed:", (e as Error).message);
+    return null;
   }
 }
