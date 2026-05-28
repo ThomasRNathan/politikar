@@ -25,7 +25,7 @@ export type IngestionSnapshot = {
   errors: { source: string; message: string }[];
 };
 
-const PIPELINE_VERSION = "ingest-v0.3";
+const PIPELINE_VERSION = "ingest-v0.4";
 
 export async function runIngestion(): Promise<IngestionSnapshot> {
   const fetchedAt = new Date().toISOString();
