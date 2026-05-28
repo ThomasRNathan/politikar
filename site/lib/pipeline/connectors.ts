@@ -27,7 +27,7 @@ export type PoliticianMeta = {
 // Must cover every politician that any connector can produce.
 export const POLITICIAN_META: Record<string, PoliticianMeta> = {
   "pol-macron":      { id: "pol-macron",      full_name: "Emmanuel Macron",    function_name: "Président de la République", party: "Renaissance",        tier: "P0" },
-  "pol-attal":       { id: "pol-attal",        full_name: "Gabriel Attal",      function_name: "Ancien Premier ministre",    party: "Renaissance",        tier: "P0" },
+  "pol-attal":       { id: "pol-attal",        full_name: "Gabriel Attal",      function_name: "Président du groupe Renaissance à l'AN", party: "Renaissance", tier: "P0" },
   "pol-bayrou":      { id: "pol-bayrou",       full_name: "François Bayrou",    function_name: "Premier ministre",           party: "MoDem",              tier: "P0" },
   "pol-lecornu":     { id: "pol-lecornu",      full_name: "Sébastien Lecornu",  function_name: "Ministre des Armées",        party: "Horizons",           tier: "P0" },
   "pol-retailleau":  { id: "pol-retailleau",   full_name: "Bruno Retailleau",   function_name: "Ministre de l'Intérieur",    party: "Les Républicains",   tier: "P0" },

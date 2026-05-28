@@ -37,6 +37,8 @@ type DeputySpec = {
 // Deputies tracked via NosDéputés. Only current AN members are included —
 // ministers who gave up their seat are NOT listed here.
 export const TRACKED_DEPUTIES: DeputySpec[] = [
+  // Attal returned to his AN seat after leaving government (Sep 2024).
+  { politician_id: "pol-attal",       nosdeputes_slug: "gabriel-attal",         full_name: "Gabriel Attal" },
   { politician_id: "pol-le-pen",      nosdeputes_slug: "marine-le-pen",         full_name: "Marine Le Pen" },
   { politician_id: "pol-panot",       nosdeputes_slug: "mathilde-panot",         full_name: "Mathilde Panot" },
   { politician_id: "pol-vallaud",     nosdeputes_slug: "boris-vallaud",          full_name: "Boris Vallaud" },
