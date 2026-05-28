@@ -6,6 +6,7 @@ import { fetchElysee, type IngestedSource } from "./elysee";
 import { fetchGouvernement } from "./gouvernement";
 import { fetchNosDéputes } from "./nosdeputes";
 import { fetchSenat } from "./senat";
+import { fetchPartisLeaders } from "./partis";
 import { fetchFactchecks, type IngestedFactcheck } from "./factcheckers";
 
 export type IngestionSnapshot = {
@@ -63,6 +64,17 @@ export async function runIngestion(): Promise<IngestionSnapshot> {
     sources.push(...senat);
   } catch (e) {
     errors.push({ source: "senat", message: (e as Error).message });
+  }
+
+  // --- Party leaders / opposition blogs (Mélenchon, Bardella, Philippe, Tondelier) ---
+  try {
+    const partis = await fetchPartisLeaders({ limitPerFeed: 20 });
+    sources.push(...partis.items);
+    for (const err of partis.errors) {
+      errors.push({ source: `partis:${err.feed}`, message: err.message });
+    }
+  } catch (e) {
+    errors.push({ source: "partis", message: (e as Error).message });
   }
 
   // --- Factcheckers (AFP Factuel, Le Monde Vérificateur, etc.) ---

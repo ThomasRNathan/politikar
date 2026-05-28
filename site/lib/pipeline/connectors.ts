@@ -14,6 +14,7 @@ import { fetchElysee, fetchArticleBody, type IngestedSource } from "@/lib/ingest
 import { fetchGouvernement, fetchGouvernementBody } from "@/lib/ingest/gouvernement";
 import { fetchNosDéputes, TRACKED_DEPUTIES } from "@/lib/ingest/nosdeputes";
 import { fetchSenat } from "@/lib/ingest/senat";
+import { fetchPartisLeaders } from "@/lib/ingest/partis";
 
 export type PoliticianMeta = {
   id: string;        // fixture politician id, e.g. "pol-macron"
@@ -50,6 +51,11 @@ export const POLITICIAN_META: Record<string, PoliticianMeta> = {
   "pol-roussel":     { id: "pol-roussel",      full_name: "Fabien Roussel",    function_name: "Secrétaire national PCF",     party: "Parti communiste français", tier: "P1" },
   "pol-larcher":     { id: "pol-larcher",      full_name: "Gérard Larcher",    function_name: "Président du Sénat",         party: "Les Républicains",   tier: "P0" },
   "pol-kanner":      { id: "pol-kanner",       full_name: "Patrick Kanner",    function_name: "Président du groupe PS au Sénat", party: "Parti socialiste", tier: "P1" },
+  // Party leaders — personal blog / party site feeds
+  "pol-melenchon":   { id: "pol-melenchon",    full_name: "Jean-Luc Mélenchon", function_name: "Fondateur de La France insoumise", party: "La France insoumise", tier: "P0" },
+  "pol-bardella":    { id: "pol-bardella",     full_name: "Jordan Bardella",   function_name: "Président du Rassemblement national", party: "Rassemblement national", tier: "P0" },
+  "pol-philippe":    { id: "pol-philippe",     full_name: "Édouard Philippe",  function_name: "Président d'Horizons, Maire du Havre", party: "Horizons",       tier: "P0" },
+  "pol-tondelier":   { id: "pol-tondelier",    full_name: "Marine Tondelier",  function_name: "Secrétaire nationale des Écologistes", party: "Les Écologistes", tier: "P0" },
 };
 
 export type ConnectorBatch = {
@@ -128,6 +134,26 @@ export async function fetchAllSources(): Promise<ConnectorBatch[]> {
     }
   } catch (e) {
     console.warn("connector:senat failed:", (e as Error).message);
+  }
+
+  // --- Party leaders / opposition (Mélenchon, Bardella, Philippe, Tondelier) ---
+  try {
+    const { items, errors } = await fetchPartisLeaders({ limitPerFeed: 20 });
+    if (errors.length > 0) {
+      console.warn("partis partial errors:", errors.map((e) => `${e.feed}: ${e.message}`).join(", "));
+    }
+    const byPol: Record<string, IngestedSource[]> = {};
+    for (const s of items) {
+      (byPol[s.politician_id] ??= []).push(s);
+    }
+    for (const [polId, srcs] of Object.entries(byPol)) {
+      const meta = POLITICIAN_META[polId];
+      if (!meta) continue;
+      // No per-article body fetch for party feeds to stay polite.
+      batches.push({ sources: srcs, meta });
+    }
+  } catch (e) {
+    console.warn("connector:partis failed:", (e as Error).message);
   }
 
   return batches;
