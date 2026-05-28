@@ -173,6 +173,121 @@ export type LatestVerdict = {
   created_at: string;
 } | null;
 
+export type DbVerdictDistribution = {
+  verdict: string;
+  count: number;
+}[];
+
+/** Per-verdict count for published, non-superseded verifications.
+ * Used by /api/stats and the homepage ranking. */
+export async function getVerdictDistribution(): Promise<DbVerdictDistribution> {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      select v.verdict, count(*)::int as count
+      from verifications v
+      where v.is_published and v.superseded_by_verification_id is null
+        and v.verdict != 'unverifiable'
+      group by v.verdict
+      order by count desc
+    `) as DbVerdictDistribution;
+    return rows;
+  } catch (e) {
+    console.warn("getVerdictDistribution failed:", (e as Error).message);
+    return [];
+  }
+}
+
+// --------- Real TruthScore computed from DB verifications ----------
+
+const TRUTH_WEIGHTS: Record<string, number> = {
+  true: 100,
+  mostly_true: 80,
+  mixed: 50,
+  misleading_context: 35,
+  mostly_false: 20,
+  false: 0,
+  unverifiable: 50, // neutral
+};
+
+export type DbRealScore = {
+  truth_score: number;
+  factual_score: number;
+  n_verdicts: number;
+  n_published: number;
+  is_significant: boolean;
+  verdict_counts: Record<string, number>;
+};
+
+/**
+ * Compute a real TruthScore for a politician from their published DB
+ * verifications. Returns null when the DB is unreachable or when the
+ * politician has no data yet.
+ *
+ * Minimum volume threshold: 10 published verdicts before the score is
+ * flagged as significant (lower than the public threshold of 30 so that
+ * early pipeline runs show something useful).
+ */
+export async function getRealScoreForPolitician(
+  slug: string,
+): Promise<DbRealScore | null> {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      select v.verdict, v.confidence_score::float as confidence
+      from verifications v
+      join claims c on c.id = v.claim_id
+      join politicians p on p.id = c.politician_id
+      where p.slug = ${slug}
+        and v.is_published
+        and v.superseded_by_verification_id is null
+        and c.deleted_at is null
+    `) as { verdict: string; confidence: number }[];
+
+    if (rows.length === 0) return null;
+
+    const verdictCounts: Record<string, number> = {};
+    let weightedSum = 0;
+    let totalWeight = 0;
+
+    for (const r of rows) {
+      verdictCounts[r.verdict] = (verdictCounts[r.verdict] ?? 0) + 1;
+      const score = TRUTH_WEIGHTS[r.verdict] ?? 50;
+      const w = r.confidence;
+      weightedSum += score * w;
+      totalWeight += w;
+    }
+
+    const truthScore = totalWeight > 0
+      ? Math.round(weightedSum / totalWeight)
+      : 50;
+
+    // Factual score: same formula but excluding unverifiable
+    const factualRows = rows.filter((r) => r.verdict !== "unverifiable");
+    let fWeightedSum = 0, fTotalWeight = 0;
+    for (const r of factualRows) {
+      const score = TRUTH_WEIGHTS[r.verdict] ?? 50;
+      fWeightedSum += score * r.confidence;
+      fTotalWeight += r.confidence;
+    }
+    const factualScore = fTotalWeight > 0
+      ? Math.round(fWeightedSum / fTotalWeight)
+      : truthScore;
+
+    return {
+      truth_score: truthScore,
+      factual_score: factualScore,
+      n_verdicts: rows.length,
+      n_published: rows.length,
+      is_significant: rows.length >= 10,
+      verdict_counts: verdictCounts,
+    };
+  } catch (e) {
+    console.warn(`getRealScoreForPolitician(${slug}) failed:`, (e as Error).message);
+    return null;
+  }
+}
+
 /** Most recently published non-unverifiable verdict, for the "Pipeline
  * live" callout on the homepage and /methode page. */
 export async function getLatestPublishedVerdict(): Promise<LatestVerdict> {

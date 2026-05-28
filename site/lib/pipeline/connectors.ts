@@ -13,6 +13,7 @@
 import { fetchElysee, fetchArticleBody, type IngestedSource } from "@/lib/ingest/elysee";
 import { fetchGouvernement, fetchGouvernementBody } from "@/lib/ingest/gouvernement";
 import { fetchNosDéputes, TRACKED_DEPUTIES } from "@/lib/ingest/nosdeputes";
+import { fetchSenat } from "@/lib/ingest/senat";
 
 export type PoliticianMeta = {
   id: string;        // fixture politician id, e.g. "pol-macron"
@@ -43,6 +44,8 @@ export const POLITICIAN_META: Record<string, PoliticianMeta> = {
   "pol-marcangeli":  { id: "pol-marcangeli",   full_name: "Laurent Marcangeli", function_name: "Président du groupe HOR",    party: "Horizons",           tier: "P1" },
   "pol-braun-pivet": { id: "pol-braun-pivet",  full_name: "Yaël Braun-Pivet",   function_name: "Présidente de l'AN",         party: "Renaissance",        tier: "P0" },
   "pol-aubry":       { id: "pol-aubry",        full_name: "Olivier Faure",      function_name: "Premier secrétaire PS",      party: "Parti socialiste",   tier: "P0" },
+  "pol-larcher":     { id: "pol-larcher",      full_name: "Gérard Larcher",    function_name: "Président du Sénat",         party: "Les Républicains",   tier: "P0" },
+  "pol-kanner":      { id: "pol-kanner",       full_name: "Patrick Kanner",    function_name: "Président du groupe PS au Sénat", party: "Parti socialiste", tier: "P1" },
 };
 
 export type ConnectorBatch = {
@@ -105,6 +108,22 @@ export async function fetchAllSources(): Promise<ConnectorBatch[]> {
     }
   } catch (e) {
     console.warn("connector:nosdeputes failed:", (e as Error).message);
+  }
+
+  // --- Sénat (Larcher + Kanner) ---
+  try {
+    const sources = await fetchSenat({ limitPerFeed: 30 });
+    const byPol: Record<string, IngestedSource[]> = {};
+    for (const s of sources) {
+      (byPol[s.politician_id] ??= []).push(s);
+    }
+    for (const [polId, srcs] of Object.entries(byPol)) {
+      const meta = POLITICIAN_META[polId];
+      if (!meta) continue;
+      batches.push({ sources: srcs, meta });
+    }
+  } catch (e) {
+    console.warn("connector:senat failed:", (e as Error).message);
   }
 
   return batches;
