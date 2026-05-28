@@ -38,6 +38,12 @@ type FeedSpec = {
   politician_id?: string;
   /** Keyword patterns (lower-cased) to match title+URL when politician_id is absent. */
   patterns?: { politician_id: string; keywords: string[] }[];
+  /**
+   * Default source_type for items from this feed (used when detectType
+   * returns the generic fallback). Personal blogs default to op_ed;
+   * party press-release sites default to official_statement.
+   */
+  defaultType?: string;
   license: string;
 };
 
@@ -45,10 +51,13 @@ const FEEDS: FeedSpec[] = [
   // ── Mélenchon personal blog ──────────────────────────────────────────
   // Jean-Luc Mélenchon publishes all his blog posts at this URL.
   // Every item belongs to him; no pattern matching needed.
+  // Blog posts are personal commentary → op_ed is more accurate than
+  // official_statement for the LLM extraction context.
   {
     url: "https://www.jean-luc-melenchon.fr/feed/",
     channel: "Blog de Jean-Luc Mélenchon",
     politician_id: "pol-melenchon",
+    defaultType: "op_ed",
     license: "open web",
   },
 
@@ -104,13 +113,13 @@ const FEEDS: FeedSpec[] = [
   },
 ];
 
-function detectType(title: string): string {
+function detectType(title: string, defaultType = "official_statement"): string {
   const t = title.toLowerCase();
   if (t.includes("discours") || t.includes("allocution")) return "speech";
   if (t.includes("interview") || t.includes("entretien")) return "interview";
   if (t.includes("tribune")) return "op_ed";
   if (t.includes("communiqué") || t.includes("communique")) return "official_statement";
-  return "official_statement";
+  return defaultType;
 }
 
 function stripHtml(html: string | null): string | null {
@@ -176,7 +185,7 @@ export async function fetchPartisLeaders(
       items.push({
         id,
         politician_id: politicianId,
-        source_type: detectType(it.title),
+        source_type: detectType(it.title, spec.defaultType),
         channel: spec.channel,
         occurred_at: isoDate(it.pubDate),
         url: it.link,
