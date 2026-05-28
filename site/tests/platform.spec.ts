@@ -45,8 +45,14 @@ test.describe("politikar platform", () => {
     await expect(
       page.getByRole("heading", { name: "Emmanuel Macron" })
     ).toBeVisible();
-    await expect(page.getByLabel(/TruthScore 64/i)).toBeVisible();
-    await expect(page.getByText(/IC95/i)).toBeVisible();
+    // TruthScore shows the fixture value (64) when DB is below the
+    // significance threshold, or the real DB score once it passes 10
+    // published verdicts. Accept any numeric score.
+    await expect(page.getByLabel(/TruthScore \d+/i).first()).toBeVisible();
+    // "IC95" appears on fixture mode; "score réel" appears on DB mode.
+    const hasIc95 = await page.getByText(/IC95/i).isVisible({ timeout: 2000 }).catch(() => false);
+    const hasScoreReel = await page.getByText(/score réel/i).isVisible({ timeout: 2000 }).catch(() => false);
+    expect(hasIc95 || hasScoreReel).toBeTruthy();
     await expect(page.getByText(/Décomposition/i).first()).toBeVisible();
     await expect(page.getByText(/Factuel/i).first()).toBeVisible();
     await expect(page.getByText(/Promesses/i).first()).toBeVisible();
