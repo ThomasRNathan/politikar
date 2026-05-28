@@ -254,7 +254,7 @@ export default async function Home() {
                 ? `Calculé sur les vérifications publiées dans la base. Minimum ${dbTopPoliticians[0]?.n_verdicts ?? 3} verdicts requis.`
                 : "Calculé sur l'ensemble des claims factuels et promesses résolus de la période. Volume minimum requis pour entrer au classement : 30 affirmations factuelles ou 5 promesses résolues."}
             </p>
-            <ol className="space-y-2">
+            <ol className="space-y-2 mb-5">
               {hasDbRanking
                 ? dbTopPoliticians.map((p, i) => {
                     const fixPol = politicianBySlug(p.slug);
@@ -313,6 +313,12 @@ export default async function Home() {
                     </li>
                   ))}
             </ol>
+            <Link
+              href="/classement"
+              className="text-sm text-[var(--color-accent)] hover:underline"
+            >
+              Voir le classement complet →
+            </Link>
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
