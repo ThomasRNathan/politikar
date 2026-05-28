@@ -608,3 +608,58 @@ export async function getTopPoliticiansByScore(
     return [];
   }
 }
+
+// --------- Party aggregate stats from DB ----------
+
+export type DbPartyStats = {
+  party_slug: string;
+  n_politicians: number;
+  n_verdicts: number;
+  truth_score: number;
+};
+
+/**
+ * Compute per-party aggregate truth scores from published DB verifications.
+ * Falls back to [] on DB failure — caller uses fixture aggregate instead.
+ */
+export async function getPartyDbStats(): Promise<DbPartyStats[]> {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      select
+        pa.slug as party_slug,
+        count(distinct p.id)::int as n_politicians,
+        count(*)::int as n_verdicts,
+        round(
+          sum(
+            v.confidence_score::float *
+            case v.verdict
+              when 'true'               then 100
+              when 'mostly_true'        then 80
+              when 'mixed'              then 50
+              when 'misleading_context' then 35
+              when 'mostly_false'       then 20
+              when 'false'              then 0
+              when 'unverifiable'       then 50
+              else 50
+            end
+          ) / nullif(sum(v.confidence_score::float), 0)
+        )::int as truth_score
+      from verifications v
+      join claims c on c.id = v.claim_id
+      join politicians p on p.id = c.politician_id
+      left join parties pa on pa.id = p.current_party_id
+      where v.is_published
+        and v.superseded_by_verification_id is null
+        and c.deleted_at is null
+        and pa.slug is not null
+      group by pa.id, pa.slug
+      having count(*) >= 1
+      order by truth_score desc
+    `) as DbPartyStats[];
+    return rows;
+  } catch (e) {
+    console.warn("getPartyDbStats failed:", (e as Error).message);
+    return [];
+  }
+}
