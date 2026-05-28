@@ -19,7 +19,11 @@ import {
   recentFactchecks,
   ingestionTotals,
 } from "@/lib/realdata";
-import { getRecentPublishedVerdicts, getTopPoliticiansByScore } from "@/lib/db/reads";
+import {
+  getRecentPublishedVerdicts,
+  getTopPoliticiansByScore,
+  getRecentDbSources,
+} from "@/lib/db/reads";
 import { politicianBySlug } from "@/lib/fixtures";
 
 // ISR: homepage refreshes every 5 minutes so new verdicts appear without a
@@ -44,13 +48,15 @@ export default async function Home() {
     politician: politicianById(claimById(t.claim_id)!.politician_id)!,
   }));
 
-  // Fetch real verdicts + ranking from DB; fall back to fixtures when empty.
-  const [liveVerdicts, dbTopPoliticians] = await Promise.all([
+  // Fetch real verdicts + ranking + recent sources from DB in parallel.
+  const [liveVerdicts, dbTopPoliticians, dbSources] = await Promise.all([
     getRecentPublishedVerdicts(6),
     getTopPoliticiansByScore(5, 3),
+    getRecentDbSources(8),
   ]);
   const hasLiveVerdicts = liveVerdicts.length > 0;
   const hasDbRanking = dbTopPoliticians.length > 0;
+  const hasDbSources = dbSources.length > 0;
 
   return (
     <div className="flex-1">
@@ -337,55 +343,101 @@ export default async function Home() {
       </section>
 
       {(() => {
-        const realRecent = recentRealSources(8);
-        const totals = ingestionTotals();
+        // Prefer live DB sources; fall back to bundled snapshot.
+        const realRecent = hasDbSources ? dbSources : recentRealSources(8);
         if (realRecent.length === 0) return null;
+        const totals = ingestionTotals();
+        const subtitle = hasDbSources
+          ? "Ingérées depuis Élysée, Gouvernement.fr, Sénat, NosDéputés.fr."
+          : "Ingérées depuis Élysée et Sénat. L'extraction de claims et la vérification automatisée sont en construction.";
         return (
           <section className="bg-white border-y border-black/5 py-16">
             <div className="max-w-6xl mx-auto px-6">
               <div className="flex items-baseline justify-between mb-8 flex-wrap gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
-                    Pipeline d&apos;ingestion · {totals.sources} communications captées
+                    Pipeline d&apos;ingestion
+                    {hasDbSources
+                      ? ` · ${dbSources.reduce((s, r) => s + r.claims_count, 0)} claims extraits`
+                      : ` · ${totals.sources} communications captées`}
                   </p>
                   <h2 className="font-serif text-3xl font-semibold tracking-tight">
                     Dernières communications officielles.
                   </h2>
                 </div>
                 <p className="text-xs text-[var(--color-ink-soft)] max-w-md text-right hidden sm:block">
-                  Ingérées depuis Élysée et Sénat. L&apos;extraction de claims
-                  et la vérification automatisée sont en construction.
+                  {subtitle}
                 </p>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {realRecent.map((s) => {
-                  const p = politicianById(s.politician_id);
-                  return (
-                    <a
-                      key={s.id}
-                      href={s.url ?? "#"}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group rounded-2xl bg-[var(--color-bg-soft)] border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
-                    >
-                      <div className="flex items-center gap-2 mb-3">
-                        {p && <PoliticianAvatar politician={p} size={28} />}
-                        <span className="text-xs font-medium truncate">
-                          {p?.full_name ?? "—"}
-                        </span>
-                      </div>
-                      <p className="font-serif text-sm font-medium leading-snug group-hover:text-[var(--color-accent)] line-clamp-3">
-                        {s.title}
-                      </p>
-                      <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--color-ink-soft)]">
-                        <span>{s.channel.split(" ")[0]}</span>
-                        <span>
-                          {s.occurred_at && formatDate(s.occurred_at)}
-                        </span>
-                      </div>
-                    </a>
-                  );
-                })}
+                {hasDbSources
+                  ? dbSources.map((s) => {
+                      const fixPol = politicianBySlug(s.politician_slug);
+                      return (
+                        <a
+                          key={s.id}
+                          href={s.url ?? "#"}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="group rounded-2xl bg-[var(--color-bg-soft)] border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
+                        >
+                          <div className="flex items-center gap-2 mb-3">
+                            {fixPol ? (
+                              <PoliticianAvatar politician={fixPol} size={28} />
+                            ) : (
+                              <div className="h-7 w-7 rounded-full shrink-0 bg-[var(--color-accent-soft)] flex items-center justify-center text-[10px] font-bold text-white">
+                                {s.politician_full_name[0]}
+                              </div>
+                            )}
+                            <span className="text-xs font-medium truncate">
+                              {s.politician_full_name}
+                            </span>
+                          </div>
+                          <p className="font-serif text-sm font-medium leading-snug group-hover:text-[var(--color-accent)] line-clamp-3">
+                            {s.raw_text_preview.slice(0, 120) || "Communiqué"}
+                          </p>
+                          <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--color-ink-soft)]">
+                            <span>{s.channel}</span>
+                            <span>
+                              {s.claims_count > 0 && (
+                                <span className="text-[var(--color-trust)] mr-2">
+                                  {s.claims_count} claim{s.claims_count > 1 ? "s" : ""}
+                                </span>
+                              )}
+                              {s.occurred_at && formatDate(s.occurred_at)}
+                            </span>
+                          </div>
+                        </a>
+                      );
+                    })
+                  : (realRecent as ReturnType<typeof recentRealSources>).map((s) => {
+                      const p = politicianById(s.politician_id);
+                      return (
+                        <a
+                          key={s.id}
+                          href={s.url ?? "#"}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="group rounded-2xl bg-[var(--color-bg-soft)] border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
+                        >
+                          <div className="flex items-center gap-2 mb-3">
+                            {p && <PoliticianAvatar politician={p} size={28} />}
+                            <span className="text-xs font-medium truncate">
+                              {p?.full_name ?? "—"}
+                            </span>
+                          </div>
+                          <p className="font-serif text-sm font-medium leading-snug group-hover:text-[var(--color-accent)] line-clamp-3">
+                            {s.title}
+                          </p>
+                          <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--color-ink-soft)]">
+                            <span>{s.channel.split(" ")[0]}</span>
+                            <span>
+                              {s.occurred_at && formatDate(s.occurred_at)}
+                            </span>
+                          </div>
+                        </a>
+                      );
+                    })}
               </div>
             </div>
           </section>
