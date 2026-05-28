@@ -213,10 +213,17 @@ test.describe("politikar platform", () => {
     await page.goto("/politiciens/marine-le-pen");
     const photo = page.locator('img[alt*="Marine Le Pen"]').first();
     await expect(photo).toBeVisible();
-    // Wait for image to actually load by checking naturalWidth
-    const naturalWidth = await photo.evaluate(
-      (img: HTMLImageElement) => img.naturalWidth
-    );
+    // Wait for image to fully decode before reading naturalWidth.
+    // toBeVisible() only checks CSS visibility, not that the image data has
+    // arrived; a cross-origin Wikimedia image may still be in-flight.
+    const naturalWidth = await photo.evaluate((img: HTMLImageElement) => {
+      if (img.complete && img.naturalWidth > 0) return img.naturalWidth;
+      return new Promise<number>((resolve) => {
+        img.addEventListener("load", () => resolve(img.naturalWidth), { once: true });
+        // If load never fires (broken/already errored), resolve 0.
+        img.addEventListener("error", () => resolve(0), { once: true });
+      });
+    });
     expect(naturalWidth).toBeGreaterThan(0);
   });
 
