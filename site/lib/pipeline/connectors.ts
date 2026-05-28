@@ -46,6 +46,8 @@ export const POLITICIAN_META: Record<string, PoliticianMeta> = {
   // pol-aubry in fixtures = Manon Aubry (MEP LFI) — no connector yet (EP source needed).
   // pol-faure = Olivier Faure (député PS, Premier secrétaire PS).
   "pol-faure":       { id: "pol-faure",        full_name: "Olivier Faure",      function_name: "Premier secrétaire PS",      party: "Parti socialiste",   tier: "P0" },
+  "pol-wauquiez":    { id: "pol-wauquiez",     full_name: "Laurent Wauquiez",  function_name: "Président du groupe LR",      party: "Les Républicains",   tier: "P0" },
+  "pol-roussel":     { id: "pol-roussel",      full_name: "Fabien Roussel",    function_name: "Secrétaire national PCF",     party: "Parti communiste français", tier: "P1" },
   "pol-larcher":     { id: "pol-larcher",      full_name: "Gérard Larcher",    function_name: "Président du Sénat",         party: "Les Républicains",   tier: "P0" },
   "pol-kanner":      { id: "pol-kanner",       full_name: "Patrick Kanner",    function_name: "Président du groupe PS au Sénat", party: "Parti socialiste", tier: "P1" },
 };

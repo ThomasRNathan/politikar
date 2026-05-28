@@ -48,6 +48,10 @@ export const TRACKED_DEPUTIES: DeputySpec[] = [
   // Olivier Faure (pol-faure) is the PS group president and an AN deputy.
   // NOTE: pol-aubry in fixtures = Manon Aubry (MEP) — she is NOT in NosDéputés.
   { politician_id: "pol-faure",       nosdeputes_slug: "olivier-faure",          full_name: "Olivier Faure" },
+  // Laurent Wauquiez — Président du groupe LR à l'AN (deputy since 2007).
+  { politician_id: "pol-wauquiez",    nosdeputes_slug: "laurent-wauquiez",       full_name: "Laurent Wauquiez" },
+  // Fabien Roussel — Secrétaire national PCF, député depuis 2017.
+  { politician_id: "pol-roussel",     nosdeputes_slug: "fabien-roussel",         full_name: "Fabien Roussel" },
 ];
 
 const BASE = "https://www.nosdeputes.fr";
