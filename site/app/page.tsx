@@ -12,14 +12,21 @@ import { FranceMap } from "@/components/FranceMap";
 import { ClaimRow } from "@/components/ClaimRow";
 import { PoliticianAvatar } from "@/components/PoliticianAvatar";
 import { ScoreBadge } from "@/components/ScoreBadge";
-import { formatRelativeShort, formatDate } from "@/lib/format";
+import { VerdictPill } from "@/components/VerdictPill";
+import { formatRelativeShort, formatDate, scoreColor } from "@/lib/format";
 import {
   recentRealSources,
   recentFactchecks,
   ingestionTotals,
 } from "@/lib/realdata";
+import { getRecentPublishedVerdicts } from "@/lib/db/reads";
+import { politicianBySlug } from "@/lib/fixtures";
 
-export default function Home() {
+// ISR: homepage refreshes every 5 minutes so new verdicts appear without a
+// redeploy. The daily cron writes to DB; ISR picks it up automatically.
+export const revalidate = 300;
+
+export default async function Home() {
   const regionScores = regionAggregateScores();
 
   const topPoliticians = [...POLITICIANS]
@@ -31,11 +38,15 @@ export default function Home() {
     .sort((a, b) => b.occurred_at.localeCompare(a.occurred_at))
     .slice(0, 5);
 
-  const topStories = TOP_STORIES.map((t) => ({
+  const fixtureTopStories = TOP_STORIES.map((t) => ({
     ...t,
     claim: claimById(t.claim_id)!,
     politician: politicianById(claimById(t.claim_id)!.politician_id)!,
   }));
+
+  // Fetch real verdicts from DB; fall back to fixture stories when empty.
+  const liveVerdicts = await getRecentPublishedVerdicts(6);
+  const hasLiveVerdicts = liveVerdicts.length > 0;
 
   return (
     <div className="flex-1">
@@ -112,48 +123,108 @@ export default function Home() {
                 Top stories de la semaine
               </p>
               <h2 className="font-serif text-3xl font-semibold tracking-tight">
-                Ce que la cascade a vérifié.
+                {hasLiveVerdicts
+                  ? "Verdicts récents du pipeline."
+                  : "Ce que la cascade a vérifié."}
               </h2>
             </div>
-            <Link
-              href="/politiciens"
-              className="text-sm text-[var(--color-accent)] hover:underline hidden sm:inline"
-            >
-              Tous les politiques →
-            </Link>
+            <div className="flex items-center gap-3">
+              {hasLiveVerdicts && (
+                <span className="text-xs text-[var(--color-trust)] font-mono hidden sm:inline">
+                  pipeline live
+                </span>
+              )}
+              <Link
+                href="/politiciens"
+                className="text-sm text-[var(--color-accent)] hover:underline hidden sm:inline"
+              >
+                Tous les politiques →
+              </Link>
+            </div>
           </div>
           <div className="grid lg:grid-cols-2 gap-4">
-            {topStories.map((s) => {
-              const source = sourceById(s.claim.source_id);
-              return (
-                <Link
-                  key={s.claim_id}
-                  href={`/claims/${s.claim_id}`}
-                  className="group block bg-white rounded-2xl p-6 border border-black/5 hover:border-[var(--color-accent)] transition"
-                >
-                  <div className="flex items-start gap-4">
-                    <PoliticianAvatar politician={s.politician} size={44} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className="font-medium text-sm">{s.politician.full_name}</p>
-                        <span className="text-[11px] text-[var(--color-ink-soft)] shrink-0">
-                          {formatRelativeShort(s.claim.occurred_at)}
+            {hasLiveVerdicts
+              ? liveVerdicts.map((v) => {
+                  const pol = politicianBySlug(v.politician_slug);
+                  return (
+                    <Link
+                      key={v.claim_id}
+                      href={`/politiciens/${v.politician_slug}`}
+                      className="group block bg-white rounded-2xl p-6 border border-black/5 hover:border-[var(--color-accent)] transition"
+                    >
+                      <div className="flex items-start gap-4">
+                        {pol ? (
+                          <PoliticianAvatar politician={pol} size={44} />
+                        ) : (
+                          <div
+                            className="h-11 w-11 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold"
+                            style={{ background: v.party_color ?? "#94a3b8" }}
+                          >
+                            {v.politician_full_name[0]}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <p className="font-medium text-sm">{v.politician_full_name}</p>
+                            {v.occurred_at && (
+                              <span className="text-[11px] text-[var(--color-ink-soft)] shrink-0">
+                                {formatRelativeShort(v.occurred_at)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-[var(--color-ink-soft)]">
+                            {v.channel ?? "Communication officielle"}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="mt-4 font-serif text-lg leading-snug group-hover:text-[var(--color-accent)]">
+                        « {v.claim_text} »
+                      </p>
+                      <div className="mt-3 flex items-center gap-2 flex-wrap">
+                        <VerdictPill verdict={v.verdict as never} size="sm" />
+                        <span className="text-[11px] text-[var(--color-ink-soft)] font-mono">
+                          conf {v.confidence.toFixed(2)}
                         </span>
                       </div>
-                      <p className="text-xs text-[var(--color-ink-soft)]">
-                        {source?.channel}
+                      {v.reasoning && (
+                        <p className="mt-2 text-xs text-[var(--color-ink-soft)] italic line-clamp-2">
+                          {v.reasoning}
+                        </p>
+                      )}
+                    </Link>
+                  );
+                })
+              : fixtureTopStories.map((s) => {
+                  const source = sourceById(s.claim.source_id);
+                  return (
+                    <Link
+                      key={s.claim_id}
+                      href={`/claims/${s.claim_id}`}
+                      className="group block bg-white rounded-2xl p-6 border border-black/5 hover:border-[var(--color-accent)] transition"
+                    >
+                      <div className="flex items-start gap-4">
+                        <PoliticianAvatar politician={s.politician} size={44} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <p className="font-medium text-sm">{s.politician.full_name}</p>
+                            <span className="text-[11px] text-[var(--color-ink-soft)] shrink-0">
+                              {formatRelativeShort(s.claim.occurred_at)}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[var(--color-ink-soft)]">
+                            {source?.channel}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="mt-4 font-serif text-lg leading-snug group-hover:text-[var(--color-accent)]">
+                        « {s.claim.claim_text} »
                       </p>
-                    </div>
-                  </div>
-                  <p className="mt-4 font-serif text-lg leading-snug group-hover:text-[var(--color-accent)]">
-                    « {s.claim.claim_text} »
-                  </p>
-                  <p className="mt-3 text-xs text-[var(--color-ink-soft)] italic">
-                    {s.note}
-                  </p>
-                </Link>
-              );
-            })}
+                      <p className="mt-3 text-xs text-[var(--color-ink-soft)] italic">
+                        {s.note}
+                      </p>
+                    </Link>
+                  );
+                })}
           </div>
         </div>
       </section>

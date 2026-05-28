@@ -319,3 +319,65 @@ export async function getLatestPublishedVerdict(): Promise<LatestVerdict> {
     return null;
   }
 }
+
+// --------- Homepage feed: recent published verdicts ----------
+
+export type HomepageVerdict = {
+  claim_id: string;
+  claim_text: string;
+  claim_type: string;
+  verdict: string;
+  confidence: number;
+  reasoning: string | null;
+  topic_tags: string[];
+  politician_slug: string;
+  politician_full_name: string;
+  politician_photo_url: string | null;
+  party_color: string | null;
+  channel: string | null;
+  occurred_at: string | null;
+};
+
+/**
+ * Fetch the most recently published verdicts for the homepage feed.
+ * Returns up to `limit` items ordered by verification creation date desc.
+ * Falls back to [] on DB failure so the homepage always renders.
+ */
+export async function getRecentPublishedVerdicts(
+  limit = 6,
+): Promise<HomepageVerdict[]> {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      select
+        c.id::text as claim_id,
+        c.claim_text,
+        c.claim_type,
+        c.topic_tags,
+        v.verdict,
+        v.confidence_score::float as confidence,
+        left(v.reasoning, 280) as reasoning,
+        p.slug as politician_slug,
+        p.full_name as politician_full_name,
+        p.photo_url as politician_photo_url,
+        pa.color_hex as party_color,
+        s.channel,
+        s.occurred_at
+      from verifications v
+      join claims c on c.id = v.claim_id
+      join politicians p on p.id = c.politician_id
+      left join parties pa on pa.id = p.current_party_id
+      left join sources s on s.id = c.source_id
+      where v.is_published
+        and v.superseded_by_verification_id is null
+        and v.verdict != 'unverifiable'
+        and c.deleted_at is null
+      order by v.created_at desc
+      limit ${limit}
+    `) as HomepageVerdict[];
+    return rows;
+  } catch (e) {
+    console.warn("getRecentPublishedVerdicts failed:", (e as Error).message);
+    return [];
+  }
+}
