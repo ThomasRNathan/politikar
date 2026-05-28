@@ -320,6 +320,96 @@ export async function getLatestPublishedVerdict(): Promise<LatestVerdict> {
   }
 }
 
+// --------- Claim detail page ----------
+
+export type DbClaimDetail = {
+  id: string;
+  claim_text: string;
+  claim_type: string;
+  topic_tags: string[];
+  // Published verification
+  verdict: string;
+  confidence_score: number;
+  reasoning: string;
+  evidence: Array<{
+    source_url: string;
+    source_label: string;
+    quote: string;
+    weight: number;
+    kind: string;
+  }>;
+  human_reviewed: boolean;
+  // Politician
+  politician_slug: string;
+  politician_full_name: string;
+  politician_photo_url: string | null;
+  // Source
+  channel: string | null;
+  source_url: string | null;
+  occurred_at: string | null;
+  // Provenance
+  llm_model: string;
+  prompt_version: string;
+};
+
+/**
+ * Fetch a single claim by its UUID, joining its published verification.
+ * Returns null if the claim doesn't exist, has no published verdict, or
+ * the DB is unreachable.
+ */
+export async function getClaimById(id: string): Promise<DbClaimDetail | null> {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      select
+        c.id::text,
+        c.claim_text,
+        c.claim_type,
+        c.topic_tags,
+        v.verdict,
+        v.confidence_score::float,
+        v.reasoning,
+        coalesce(v.evidence::text, '[]') as evidence,
+        coalesce(v.human_reviewed, false) as human_reviewed,
+        p.slug as politician_slug,
+        p.full_name as politician_full_name,
+        p.photo_url as politician_photo_url,
+        s.channel,
+        s.url as source_url,
+        s.occurred_at,
+        c.llm_model,
+        c.prompt_version
+      from claims c
+      join politicians p on p.id = c.politician_id
+      left join sources s on s.id = c.source_id
+      left join lateral (
+        select v.verdict, v.confidence_score, v.reasoning,
+               v.evidence, v.human_reviewed
+        from verifications v
+        where v.claim_id = c.id
+          and v.is_published
+          and v.superseded_by_verification_id is null
+        order by v.created_at desc
+        limit 1
+      ) v on true
+      where c.id::text = ${id}
+        and c.deleted_at is null
+        and v.verdict is not null
+      limit 1
+    `) as Array<Omit<DbClaimDetail, "evidence"> & { evidence: string }>;
+
+    if (rows.length === 0) return null;
+    const row = rows[0];
+    return {
+      ...row,
+      evidence: JSON.parse(row.evidence) as DbClaimDetail["evidence"],
+    };
+  } catch (e) {
+    console.warn(`getClaimById(${id}) failed:`, (e as Error).message);
+    return null;
+  }
+}
+
 // --------- Homepage feed: recent published verdicts ----------
 
 export type HomepageVerdict = {

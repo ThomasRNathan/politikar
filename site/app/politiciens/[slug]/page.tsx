@@ -380,7 +380,7 @@ export default async function PoliticianProfile({
               </p>
               <div className="bg-white rounded-2xl border border-black/5 divide-y divide-black/5">
                 {dbClaims.slice(0, 8).map((c) => (
-                  <article key={c.id} className="p-4">
+                  <article key={c.id} className="p-4 group">
                     <div className="flex items-baseline gap-3 mb-2 flex-wrap">
                       <span className="shrink-0 px-2 py-0.5 text-[10px] uppercase tracking-wider rounded-full bg-[var(--color-trust)] text-white font-medium">
                         {c.claim_type.replace("_", " ")}
@@ -411,9 +411,18 @@ export default async function PoliticianProfile({
                         </span>
                       )}
                     </div>
-                    <p className="text-base text-[var(--color-ink)] leading-snug">
-                      « {c.claim_text} »
-                    </p>
+                    {c.verdict_is_published ? (
+                      <Link
+                        href={`/claims/${c.id}`}
+                        className="block text-base text-[var(--color-ink)] leading-snug group-hover:text-[var(--color-accent)] transition"
+                      >
+                        « {c.claim_text} »
+                      </Link>
+                    ) : (
+                      <p className="text-base text-[var(--color-ink)] leading-snug">
+                        « {c.claim_text} »
+                      </p>
+                    )}
                     {c.verdict && c.verdict_is_published && c.verdict_reasoning && (
                       <p className="mt-2 text-xs text-[var(--color-ink-soft)] leading-relaxed italic border-l-2 border-[var(--color-accent-soft)] pl-3">
                         {c.verdict_reasoning.length > 280
