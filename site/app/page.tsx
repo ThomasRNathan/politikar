@@ -49,11 +49,15 @@ export default async function Home() {
   }));
 
   // Fetch real verdicts + ranking + recent sources from DB in parallel.
-  const [liveVerdicts, dbTopPoliticians, dbSources] = await Promise.all([
-    getRecentPublishedVerdicts(6),
+  // Fetch 12 verdicts so we can split between Top Stories (6) and the
+  // compact "Dernières vérifications" list (up to 6 more).
+  const [allLiveVerdicts, dbTopPoliticians, dbSources] = await Promise.all([
+    getRecentPublishedVerdicts(12),
     getTopPoliticiansByScore(5, 3),
     getRecentDbSources(8),
   ]);
+  const liveVerdicts = allLiveVerdicts.slice(0, 6);
+  const liveVerdictsCompact = allLiveVerdicts.slice(6);
   const hasLiveVerdicts = liveVerdicts.length > 0;
   const hasDbRanking = dbTopPoliticians.length > 0;
   const hasDbSources = dbSources.length > 0;
@@ -334,10 +338,54 @@ export default async function Home() {
               Dernières vérifications.
             </h2>
             <div className="bg-white rounded-2xl border border-black/5 p-2 sm:p-4">
-              {recentClaims.map((c) => (
-                <ClaimRow key={c.id} claim={c} />
-              ))}
+              {liveVerdictsCompact.length > 0
+                ? liveVerdictsCompact.map((v) => (
+                    <Link
+                      key={v.claim_id}
+                      href={`/claims/${v.claim_id}`}
+                      className="group block py-4 border-b border-black/5 last:border-0 hover:bg-[var(--color-bg-soft)] -mx-3 px-3 rounded-lg transition"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="shrink-0 pt-1">
+                          <VerdictPill verdict={v.verdict as never} size="sm" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-base text-[var(--color-ink)] group-hover:text-[var(--color-accent)] leading-snug">
+                            « {v.claim_text} »
+                          </p>
+                          <div className="mt-2 flex items-center gap-3 text-xs text-[var(--color-ink-soft)] flex-wrap">
+                            <span className="font-medium">{v.politician_full_name}</span>
+                            {v.channel && (
+                              <>
+                                <span aria-hidden>·</span>
+                                <span>{v.channel}</span>
+                              </>
+                            )}
+                            {v.topic_tags.slice(0, 2).map((t) => (
+                              <span
+                                key={t}
+                                className="px-1.5 py-0.5 rounded bg-black/5 font-medium"
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))
+                : recentClaims.map((c) => (
+                    <ClaimRow key={c.id} claim={c} />
+                  ))}
             </div>
+            {liveVerdictsCompact.length > 0 && (
+              <Link
+                href="/classement"
+                className="mt-3 inline-block text-sm text-[var(--color-accent)] hover:underline"
+              >
+                Voir tous les verdicts →
+              </Link>
+            )}
           </div>
         </div>
       </section>
