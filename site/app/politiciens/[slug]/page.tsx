@@ -17,7 +17,7 @@ import { ClaimRow } from "@/components/ClaimRow";
 import { VerdictPill } from "@/components/VerdictPill";
 import { scoreColor, scoreColorSoft, formatDate } from "@/lib/format";
 import { realSourcesFor } from "@/lib/realdata";
-import { getClaimsForPolitician, getRealScoreForPolitician } from "@/lib/db/reads";
+import { getClaimsForPolitician, getRealScoreForPolitician, getTopPoliticiansByScore } from "@/lib/db/reads";
 
 // ISR : politician profiles regenerate at most every 5 minutes so the
 // daily extraction cron's new claims appear without a redeploy.
@@ -77,10 +77,15 @@ export default async function PoliticianProfile({
   // Real claims extracted by the LLM pipeline and persisted in Neon.
   // Falls back to an empty array on DB failure ; illustrative claims
   // below remain available so the page never breaks.
-  const [dbClaims, realScore] = await Promise.all([
+  const [dbClaims, realScore, peerDbScores] = await Promise.all([
     getClaimsForPolitician(p.slug, 20),
     getRealScoreForPolitician(p.slug),
+    // Fetch real scores for peer comparison sidebar (min 1 verdict).
+    getTopPoliticiansByScore(50, 1),
   ]);
+  const peerScoreMap = new Map(
+    peerDbScores.map((s) => [s.slug, s.truth_score]),
+  );
 
   // Prefer real DB score when available, fall back to fixture
   const displayScore = realScore?.is_significant
@@ -280,18 +285,27 @@ export default async function PoliticianProfile({
                 Pairs au {party?.name}
               </h2>
               <ul className="space-y-2">
-                {peers.map((pp) => (
-                  <li key={pp.id}>
-                    <Link
-                      href={`/politiciens/${pp.slug}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--color-bg-soft)] transition"
-                    >
-                      <PoliticianAvatar politician={pp} size={32} />
-                      <span className="text-sm flex-1 truncate">{pp.full_name}</span>
-                      <ScoreBadge score={pp.stats.truth_score} size="sm" />
-                    </Link>
-                  </li>
-                ))}
+                {peers.map((pp) => {
+                  const peerReal = peerScoreMap.get(pp.slug);
+                  const peerScore = peerReal ?? (pp.stats.is_significant ? pp.stats.truth_score : null);
+                  return (
+                    <li key={pp.id}>
+                      <Link
+                        href={`/politiciens/${pp.slug}`}
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--color-bg-soft)] transition"
+                      >
+                        <PoliticianAvatar politician={pp} size={32} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm truncate">{pp.full_name}</p>
+                          {peerReal !== undefined && (
+                            <p className="text-[10px] text-[var(--color-trust)] font-mono">score réel</p>
+                          )}
+                        </div>
+                        <ScoreBadge score={peerScore} size="sm" />
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           )}
