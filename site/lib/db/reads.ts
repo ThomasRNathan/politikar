@@ -609,6 +609,62 @@ export async function getTopPoliticiansByScore(
   }
 }
 
+// --------- Function aggregate stats from DB ----------
+
+export type DbFunctionStats = {
+  function_slug: string;
+  n_politicians: number;
+  n_verdicts: number;
+  truth_score: number;
+};
+
+/**
+ * Compute per-function aggregate truth scores from published DB verifications.
+ * Groups by `politicians.current_function_id → functions.slug`.
+ * Falls back to [] on DB failure — caller uses fixture aggregate instead.
+ */
+export async function getFunctionDbStats(): Promise<DbFunctionStats[]> {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      select
+        fn.slug as function_slug,
+        count(distinct p.id)::int as n_politicians,
+        count(*)::int as n_verdicts,
+        round(
+          sum(
+            v.confidence_score::float *
+            case v.verdict
+              when 'true'               then 100
+              when 'mostly_true'        then 80
+              when 'mixed'              then 50
+              when 'misleading_context' then 35
+              when 'mostly_false'       then 20
+              when 'false'              then 0
+              when 'unverifiable'       then 50
+              else 50
+            end
+          ) / nullif(sum(v.confidence_score::float), 0)
+        )::int as truth_score
+      from verifications v
+      join claims c on c.id = v.claim_id
+      join politicians p on p.id = c.politician_id
+      left join functions fn on fn.id = p.current_function_id
+      where v.is_published
+        and v.superseded_by_verification_id is null
+        and c.deleted_at is null
+        and fn.slug is not null
+      group by fn.id, fn.slug
+      having count(*) >= 1
+      order by truth_score desc
+    `) as DbFunctionStats[];
+    return rows;
+  } catch (e) {
+    console.warn("getFunctionDbStats failed:", (e as Error).message);
+    return [];
+  }
+}
+
 // --------- Party aggregate stats from DB ----------
 
 export type DbPartyStats = {

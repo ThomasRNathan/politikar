@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { FUNCTIONS, POLITICIANS, politiciansInFunction } from "@/lib/fixtures";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { getFunctionDbStats } from "@/lib/db/reads";
 
 export const metadata = {
   title: "Fonctions : politikar",
   description: "Analyse par fonction politique : exécutif, parlementaires, européens, locaux.",
 };
+
+// ISR: refresh every 10 min — function scores change slowly.
+export const revalidate = 600;
 
 function functionAggScore(functionId: string): { score: number; n: number } | null {
   const ps = politiciansInFunction(functionId).filter(
@@ -30,7 +34,11 @@ const LEVEL_LABELS: Record<string, string> = {
   party_leadership: "Direction de parti",
 };
 
-export default function FunctionsIndex() {
+export default async function FunctionsIndex() {
+  // Fetch real DB aggregate scores per function (falls back to [] on failure).
+  const dbFunctionStats = await getFunctionDbStats();
+  const dbMap = new Map(dbFunctionStats.map((s) => [s.function_slug, s]));
+
   const groups = FUNCTIONS.reduce<Record<string, typeof FUNCTIONS>>((acc, f) => {
     (acc[f.level] ??= []).push(f);
     return acc;
@@ -63,7 +71,10 @@ export default function FunctionsIndex() {
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {funcs.map((f) => {
-              const agg = functionAggScore(f.id);
+              const db = dbMap.get(f.slug);
+              const fixtureAgg = functionAggScore(f.id);
+              const displayScore = db ? db.truth_score : (fixtureAgg?.score ?? null);
+              const isLive = !!db;
               const n = politiciansInFunction(f.id).length;
               return (
                 <Link
@@ -72,14 +83,27 @@ export default function FunctionsIndex() {
                   className="group bg-white rounded-2xl border border-black/5 p-5 hover:border-[var(--color-accent)] transition flex items-start gap-4"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-serif text-lg font-semibold group-hover:text-[var(--color-accent)] truncate">
-                      {f.name}
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="font-serif text-lg font-semibold group-hover:text-[var(--color-accent)] truncate">
+                        {f.name}
+                      </p>
+                      {isLive && (
+                        <span
+                          className="shrink-0 h-2 w-2 rounded-full bg-[var(--color-trust)]"
+                          title={`${db.n_verdicts} verdicts publiés — score réel`}
+                        />
+                      )}
+                    </div>
                     <p className="mt-1 text-xs text-[var(--color-ink-soft)]">
                       {n} {n > 1 ? "politiques suivis" : "politique suivi"}
+                      {isLive && (
+                        <span className="ml-2 text-[var(--color-trust)]">
+                          · {db.n_verdicts} verdict{db.n_verdicts > 1 ? "s" : ""}
+                        </span>
+                      )}
                     </p>
                   </div>
-                  <ScoreBadge score={agg?.score ?? null} size="md" />
+                  <ScoreBadge score={displayScore} size="md" />
                 </Link>
               );
             })}
