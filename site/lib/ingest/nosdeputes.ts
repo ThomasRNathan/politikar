@@ -120,7 +120,7 @@ async function fetchDeputyInterventions(spec: DeputySpec): Promise<IngestedSourc
     out.push({
       id,
       politician_id: spec.politician_id,
-      source_type: "speech",
+      source_type: "parliamentary_intervention",
       channel: "Assemblée nationale",
       occurred_at: occurredAt,
       url: seanceUrl,
