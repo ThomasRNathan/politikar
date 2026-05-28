@@ -7,6 +7,7 @@ import { fetchGouvernement } from "./gouvernement";
 import { fetchNosDéputes } from "./nosdeputes";
 import { fetchSenat } from "./senat";
 import { fetchPartisLeaders } from "./partis";
+import { fetchEuroparl } from "./europarl";
 import { fetchFactchecks, type IngestedFactcheck } from "./factcheckers";
 
 export type IngestionSnapshot = {
@@ -75,6 +76,17 @@ export async function runIngestion(): Promise<IngestionSnapshot> {
     }
   } catch (e) {
     errors.push({ source: "partis", message: (e as Error).message });
+  }
+
+  // --- European Parliament group feeds (Aubry, Glucksmann, Hayer, Bellamy, Maréchal, Toussaint) ---
+  try {
+    const ep = await fetchEuroparl({ limitPerFeed: 20 });
+    sources.push(...ep.items);
+    for (const err of ep.errors) {
+      errors.push({ source: `europarl:${err.feed}`, message: err.message });
+    }
+  } catch (e) {
+    errors.push({ source: "europarl", message: (e as Error).message });
   }
 
   // --- Factcheckers (AFP Factuel, Le Monde Vérificateur, etc.) ---

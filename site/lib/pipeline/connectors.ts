@@ -15,6 +15,7 @@ import { fetchGouvernement, fetchGouvernementBody } from "@/lib/ingest/gouvernem
 import { fetchNosDéputes, TRACKED_DEPUTIES } from "@/lib/ingest/nosdeputes";
 import { fetchSenat } from "@/lib/ingest/senat";
 import { fetchPartisLeaders } from "@/lib/ingest/partis";
+import { fetchEuroparl } from "@/lib/ingest/europarl";
 
 export type PoliticianMeta = {
   id: string;        // fixture politician id, e.g. "pol-macron"
@@ -56,6 +57,13 @@ export const POLITICIAN_META: Record<string, PoliticianMeta> = {
   "pol-bardella":    { id: "pol-bardella",     full_name: "Jordan Bardella",   function_name: "Président du Rassemblement national", party: "Rassemblement national", tier: "P0" },
   "pol-philippe":    { id: "pol-philippe",     full_name: "Édouard Philippe",  function_name: "Président d'Horizons, Maire du Havre", party: "Horizons",       tier: "P0" },
   "pol-tondelier":   { id: "pol-tondelier",    full_name: "Marine Tondelier",  function_name: "Secrétaire nationale des Écologistes", party: "Les Écologistes", tier: "P0" },
+  // MEPs (via EP group press-release feeds)
+  "pol-aubry":       { id: "pol-aubry",        full_name: "Manon Aubry",       function_name: "Co-présidente du groupe The Left au PE", party: "La France insoumise", tier: "P0" },
+  "pol-glucksmann":  { id: "pol-glucksmann",   full_name: "Raphaël Glucksmann", function_name: "Président du groupe S&D au PE",       party: "Parti socialiste", tier: "P0" },
+  "pol-hayer":       { id: "pol-hayer",        full_name: "Valérie Hayer",     function_name: "Présidente du groupe Renew Europe",   party: "Renaissance",      tier: "P0" },
+  "pol-bellamy":     { id: "pol-bellamy",      full_name: "François-Xavier Bellamy", function_name: "Eurodéputé LR (groupe PPE)",  party: "Les Républicains", tier: "P1" },
+  "pol-marechal":    { id: "pol-marechal",     full_name: "Marion Maréchal",   function_name: "Eurodéputée (Patriots for Europe)", party: "Reconquête",       tier: "P1" },
+  "pol-toussaint":   { id: "pol-toussaint",    full_name: "Marie Toussaint",   function_name: "Co-présidente des Verts/ALE au PE",  party: "Les Écologistes",  tier: "P0" },
 };
 
 export type ConnectorBatch = {
@@ -154,6 +162,25 @@ export async function fetchAllSources(): Promise<ConnectorBatch[]> {
     }
   } catch (e) {
     console.warn("connector:partis failed:", (e as Error).message);
+  }
+
+  // --- European Parliament group feeds (Aubry, Glucksmann, Hayer, Bellamy, Maréchal, Toussaint) ---
+  try {
+    const { items, errors } = await fetchEuroparl({ limitPerFeed: 20 });
+    if (errors.length > 0) {
+      console.warn("europarl partial errors:", errors.map((e) => `${e.feed}: ${e.message}`).join(", "));
+    }
+    const byPol: Record<string, IngestedSource[]> = {};
+    for (const s of items) {
+      (byPol[s.politician_id] ??= []).push(s);
+    }
+    for (const [polId, srcs] of Object.entries(byPol)) {
+      const meta = POLITICIAN_META[polId];
+      if (!meta) continue;
+      batches.push({ sources: srcs, meta });
+    }
+  } catch (e) {
+    console.warn("connector:europarl failed:", (e as Error).message);
   }
 
   return batches;
