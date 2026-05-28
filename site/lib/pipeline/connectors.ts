@@ -43,7 +43,9 @@ export const POLITICIAN_META: Record<string, PoliticianMeta> = {
   "pol-chatelain":   { id: "pol-chatelain",    full_name: "Cyrielle Chatelain", function_name: "Présidente du groupe Verts", party: "Les Écologistes",    tier: "P1" },
   "pol-marcangeli":  { id: "pol-marcangeli",   full_name: "Laurent Marcangeli", function_name: "Président du groupe HOR",    party: "Horizons",           tier: "P1" },
   "pol-braun-pivet": { id: "pol-braun-pivet",  full_name: "Yaël Braun-Pivet",   function_name: "Présidente de l'AN",         party: "Renaissance",        tier: "P0" },
-  "pol-aubry":       { id: "pol-aubry",        full_name: "Olivier Faure",      function_name: "Premier secrétaire PS",      party: "Parti socialiste",   tier: "P0" },
+  // pol-aubry in fixtures = Manon Aubry (MEP LFI) — no connector yet (EP source needed).
+  // pol-faure = Olivier Faure (député PS, Premier secrétaire PS).
+  "pol-faure":       { id: "pol-faure",        full_name: "Olivier Faure",      function_name: "Premier secrétaire PS",      party: "Parti socialiste",   tier: "P0" },
   "pol-larcher":     { id: "pol-larcher",      full_name: "Gérard Larcher",    function_name: "Président du Sénat",         party: "Les Républicains",   tier: "P0" },
   "pol-kanner":      { id: "pol-kanner",       full_name: "Patrick Kanner",    function_name: "Président du groupe PS au Sénat", party: "Parti socialiste", tier: "P1" },
 };

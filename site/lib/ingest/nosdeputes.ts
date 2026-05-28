@@ -41,9 +41,13 @@ export const TRACKED_DEPUTIES: DeputySpec[] = [
   { politician_id: "pol-panot",       nosdeputes_slug: "mathilde-panot",         full_name: "Mathilde Panot" },
   { politician_id: "pol-vallaud",     nosdeputes_slug: "boris-vallaud",          full_name: "Boris Vallaud" },
   { politician_id: "pol-chatelain",   nosdeputes_slug: "cyrielle-chatelain",     full_name: "Cyrielle Chatelain" },
+  // Marcangeli became a minister in Bayrou's government (Dec 2024) so he
+  // may have given up his seat. The 404 handler below skips him silently.
   { politician_id: "pol-marcangeli",  nosdeputes_slug: "laurent-marcangeli",     full_name: "Laurent Marcangeli" },
   { politician_id: "pol-braun-pivet", nosdeputes_slug: "yael-braun-pivet",       full_name: "Yaël Braun-Pivet" },
-  { politician_id: "pol-aubry",       nosdeputes_slug: "julien-bayou",           full_name: "Julien Bayou" },   // fallback if aubry not deputy
+  // Olivier Faure (pol-faure) is the PS group president and an AN deputy.
+  // NOTE: pol-aubry in fixtures = Manon Aubry (MEP) — she is NOT in NosDéputés.
+  { politician_id: "pol-faure",       nosdeputes_slug: "olivier-faure",          full_name: "Olivier Faure" },
 ];
 
 const BASE = "https://www.nosdeputes.fr";
