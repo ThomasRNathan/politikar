@@ -6,14 +6,15 @@
 // or hold senior positions in their group appear frequently in group
 // communications.
 //
-// We only track senior French MEPs whose statements are politically
-// significant nationally:
-//   pol-aubry    → Manon Aubry      (The Left / GUE-NGL, VP)
-//   pol-glucksmann → Raphaël Glucksmann (S&D, group president since 2024)
-//   pol-hayer    → Valérie Hayer    (Renew Europe, group president)
-//   pol-bellamy  → F.-X. Bellamy    (EPP, leads French LR MEPs)
-//   pol-marechal → Marion Maréchal  (Patriots for Europe)
-//   pol-toussaint → Marie Toussaint (Greens/EFA, co-president)
+// Feed availability as of 2025-05 (re-verified):
+//   pol-glucksmann → S&D: https://www.socialistsanddemocrats.eu/rss.xml (✓ Drupal RSS)
+//   pol-aubry      → The Left: https://www.left.eu/feed/ (✓ WordPress, may Cloudflare-challenge locally)
+//
+// No working public RSS feeds found for:
+//   pol-hayer    (Renew Europe)   — Craft CMS, no feed endpoint exposed
+//   pol-bellamy  (EPP)            — feed exists at /rss.xml but returns Drupal 403
+//   pol-marechal (Patriots)       — Laravel app, no XML feed
+//   pol-toussaint (Greens/EFA)    — no feed auto-discovery link, all paths 404
 //
 // License: open-web content (EP group press releases are freely
 // published). Attribution is name-based and imprecise; the extraction
@@ -42,55 +43,22 @@ type EpFeedSpec = {
 
 const EP_FEEDS: EpFeedSpec[] = [
   // S&D — Raphaël Glucksmann is group president since July 2024.
-  // His name appears prominently in group press releases.
+  // Drupal-based site; RSS at top-level /rss.xml (verified 200 OK).
   {
-    url: "https://www.socialistsanddemocrats.eu/newsroom/press-releases/feed/",
+    url: "https://www.socialistsanddemocrats.eu/rss.xml",
     channel: "S&D (Parlement européen)",
     patterns: [
       { politician_id: "pol-glucksmann", keywords: ["glucksmann", "raphaël glucksmann", "raphael glucksmann"] },
     ],
   },
-  // Renew Europe — Valérie Hayer is group president.
-  {
-    url: "https://www.reneweuropegroup.eu/press-releases/feed/",
-    channel: "Renew Europe (Parlement européen)",
-    patterns: [
-      { politician_id: "pol-hayer", keywords: ["hayer", "valérie hayer", "valerie hayer"] },
-    ],
-  },
   // The Left (GUE-NGL) — Manon Aubry is co-president.
-  // Their WordPress site publishes at /press-releases/
+  // WordPress-based; standard /feed/ endpoint. May be Cloudflare-challenged
+  // from residential IPs but works from Vercel's datacenter ranges.
   {
-    url: "https://www.left.eu/category/press-releases/feed/",
+    url: "https://www.left.eu/feed/",
     channel: "The Left / GUE-NGL (Parlement européen)",
     patterns: [
       { politician_id: "pol-aubry", keywords: ["manon aubry", "aubry"] },
-    ],
-  },
-  // Greens/EFA — Marie Toussaint is co-president from 2024.
-  {
-    url: "https://www.greens-efa.eu/en/category/press-releases/feed/",
-    channel: "Verts/ALE (Parlement européen)",
-    patterns: [
-      { politician_id: "pol-toussaint", keywords: ["toussaint", "marie toussaint"] },
-    ],
-  },
-  // EPP — François-Xavier Bellamy leads the French LR MEPs within EPP.
-  // His name appears in EPP press releases on French political matters.
-  {
-    url: "https://www.eppgroup.eu/press-releases/feed/",
-    channel: "PPE (Parlement européen)",
-    patterns: [
-      { politician_id: "pol-bellamy", keywords: ["bellamy", "bellamy-"] },
-    ],
-  },
-  // Patriots for Europe — Marion Maréchal is a member.
-  // Their RSS feed may not be readily available; we try and skip on 404.
-  {
-    url: "https://patriotsforeurope.eu/feed/",
-    channel: "Patriots for Europe (Parlement européen)",
-    patterns: [
-      { politician_id: "pol-marechal", keywords: ["maréchal", "marechal", "marion maréchal"] },
     ],
   },
 ];

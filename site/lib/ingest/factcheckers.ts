@@ -27,15 +27,18 @@ const FEEDS = [
     // Free RSS feed with titles + summaries; no full body.
   },
   {
-    outlet: "Vrai ou Faux (France Info)",
-    url: "https://www.francetvinfo.fr/faux-et-usage-de-faux.rss",
-    // France Televisions / FTVInfo — CC BY-NC-SA.
-    // Rich summaries with verdict labels.
+    outlet: "Conspiracy Watch",
+    url: "https://www.conspiracywatch.info/feed",
+    // Conspiracy Watch — "les faits contre le complotisme", CC BY.
+    // Covers political misinformation / fact-checks in French.
+    // Full body via content:encoded.
+    // Previous France Info "Vrai ou Faux" feed (301→404) removed 2025-05.
   },
   {
     outlet: "CheckNews (Libération)",
     url: "https://www.liberation.fr/checknews/rss/",
     // Libération CheckNews RSS — titles only (paywalled).
+    // Returns 403 from some IP ranges; Vercel datacenter IPs usually pass.
   },
 ];
 

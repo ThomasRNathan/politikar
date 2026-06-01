@@ -8,13 +8,19 @@
 import { fetchText, parseRss, isoDate, sha256Short, htmlToPlainText } from "./util";
 
 const FEEDS = [
+  // Sénat press communiqués (several possible URL patterns across CMS versions).
+  // The connector tries each in order and skips silently on 404.
   {
-    url: "https://www.senat.fr/rss/communiques.xml",
+    url: "https://www.senat.fr/rss.xml",
+    label: "Sénat (actualités)",
+  },
+  {
+    url: "https://www.senat.fr/presse/communiques.rss",
     label: "Sénat (communiqués)",
   },
   {
-    url: "https://www.senat.fr/rss/actualites.xml",
-    label: "Sénat (actualités)",
+    url: "https://www.senat.fr/rss/presse.xml",
+    label: "Sénat (presse)",
   },
 ];
 

@@ -76,28 +76,22 @@ const FEEDS: FeedSpec[] = [
     license: "open web",
   },
 
-  // ── Horizons party site ───────────────────────────────────────────────
-  // Édouard Philippe is party president. Items mentioning him are
-  // attributed to pol-philippe.
-  {
-    url: "https://www.horizons-lecentre.fr/feed/",
-    channel: "Horizons (communiqués)",
-    patterns: [
-      { politician_id: "pol-philippe", keywords: ["édouard philippe", "edouard philippe", "philippe"] },
-    ],
-    license: "open web",
-  },
-
   // ── Les Écologistes (EELV) ────────────────────────────────────────────
   // Marine Tondelier is Secrétaire nationale des Écologistes (since 2022).
+  // Feed uses Laminas_Feed_Writer at /rss.xml (verified 200 OK; /feed/ returns 403).
   {
-    url: "https://lesecologistes.fr/feed/",
+    url: "https://lesecologistes.fr/rss.xml",
     channel: "Les Écologistes (communiqués)",
     patterns: [
       { politician_id: "pol-tondelier", keywords: ["tondelier"] },
     ],
     license: "open web",
   },
+
+  // ── Horizons party site ───────────────────────────────────────────────
+  // NOTE: horizons-lecentre.fr is NXDOMAIN (domain expired/moved).
+  // New domain horizonsleparti.fr has no RSS feed (WordPress feed disabled).
+  // pol-philippe has no RSS source currently; entry removed to avoid cron noise.
 
   // ── La France insoumise ──────────────────────────────────────────────
   // LFI publishes a main site feed. Items by/about Mélenchon complement
