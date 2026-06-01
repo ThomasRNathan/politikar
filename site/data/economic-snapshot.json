@@ -1,39 +1,61 @@
 {
-  "updated_at": "2025-05-01T00:00:00.000Z",
+  "updated_at": "2026-06-01T09:06:50.690Z",
   "note": "Key French macroeconomic indicators. Refresh via scripts/db/refresh-economic.ts.",
   "indicators": [
     {
       "id": "chomage_fr",
       "label": "Taux de chômage (France entière)",
-      "value": 7.3,
+      "value": 8.1,
       "unit": "%",
-      "period": "T4 2024",
+      "period": "T1 2026",
       "direction": "stable",
       "source": "INSEE - Enquête Emploi",
       "url": "https://www.insee.fr/fr/statistiques/8220490",
-      "keywords": ["chômage", "chomage", "chômeurs", "chomeurs", "sans-emploi", "sans emploi", "taux de chômage"]
+      "keywords": [
+        "chômage",
+        "chomage",
+        "chômeurs",
+        "chomeurs",
+        "sans-emploi",
+        "sans emploi",
+        "taux de chômage"
+      ]
     },
     {
       "id": "inflation_fr",
       "label": "Inflation (IPC glissement annuel)",
-      "value": 0.9,
+      "value": 2.1,
       "unit": "%",
-      "period": "mars 2025",
-      "direction": "down",
+      "period": "avril 2026",
+      "direction": "stable",
       "source": "INSEE - IPC",
-      "url": "https://www.insee.fr/fr/statistiques/8208049",
-      "keywords": ["inflation", "pouvoir d'achat", "prix", "hausse des prix", "coût de la vie", "IPC"]
+      "url": "https://www.insee.fr/fr/statistiques/8847129",
+      "keywords": [
+        "inflation",
+        "pouvoir d'achat",
+        "prix",
+        "hausse des prix",
+        "coût de la vie",
+        "IPC"
+      ]
     },
     {
       "id": "croissance_pib",
       "label": "Croissance du PIB",
-      "value": 0.1,
+      "value": 0.2,
       "unit": "%",
-      "period": "T4 2024",
-      "direction": "stable",
+      "period": "T4 2025",
+      "direction": "up",
       "source": "INSEE - Comptes nationaux",
-      "url": "https://www.insee.fr/fr/statistiques/8218714",
-      "keywords": ["PIB", "croissance", "croissance économique", "récession", "produit intérieur brut", "richesse nationale"]
+      "url": "https://www.insee.fr/fr/statistiques/8885657",
+      "keywords": [
+        "PIB",
+        "croissance",
+        "croissance économique",
+        "récession",
+        "produit intérieur brut",
+        "richesse nationale"
+      ]
     },
     {
       "id": "deficit_public",
@@ -44,40 +66,65 @@
       "direction": "stable",
       "source": "INSEE / Eurostat",
       "url": "https://www.insee.fr/fr/statistiques/8178688",
-      "keywords": ["déficit", "deficit", "déficit public", "déficit budgétaire", "solde public", "dépenses publiques"]
+      "keywords": [
+        "déficit",
+        "deficit",
+        "déficit public",
+        "déficit budgétaire",
+        "solde public",
+        "dépenses publiques"
+      ]
     },
     {
       "id": "dette_publique",
       "label": "Dette publique (% PIB)",
-      "value": 112.0,
+      "value": 112,
       "unit": "% du PIB",
       "period": "2024",
       "direction": "up",
       "source": "INSEE / Eurostat",
       "url": "https://www.insee.fr/fr/statistiques/8178688",
-      "keywords": ["dette", "dette publique", "dette de la France", "endettement", "dette souveraine"]
+      "keywords": [
+        "dette",
+        "dette publique",
+        "dette de la France",
+        "endettement",
+        "dette souveraine"
+      ]
     },
     {
       "id": "smic",
       "label": "SMIC brut mensuel",
-      "value": 1766.92,
+      "value": 1867.02,
       "unit": "€",
-      "period": "janvier 2025",
+      "period": "juin 2026",
       "direction": "up",
       "source": "Ministère du Travail",
       "url": "https://www.service-public.fr/particuliers/vosdroits/F2300",
-      "keywords": ["SMIC", "salaire minimum", "smic", "minimum interprofessionnel", "salaire minimum légal"]
+      "keywords": [
+        "SMIC",
+        "salaire minimum",
+        "smic",
+        "minimum interprofessionnel",
+        "salaire minimum légal"
+      ]
     },
     {
       "id": "emploi_salarie",
       "label": "Emploi salarié (glissement annuel)",
-      "value": 55000,
+      "value": -40100,
       "unit": "emplois nets créés",
-      "period": "T3 2024",
+      "period": "T4 2025",
       "direction": "down",
       "source": "INSEE - Emploi salarié",
-      "url": "https://www.insee.fr/fr/statistiques/8218714",
-      "keywords": ["emplois créés", "emplois", "creation d'emplois", "emploi", "chiffres de l'emploi"]
+      "url": "https://www.insee.fr/fr/statistiques/8745332",
+      "keywords": [
+        "emplois créés",
+        "emplois",
+        "creation d'emplois",
+        "emploi",
+        "chiffres de l'emploi"
+      ]
     },
     {
       "id": "taux_emploi",
@@ -88,7 +135,12 @@
       "direction": "stable",
       "source": "INSEE - Enquête Emploi",
       "url": "https://www.insee.fr/fr/statistiques/8220490",
-      "keywords": ["taux d'emploi", "taux emploi", "emploi des actifs", "personnes en emploi"]
+      "keywords": [
+        "taux d'emploi",
+        "taux emploi",
+        "emploi des actifs",
+        "personnes en emploi"
+      ]
     },
     {
       "id": "pauvrete",
@@ -99,7 +151,14 @@
       "direction": "stable",
       "source": "INSEE - Revenus et niveaux de vie",
       "url": "https://www.insee.fr/fr/statistiques/7663360",
-      "keywords": ["pauvreté", "pauvrete", "taux de pauvreté", "gens pauvres", "personnes pauvres", "inégalités"]
+      "keywords": [
+        "pauvreté",
+        "pauvrete",
+        "taux de pauvreté",
+        "gens pauvres",
+        "personnes pauvres",
+        "inégalités"
+      ]
     },
     {
       "id": "solde_migratoire",
@@ -110,7 +169,14 @@
       "direction": "stable",
       "source": "INSEE - Bilan démographique",
       "url": "https://www.insee.fr/fr/statistiques/8212281",
-      "keywords": ["immigration", "immigrants", "immigrés", "flux migratoires", "solde migratoire", "migrants"]
+      "keywords": [
+        "immigration",
+        "immigrants",
+        "immigrés",
+        "flux migratoires",
+        "solde migratoire",
+        "migrants"
+      ]
     },
     {
       "id": "demandeurs_emploi",
@@ -121,7 +187,13 @@
       "direction": "stable",
       "source": "Dares / Pôle Emploi",
       "url": "https://dares.travail-emploi.gouv.fr/publication/les-demandeurs-demploi-inscrits-a-france-travail",
-      "keywords": ["demandeurs d'emploi", "inscrits à Pôle Emploi", "France Travail", "chômeurs indemnisés", "allocataires"]
+      "keywords": [
+        "demandeurs d'emploi",
+        "inscrits à Pôle Emploi",
+        "France Travail",
+        "chômeurs indemnisés",
+        "allocataires"
+      ]
     },
     {
       "id": "esperance_vie",
@@ -132,7 +204,13 @@
       "direction": "stable",
       "source": "INSEE - Bilan démographique",
       "url": "https://www.insee.fr/fr/statistiques/8212281",
-      "keywords": ["espérance de vie", "espérance", "longévité", "mortalité", "santé publique"]
+      "keywords": [
+        "espérance de vie",
+        "espérance",
+        "longévité",
+        "mortalité",
+        "santé publique"
+      ]
     },
     {
       "id": "budget_defense",
@@ -143,7 +221,14 @@
       "direction": "up",
       "source": "Ministère des Armées",
       "url": "https://www.defense.gouv.fr/actualites/loi-de-programmation-militaire",
-      "keywords": ["budget défense", "armées", "dépenses militaires", "LPM", "loi de programmation militaire", "budget armée"]
+      "keywords": [
+        "budget défense",
+        "armées",
+        "dépenses militaires",
+        "LPM",
+        "loi de programmation militaire",
+        "budget armée"
+      ]
     },
     {
       "id": "depenses_education",
@@ -154,18 +239,30 @@
       "direction": "stable",
       "source": "INSEE / DEPP",
       "url": "https://www.data.gouv.fr/fr/datasets/",
-      "keywords": ["éducation nationale", "budget éducation", "dépenses éducation", "investissement éducation", "écoles"]
+      "keywords": [
+        "éducation nationale",
+        "budget éducation",
+        "dépenses éducation",
+        "investissement éducation",
+        "écoles"
+      ]
     },
     {
       "id": "chomage_jeunes",
       "label": "Taux de chômage des 15-24 ans",
-      "value": 17.8,
+      "value": 21.1,
       "unit": "%",
-      "period": "T4 2024",
-      "direction": "down",
+      "period": "T1 2026",
+      "direction": "stable",
       "source": "INSEE - Enquête Emploi",
       "url": "https://www.insee.fr/fr/statistiques/8220490",
-      "keywords": ["chômage des jeunes", "chômage jeunes", "jeunes sans emploi", "taux chômage jeune", "chômage jeunesse"]
+      "keywords": [
+        "chômage des jeunes",
+        "chômage jeunes",
+        "jeunes sans emploi",
+        "taux chômage jeune",
+        "chômage jeunesse"
+      ]
     },
     {
       "id": "pouvoir_achat",
@@ -176,7 +273,13 @@
       "direction": "up",
       "source": "INSEE - Comptes nationaux",
       "url": "https://www.insee.fr/fr/statistiques/8218714",
-      "keywords": ["pouvoir d'achat", "revenu des ménages", "niveau de vie", "richesse des ménages", "revenu disponible"]
+      "keywords": [
+        "pouvoir d'achat",
+        "revenu des ménages",
+        "niveau de vie",
+        "richesse des ménages",
+        "revenu disponible"
+      ]
     }
   ]
 }
