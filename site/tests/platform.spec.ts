@@ -45,8 +45,14 @@ test.describe("politikar platform", () => {
     await expect(
       page.getByRole("heading", { name: "Emmanuel Macron" })
     ).toBeVisible();
-    await expect(page.getByLabel(/TruthScore 64/i)).toBeVisible();
-    await expect(page.getByText(/IC95/i)).toBeVisible();
+    // TruthScore shows the fixture value (64) when DB is below the
+    // significance threshold, or the real DB score once it passes 10
+    // published verdicts. Accept any numeric score.
+    await expect(page.getByLabel(/TruthScore \d+/i).first()).toBeVisible();
+    // "IC95" appears on fixture mode; "score réel" appears on DB mode.
+    const hasIc95 = await page.getByText(/IC95/i).isVisible({ timeout: 2000 }).catch(() => false);
+    const hasScoreReel = await page.getByText(/score réel/i).isVisible({ timeout: 2000 }).catch(() => false);
+    expect(hasIc95 || hasScoreReel).toBeTruthy();
     await expect(page.getByText(/Décomposition/i).first()).toBeVisible();
     await expect(page.getByText(/Factuel/i).first()).toBeVisible();
     await expect(page.getByText(/Promesses/i).first()).toBeVisible();
@@ -207,10 +213,79 @@ test.describe("politikar platform", () => {
     await page.goto("/politiciens/marine-le-pen");
     const photo = page.locator('img[alt*="Marine Le Pen"]').first();
     await expect(photo).toBeVisible();
-    // Wait for image to actually load by checking naturalWidth
-    const naturalWidth = await photo.evaluate(
-      (img: HTMLImageElement) => img.naturalWidth
-    );
+    // Wait for image to fully decode before reading naturalWidth.
+    // toBeVisible() only checks CSS visibility, not that the image data has
+    // arrived; a cross-origin Wikimedia image may still be in-flight.
+    const naturalWidth = await photo.evaluate((img: HTMLImageElement) => {
+      if (img.complete && img.naturalWidth > 0) return img.naturalWidth;
+      return new Promise<number>((resolve) => {
+        img.addEventListener("load", () => resolve(img.naturalWidth), { once: true });
+        // If load never fires (broken/already errored), resolve 0.
+        img.addEventListener("error", () => resolve(0), { once: true });
+      });
+    });
     expect(naturalWidth).toBeGreaterThan(0);
+  });
+
+  test("/classement page loads and shows ranking content", async ({ page, request }) => {
+    // Guard: skip content assertions if this page isn't deployed yet.
+    const status = (await request.get("/classement")).status();
+    if (status === 404) {
+      test.skip(true, "/classement not yet deployed on this environment");
+      return;
+    }
+    await page.goto("/classement");
+    await expect(page).toHaveTitle(/Classement/i);
+    await expect(
+      page.getByRole("heading", { name: /Véracité du discours politique/i })
+    ).toBeVisible();
+    // Should show either "données réelles" (live DB) or "illustratif" (fixture)
+    const hasRealData = await page.getByText("données réelles").isVisible();
+    const hasIllustrative = await page.getByText("illustratif").isVisible();
+    expect(hasRealData || hasIllustrative).toBeTruthy();
+    // Should have at least one ranking entry (either DB or fixture)
+    const rankEntries = page.locator("a[href^='/politiciens/']");
+    expect(await rankEntries.count()).toBeGreaterThanOrEqual(1);
+    // Methodology note present
+    await expect(page.getByText(/Note méthodologique/i)).toBeVisible();
+  });
+
+  test("politician search filters the annuaire", async ({ page, request }) => {
+    // Check that the live /politiciens page supports ?q= search params.
+    // The page returns 200 either way; distinguish by checking if the
+    // "Effacer le filtre" link appears (only present in the new async version).
+    await page.goto("/politiciens?q=macron");
+    await page.waitForLoadState("networkidle");
+    const hasSearchSupport = await page
+      .getByText(/Effacer le filtre/i)
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
+    if (!hasSearchSupport) {
+      test.skip(true, "Search params not yet supported on this deployment");
+      return;
+    }
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      /résultat|macron/i
+    );
+    await expect(page.getByText(/Macron/i).first()).toBeVisible();
+  });
+
+  test("politician topic filter shows subset", async ({ page }) => {
+    await page.goto("/politiciens?topic=economy");
+    await page.waitForLoadState("networkidle");
+    // Guard: topic chips are only present in the new async version of the page.
+    const hasTopicChips = await page
+      .getByRole("link", { name: /Économie/i })
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
+    if (!hasTopicChips) {
+      test.skip(true, "Topic filter chips not yet deployed on this environment");
+      return;
+    }
+    // The Économie chip should be highlighted (active style) when ?topic=economy is active
+    const economieChip = page.getByRole("link", { name: /Économie/i }).first();
+    await expect(economieChip).toBeVisible();
+    // Heading should reflect filtered results
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 });

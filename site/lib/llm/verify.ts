@@ -16,6 +16,7 @@ import { generateText, Output } from "ai";
 import { mistral } from "@ai-sdk/mistral";
 import { z } from "zod";
 import { FACTUAL_VERDICTS } from "./schemas";
+import { formatIndicatorsForPrompt } from "@/lib/fact/economic";
 
 export const VERIFICATION_CASCADE_PROMPT_VERSION = "verification_cascade@v1.0.0";
 
@@ -79,7 +80,7 @@ export type VerifyInput = {
      * publishes it. Allows Mistral to use the actual analysis rather
      * than infer from the title. */
     body?: string | null;
-    /** Cosine similarity score with the claim embedding (0-1). Higher
+    /** Cosine similarity score with the claim embedding (0.0 to 1.0). Higher
      * values indicate stronger topical alignment. */
     sim?: number;
   }>;
@@ -97,6 +98,17 @@ export function buildVerifyUserPrompt(inp: VerifyInput): string {
   );
   lines.push(`TAGS : ${inp.topicTags.join(", ")}`);
   lines.push("");
+
+  // Inject matching economic indicators from the INSEE/Eurostat snapshot.
+  // This gives Mistral access to official figures for numeric claims
+  // (chômage, inflation, PIB, dette...) without requiring a live API call.
+  const economicContext = formatIndicatorsForPrompt(inp.claimText);
+  if (economicContext) {
+    lines.push("DONNÉES MACROÉCONOMIQUES OFFICIELLES PERTINENTES :");
+    lines.push(economicContext);
+    lines.push("");
+  }
+
   lines.push(`ÉVIDENCES PRÉ-COLLECTÉES (par similarité sémantique) :`);
   if (inp.factCheckHits.length === 0) {
     lines.push("  (aucun fact-check correspondant trouvé)");
@@ -122,10 +134,12 @@ export function buildVerifyUserPrompt(inp: VerifyInput): string {
   }
   lines.push("");
   lines.push(
-    "Émets ton verdict. Si l'extrait d'un fact-check contredit clairement le claim, " +
-      "verdict 'false'. S'il le confirme, 'true'. Si la similarité est faible (< 0.6) ou " +
-      "si les extraits ne portent pas sur le même fait précis, choisis 'unverifiable'. " +
-      "Cite systématiquement l'URL du fact-check utilisé dans evidence.",
+    "Émets ton verdict. Si les données macro officielles ou les extraits de fact-checks " +
+      "contredisent clairement le claim, verdict 'false'. S'ils le confirment, 'true'. " +
+      "Si la similarité est faible (inférieure à 0.6) ou si les éléments ne portent pas sur " +
+      "le même fait précis, choisis 'unverifiable'. " +
+      "Cite systématiquement l'URL de chaque source utilisée dans evidence. " +
+      "Pour les données macro, cite l'URL INSEE/Eurostat correspondante.",
   );
   return lines.join("\n");
 }

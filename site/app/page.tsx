@@ -12,14 +12,25 @@ import { FranceMap } from "@/components/FranceMap";
 import { ClaimRow } from "@/components/ClaimRow";
 import { PoliticianAvatar } from "@/components/PoliticianAvatar";
 import { ScoreBadge } from "@/components/ScoreBadge";
-import { formatRelativeShort, formatDate } from "@/lib/format";
+import { VerdictPill } from "@/components/VerdictPill";
+import { formatRelativeShort, formatDate, scoreColor } from "@/lib/format";
 import {
   recentRealSources,
   recentFactchecks,
   ingestionTotals,
 } from "@/lib/realdata";
+import {
+  getRecentPublishedVerdicts,
+  getTopPoliticiansByScore,
+  getRecentDbSources,
+} from "@/lib/db/reads";
+import { politicianBySlug } from "@/lib/fixtures";
 
-export default function Home() {
+// ISR: homepage refreshes every 5 minutes so new verdicts appear without a
+// redeploy. The daily cron writes to DB; ISR picks it up automatically.
+export const revalidate = 300;
+
+export default async function Home() {
   const regionScores = regionAggregateScores();
 
   const topPoliticians = [...POLITICIANS]
@@ -31,11 +42,25 @@ export default function Home() {
     .sort((a, b) => b.occurred_at.localeCompare(a.occurred_at))
     .slice(0, 5);
 
-  const topStories = TOP_STORIES.map((t) => ({
+  const fixtureTopStories = TOP_STORIES.map((t) => ({
     ...t,
     claim: claimById(t.claim_id)!,
     politician: politicianById(claimById(t.claim_id)!.politician_id)!,
   }));
+
+  // Fetch real verdicts + ranking + recent sources from DB in parallel.
+  // Fetch 12 verdicts so we can split between Top Stories (6) and the
+  // compact "Dernières vérifications" list (up to 6 more).
+  const [allLiveVerdicts, dbTopPoliticians, dbSources] = await Promise.all([
+    getRecentPublishedVerdicts(12),
+    getTopPoliticiansByScore(5, 3),
+    getRecentDbSources(8),
+  ]);
+  const liveVerdicts = allLiveVerdicts.slice(0, 6);
+  const liveVerdictsCompact = allLiveVerdicts.slice(6);
+  const hasLiveVerdicts = liveVerdicts.length > 0;
+  const hasDbRanking = dbTopPoliticians.length > 0;
+  const hasDbSources = dbSources.length > 0;
 
   return (
     <div className="flex-1">
@@ -93,10 +118,10 @@ export default function Home() {
             </div>
           </div>
           <div className="bg-white rounded-2xl border border-black/5 p-6 shadow-sm">
-            <div className="flex items-baseline justify-between mb-4">
+            <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
               <h2 className="font-serif text-xl font-semibold">Carte des régions</h2>
               <span className="text-xs text-[var(--color-ink-soft)]">
-                Score moyen pondéré des élus suivis
+                Score moyen pondéré · données illustratives
               </span>
             </div>
             <FranceMap scores={regionScores} />
@@ -112,48 +137,108 @@ export default function Home() {
                 Top stories de la semaine
               </p>
               <h2 className="font-serif text-3xl font-semibold tracking-tight">
-                Ce que la cascade a vérifié.
+                {hasLiveVerdicts
+                  ? "Verdicts récents du pipeline."
+                  : "Ce que la cascade a vérifié."}
               </h2>
             </div>
-            <Link
-              href="/politiciens"
-              className="text-sm text-[var(--color-accent)] hover:underline hidden sm:inline"
-            >
-              Tous les politiques →
-            </Link>
+            <div className="flex items-center gap-3">
+              {hasLiveVerdicts && (
+                <span className="text-xs text-[var(--color-trust)] font-mono hidden sm:inline">
+                  pipeline live
+                </span>
+              )}
+              <Link
+                href="/politiciens"
+                className="text-sm text-[var(--color-accent)] hover:underline hidden sm:inline"
+              >
+                Tous les politiques →
+              </Link>
+            </div>
           </div>
           <div className="grid lg:grid-cols-2 gap-4">
-            {topStories.map((s) => {
-              const source = sourceById(s.claim.source_id);
-              return (
-                <Link
-                  key={s.claim_id}
-                  href={`/claims/${s.claim_id}`}
-                  className="group block bg-white rounded-2xl p-6 border border-black/5 hover:border-[var(--color-accent)] transition"
-                >
-                  <div className="flex items-start gap-4">
-                    <PoliticianAvatar politician={s.politician} size={44} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className="font-medium text-sm">{s.politician.full_name}</p>
-                        <span className="text-[11px] text-[var(--color-ink-soft)] shrink-0">
-                          {formatRelativeShort(s.claim.occurred_at)}
+            {hasLiveVerdicts
+              ? liveVerdicts.map((v) => {
+                  const pol = politicianBySlug(v.politician_slug);
+                  return (
+                    <Link
+                      key={v.claim_id}
+                      href={`/claims/${v.claim_id}`}
+                      className="group block bg-white rounded-2xl p-6 border border-black/5 hover:border-[var(--color-accent)] transition"
+                    >
+                      <div className="flex items-start gap-4">
+                        {pol ? (
+                          <PoliticianAvatar politician={pol} size={44} />
+                        ) : (
+                          <div
+                            className="h-11 w-11 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold"
+                            style={{ background: v.party_color ?? "#94a3b8" }}
+                          >
+                            {v.politician_full_name[0]}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <p className="font-medium text-sm">{v.politician_full_name}</p>
+                            {v.occurred_at && (
+                              <span className="text-[11px] text-[var(--color-ink-soft)] shrink-0">
+                                {formatRelativeShort(v.occurred_at)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-[var(--color-ink-soft)]">
+                            {v.channel ?? "Communication officielle"}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="mt-4 font-serif text-lg leading-snug group-hover:text-[var(--color-accent)]">
+                        « {v.claim_text} »
+                      </p>
+                      <div className="mt-3 flex items-center gap-2 flex-wrap">
+                        <VerdictPill verdict={v.verdict as never} size="sm" />
+                        <span className="text-[11px] text-[var(--color-ink-soft)] font-mono">
+                          conf {v.confidence.toFixed(2)}
                         </span>
                       </div>
-                      <p className="text-xs text-[var(--color-ink-soft)]">
-                        {source?.channel}
+                      {v.reasoning && (
+                        <p className="mt-2 text-xs text-[var(--color-ink-soft)] italic line-clamp-2">
+                          {v.reasoning}
+                        </p>
+                      )}
+                    </Link>
+                  );
+                })
+              : fixtureTopStories.map((s) => {
+                  const source = sourceById(s.claim.source_id);
+                  return (
+                    <Link
+                      key={s.claim_id}
+                      href={`/claims/${s.claim_id}`}
+                      className="group block bg-white rounded-2xl p-6 border border-black/5 hover:border-[var(--color-accent)] transition"
+                    >
+                      <div className="flex items-start gap-4">
+                        <PoliticianAvatar politician={s.politician} size={44} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <p className="font-medium text-sm">{s.politician.full_name}</p>
+                            <span className="text-[11px] text-[var(--color-ink-soft)] shrink-0">
+                              {formatRelativeShort(s.claim.occurred_at)}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[var(--color-ink-soft)]">
+                            {source?.channel}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="mt-4 font-serif text-lg leading-snug group-hover:text-[var(--color-accent)]">
+                        « {s.claim.claim_text} »
                       </p>
-                    </div>
-                  </div>
-                  <p className="mt-4 font-serif text-lg leading-snug group-hover:text-[var(--color-accent)]">
-                    « {s.claim.claim_text} »
-                  </p>
-                  <p className="mt-3 text-xs text-[var(--color-ink-soft)] italic">
-                    {s.note}
-                  </p>
-                </Link>
-              );
-            })}
+                      <p className="mt-3 text-xs text-[var(--color-ink-soft)] italic">
+                        {s.note}
+                      </p>
+                    </Link>
+                  );
+                })}
           </div>
         </div>
       </section>
@@ -161,41 +246,89 @@ export default function Home() {
       <section className="max-w-6xl mx-auto px-6 py-16">
         <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12">
           <div>
-            <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
-              Classement
-            </p>
+            <div className="flex items-baseline gap-3 mb-2">
+              <p className="text-xs uppercase tracking-widest text-[var(--color-accent)]">
+                Classement
+              </p>
+              {hasDbRanking && (
+                <span className="text-[10px] text-[var(--color-trust)] font-mono">
+                  données réelles
+                </span>
+              )}
+            </div>
             <h2 className="font-serif text-3xl font-semibold tracking-tight mb-4">
               Top 5 par véracité.
             </h2>
             <p className="text-sm text-[var(--color-ink-soft)] mb-6 leading-relaxed">
-              Calculé sur l&apos;ensemble des claims factuels et promesses
-              résolus de la période. Volume minimum requis pour entrer au
-              classement : 30 affirmations factuelles ou 5 promesses résolues.
+              {hasDbRanking
+                ? `Calculé sur les vérifications publiées dans la base. Minimum ${dbTopPoliticians[0]?.n_verdicts ?? 3} verdicts requis.`
+                : "Calculé sur l'ensemble des claims factuels et promesses résolus de la période. Volume minimum requis pour entrer au classement : 30 affirmations factuelles ou 5 promesses résolues."}
             </p>
-            <ol className="space-y-2">
-              {topPoliticians.map((p, i) => (
-                <li key={p.id}>
-                  <Link
-                    href={`/politiciens/${p.slug}`}
-                    className="group flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--color-bg-soft)] transition"
-                  >
-                    <span className="font-mono text-sm text-[var(--color-ink-soft)] w-6">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <PoliticianAvatar politician={p} size={36} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate group-hover:text-[var(--color-accent)]">
-                        {p.full_name}
-                      </p>
-                      <p className="text-[11px] text-[var(--color-ink-soft)] truncate">
-                        {p.bio_short.split(".")[0]}
-                      </p>
-                    </div>
-                    <ScoreBadge score={p.stats.truth_score} size="sm" />
-                  </Link>
-                </li>
-              ))}
+            <ol className="space-y-2 mb-5">
+              {hasDbRanking
+                ? dbTopPoliticians.map((p, i) => {
+                    const fixPol = politicianBySlug(p.slug);
+                    return (
+                      <li key={p.slug}>
+                        <Link
+                          href={`/politiciens/${p.slug}`}
+                          className="group flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--color-bg-soft)] transition"
+                        >
+                          <span className="font-mono text-sm text-[var(--color-ink-soft)] w-6">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          {fixPol ? (
+                            <PoliticianAvatar politician={fixPol} size={36} />
+                          ) : (
+                            <div
+                              className="h-9 w-9 rounded-full shrink-0 flex items-center justify-center text-white text-sm font-bold"
+                              style={{ background: p.party_color ?? "#94a3b8" }}
+                            >
+                              {p.full_name[0]}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate group-hover:text-[var(--color-accent)]">
+                              {p.full_name}
+                            </p>
+                            <p className="text-[11px] text-[var(--color-ink-soft)]">
+                              {p.n_verdicts} verdict{p.n_verdicts > 1 ? "s" : ""} publiés
+                            </p>
+                          </div>
+                          <ScoreBadge score={p.truth_score} size="sm" />
+                        </Link>
+                      </li>
+                    );
+                  })
+                : topPoliticians.map((p, i) => (
+                    <li key={p.id}>
+                      <Link
+                        href={`/politiciens/${p.slug}`}
+                        className="group flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--color-bg-soft)] transition"
+                      >
+                        <span className="font-mono text-sm text-[var(--color-ink-soft)] w-6">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <PoliticianAvatar politician={p} size={36} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate group-hover:text-[var(--color-accent)]">
+                            {p.full_name}
+                          </p>
+                          <p className="text-[11px] text-[var(--color-ink-soft)] truncate">
+                            {p.bio_short.split(".")[0]}
+                          </p>
+                        </div>
+                        <ScoreBadge score={p.stats.truth_score} size="sm" />
+                      </Link>
+                    </li>
+                  ))}
             </ol>
+            <Link
+              href="/classement"
+              className="text-sm text-[var(--color-accent)] hover:underline"
+            >
+              Voir le classement complet →
+            </Link>
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
@@ -205,64 +338,154 @@ export default function Home() {
               Dernières vérifications.
             </h2>
             <div className="bg-white rounded-2xl border border-black/5 p-2 sm:p-4">
-              {recentClaims.map((c) => (
-                <ClaimRow key={c.id} claim={c} />
-              ))}
+              {liveVerdictsCompact.length > 0
+                ? liveVerdictsCompact.map((v) => (
+                    <Link
+                      key={v.claim_id}
+                      href={`/claims/${v.claim_id}`}
+                      className="group block py-4 border-b border-black/5 last:border-0 hover:bg-[var(--color-bg-soft)] -mx-3 px-3 rounded-lg transition"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="shrink-0 pt-1">
+                          <VerdictPill verdict={v.verdict as never} size="sm" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-base text-[var(--color-ink)] group-hover:text-[var(--color-accent)] leading-snug">
+                            « {v.claim_text} »
+                          </p>
+                          <div className="mt-2 flex items-center gap-3 text-xs text-[var(--color-ink-soft)] flex-wrap">
+                            <span className="font-medium">{v.politician_full_name}</span>
+                            {v.channel && (
+                              <>
+                                <span aria-hidden>·</span>
+                                <span>{v.channel}</span>
+                              </>
+                            )}
+                            {v.topic_tags.slice(0, 2).map((t) => (
+                              <span
+                                key={t}
+                                className="px-1.5 py-0.5 rounded bg-black/5 font-medium"
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))
+                : recentClaims.map((c) => (
+                    <ClaimRow key={c.id} claim={c} />
+                  ))}
             </div>
+            {liveVerdictsCompact.length > 0 && (
+              <Link
+                href="/classement"
+                className="mt-3 inline-block text-sm text-[var(--color-accent)] hover:underline"
+              >
+                Voir tous les verdicts →
+              </Link>
+            )}
           </div>
         </div>
       </section>
 
       {(() => {
-        const realRecent = recentRealSources(8);
-        const totals = ingestionTotals();
+        // Prefer live DB sources; fall back to bundled snapshot.
+        const realRecent = hasDbSources ? dbSources : recentRealSources(8);
         if (realRecent.length === 0) return null;
+        const totals = ingestionTotals();
+        const subtitle = hasDbSources
+          ? "Ingérées depuis Élysée, Gouvernement.fr, Sénat, NosDéputés.fr."
+          : "Ingérées depuis Élysée et Sénat. L'extraction de claims et la vérification automatisée sont en construction.";
         return (
           <section className="bg-white border-y border-black/5 py-16">
             <div className="max-w-6xl mx-auto px-6">
               <div className="flex items-baseline justify-between mb-8 flex-wrap gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
-                    Pipeline d&apos;ingestion · {totals.sources} communications captées
+                    Pipeline d&apos;ingestion
+                    {hasDbSources
+                      ? ` · ${dbSources.reduce((s, r) => s + r.claims_count, 0)} claims extraits`
+                      : ` · ${totals.sources} communications captées`}
                   </p>
                   <h2 className="font-serif text-3xl font-semibold tracking-tight">
                     Dernières communications officielles.
                   </h2>
                 </div>
                 <p className="text-xs text-[var(--color-ink-soft)] max-w-md text-right hidden sm:block">
-                  Ingérées depuis Élysée et Sénat. L&apos;extraction de claims
-                  et la vérification automatisée sont en construction.
+                  {subtitle}
                 </p>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {realRecent.map((s) => {
-                  const p = politicianById(s.politician_id);
-                  return (
-                    <a
-                      key={s.id}
-                      href={s.url ?? "#"}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group rounded-2xl bg-[var(--color-bg-soft)] border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
-                    >
-                      <div className="flex items-center gap-2 mb-3">
-                        {p && <PoliticianAvatar politician={p} size={28} />}
-                        <span className="text-xs font-medium truncate">
-                          {p?.full_name ?? "—"}
-                        </span>
-                      </div>
-                      <p className="font-serif text-sm font-medium leading-snug group-hover:text-[var(--color-accent)] line-clamp-3">
-                        {s.title}
-                      </p>
-                      <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--color-ink-soft)]">
-                        <span>{s.channel.split(" ")[0]}</span>
-                        <span>
-                          {s.occurred_at && formatDate(s.occurred_at)}
-                        </span>
-                      </div>
-                    </a>
-                  );
-                })}
+                {hasDbSources
+                  ? dbSources.map((s) => {
+                      const fixPol = politicianBySlug(s.politician_slug);
+                      return (
+                        <a
+                          key={s.id}
+                          href={s.url ?? "#"}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="group rounded-2xl bg-[var(--color-bg-soft)] border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
+                        >
+                          <div className="flex items-center gap-2 mb-3">
+                            {fixPol ? (
+                              <PoliticianAvatar politician={fixPol} size={28} />
+                            ) : (
+                              <div className="h-7 w-7 rounded-full shrink-0 bg-[var(--color-accent-soft)] flex items-center justify-center text-[10px] font-bold text-white">
+                                {s.politician_full_name[0]}
+                              </div>
+                            )}
+                            <span className="text-xs font-medium truncate">
+                              {s.politician_full_name}
+                            </span>
+                          </div>
+                          <p className="font-serif text-sm font-medium leading-snug group-hover:text-[var(--color-accent)] line-clamp-3">
+                            {s.raw_text_preview.slice(0, 120) || "Communiqué"}
+                          </p>
+                          <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--color-ink-soft)]">
+                            <span>{s.channel}</span>
+                            <span>
+                              {s.claims_count > 0 && (
+                                <span className="text-[var(--color-trust)] mr-2">
+                                  {s.claims_count} claim{s.claims_count > 1 ? "s" : ""}
+                                </span>
+                              )}
+                              {s.occurred_at && formatDate(s.occurred_at)}
+                            </span>
+                          </div>
+                        </a>
+                      );
+                    })
+                  : (realRecent as ReturnType<typeof recentRealSources>).map((s) => {
+                      const p = politicianById(s.politician_id);
+                      return (
+                        <a
+                          key={s.id}
+                          href={s.url ?? "#"}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="group rounded-2xl bg-[var(--color-bg-soft)] border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
+                        >
+                          <div className="flex items-center gap-2 mb-3">
+                            {p && <PoliticianAvatar politician={p} size={28} />}
+                            <span className="text-xs font-medium truncate">
+                              {p?.full_name ?? "—"}
+                            </span>
+                          </div>
+                          <p className="font-serif text-sm font-medium leading-snug group-hover:text-[var(--color-accent)] line-clamp-3">
+                            {s.title}
+                          </p>
+                          <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--color-ink-soft)]">
+                            <span>{s.channel.split(" ")[0]}</span>
+                            <span>
+                              {s.occurred_at && formatDate(s.occurred_at)}
+                            </span>
+                          </div>
+                        </a>
+                      );
+                    })}
               </div>
             </div>
           </section>

@@ -12,8 +12,10 @@ import { PoliticianCard } from "@/components/PoliticianCard";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { ConfidenceBar } from "@/components/ConfidenceBar";
 import { scoreColor } from "@/lib/format";
+import { getTopPoliticiansByScore } from "@/lib/db/reads";
 
-export const dynamic = "force-static";
+// ISR: refresh every 10 min — function-level rankings change slowly.
+export const revalidate = 600;
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -130,7 +132,13 @@ export default async function FunctionPage({
     (f) =>
       f.level === func.level &&
       f.id !== func.id &&
-      politiciansInFunction(f.id).length > 0
+      politiciansInFunction(f.id).length > 0,
+  );
+
+  // Fetch real DB scores for member politicians.
+  const dbScores = await getTopPoliticiansByScore(50, 1);
+  const dbScoreMap = new Map(
+    dbScores.map((s) => [s.slug, { score: s.truth_score, n: s.n_verdicts }]),
   );
 
   return (
@@ -307,9 +315,17 @@ export default async function FunctionPage({
           </p>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {members.map((p) => (
-              <PoliticianCard key={p.id} politician={p} />
-            ))}
+            {members.map((p) => {
+              const db = dbScoreMap.get(p.slug);
+              return (
+                <PoliticianCard
+                  key={p.id}
+                  politician={p}
+                  realScore={db?.score}
+                  realVerdicts={db?.n}
+                />
+              );
+            })}
           </div>
         )}
       </section>

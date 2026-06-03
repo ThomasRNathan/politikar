@@ -79,14 +79,20 @@ export default function RootLayout({
                 Politiciens
               </Link>
               <Link
-                href="/partis"
+                href="/classement"
                 className="text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition hidden sm:inline"
+              >
+                Classement
+              </Link>
+              <Link
+                href="/partis"
+                className="text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition hidden md:inline"
               >
                 Partis
               </Link>
               <Link
                 href="/fonctions"
-                className="text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition hidden sm:inline"
+                className="text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition hidden lg:inline"
               >
                 Fonctions
               </Link>
@@ -98,7 +104,7 @@ export default function RootLayout({
               </Link>
               <Link
                 href="/docs"
-                className="text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition"
+                className="text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition hidden md:inline"
               >
                 Docs
               </Link>
@@ -120,6 +126,7 @@ export default function RootLayout({
               <p className="font-medium text-[var(--color-ink)]">Explorer</p>
               <ul className="mt-2 space-y-1 text-xs">
                 <li><Link href="/politiciens" className="hover:text-[var(--color-accent)]">Annuaire des politiques</Link></li>
+                <li><Link href="/classement" className="hover:text-[var(--color-accent)]">Classement par véracité</Link></li>
                 <li><Link href="/partis" className="hover:text-[var(--color-accent)]">Partis</Link></li>
                 <li><Link href="/fonctions" className="hover:text-[var(--color-accent)]">Fonctions</Link></li>
                 <li><Link href="/methode" className="hover:text-[var(--color-accent)]">Méthodologie</Link></li>

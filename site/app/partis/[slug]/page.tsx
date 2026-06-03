@@ -4,8 +4,10 @@ import { PARTIES, partyBySlug, politiciansInParty } from "@/lib/fixtures";
 import { FAMILY_LABELS } from "@/lib/types";
 import { PoliticianCard } from "@/components/PoliticianCard";
 import { PartyLogo } from "@/components/PartyLogo";
+import { getTopPoliticiansByScore } from "@/lib/db/reads";
 
-export const dynamic = "force-static";
+// ISR: refresh every 10 minutes (party data changes slowly).
+export const revalidate = 600;
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -21,7 +23,13 @@ export default async function PartyPage({
   const party = partyBySlug(slug);
   if (!party) notFound();
   const members = politiciansInParty(party.id).sort(
-    (a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0)
+    (a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0),
+  );
+
+  // Fetch real DB scores for all members (min 1 verdict).
+  const dbScores = await getTopPoliticiansByScore(50, 1);
+  const dbScoreMap = new Map(
+    dbScores.map((s) => [s.slug, { score: s.truth_score, n: s.n_verdicts }]),
   );
 
   return (
@@ -55,9 +63,17 @@ export default async function PartyPage({
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {members.map((p) => (
-            <PoliticianCard key={p.id} politician={p} />
-          ))}
+          {members.map((p) => {
+            const db = dbScoreMap.get(p.slug);
+            return (
+              <PoliticianCard
+                key={p.id}
+                politician={p}
+                realScore={db?.score}
+                realVerdicts={db?.n}
+              />
+            );
+          })}
         </div>
       )}
     </div>

@@ -25,8 +25,9 @@ export async function StatusNotice() {
         <span aria-hidden className="text-[var(--color-accent)]">●</span>
         {claims > 0 ? (
           <p>
-            Pipeline live. {sources} communications ingérées, {claims} claims
-            extraits, <strong>{published}</strong> verdicts publiés
+            Pipeline live &mdash; {sources} communications ingérées,{" "}
+            {claims} claims extraits,{" "}
+            <strong>{published}</strong> verdicts publiés
             {db.verdicts_true > 0 && (
               <>
                 {" "}
@@ -35,10 +36,17 @@ export async function StatusNotice() {
             )}
             .{" "}
             <a
+              href="/classement"
+              className="underline hover:text-[var(--color-accent)]"
+            >
+              Classement
+            </a>
+            {" · "}
+            <a
               href="/methode"
               className="underline hover:text-[var(--color-accent)]"
             >
-              Voir la méthode
+              Méthode
             </a>
           </p>
         ) : (

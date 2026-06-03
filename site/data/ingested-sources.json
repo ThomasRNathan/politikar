@@ -1,13 +1,110 @@
 {
-  "fetched_at": "2026-05-27T21:27:02.365Z",
-  "pipeline_version": "ingest-v0.2",
+  "fetched_at": "2026-06-01T08:48:05.076Z",
+  "pipeline_version": "ingest-v0.4",
   "counts": {
-    "total": 50,
+    "total": 51,
     "by_politician": {
-      "pol-macron": 50
+      "pol-macron": 50,
+      "pol-melenchon": 1
     }
   },
   "sources": [
+    {
+      "id": "elysee-942433e0d01d",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-30T15:10:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/30/disparition-dedgar-morin",
+      "title": "Disparition d'Edgar Morin.",
+      "summary": "Philosophe, écrivain, Résistant et sociologue du temps présent, Edgar Morin incarnait pour des millions de Français l’idéal de l’intellectuel engagé et humaniste.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-db6b5eb06c79",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-29T18:15:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/29/deplacement-dans-leure-et-loir-dans-le-cadre-des-journees-choose-france",
+      "title": "Déplacement dans l'Eure-et-Loir dans le cadre des « Journées Choose France ».",
+      "summary": "Le Président de la République s'est rendu en Eure-et-Loir, le vendredi 29 mai 2026, dans le cadre des « Journées Choose France ».",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-b5f44c6c0ff0",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-28T20:15:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/28/declaration-sur-une-strategie-conjointe-franco-indonesienne-sur-leducation-la-recherche-et-la-mobilite",
+      "title": "Déclaration sur une stratégie conjointe franco-indonésienne sur l’éducation, la recherche et la mobilité.",
+      "summary": "Lire la déclaration.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-3939d33448a5",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-28T17:40:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/28/declaration-conjointe-a-loccasion-de-la-visite-detat-du-president-de-la-republique-dindonesie-en-france",
+      "title": "Déclaration conjointe à l’occasion de la visite d’État du Président de la République d’Indonésie en France.",
+      "summary": "Lire la déclaration.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-4c14aaa84683",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-28T16:30:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/28/visite-detat-de-prabowo-subianto-president-de-la-republique-dindonesie",
+      "title": "Visite d'État de Prabowo Subianto, Président de la République d'Indonésie.",
+      "summary": "Le Président de la République a reçu Prabowo Subianto, Président de la République d'Indonésie le jeudi 28 mai 2026 au Palais de l’Élysée, à l’occasion de sa visite d'État en France.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-b5c02d461583",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-28T11:15:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/28/proposition-de-nomination-de-pascal-chevremont-en-qualite-de-president-de-lautorite-nationale-des-jeux",
+      "title": "Proposition de nomination de Pascal Chevremont en qualité de président de l’Autorité nationale des jeux.",
+      "summary": "Le Président de la République envisage, sur proposition du Premier ministre, de nommer Pascal Chevremont en qualité de président de l’Autorité nationale des jeux.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-32c68010a0d5",
+      "politician_id": "pol-macron",
+      "source_type": "interview",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-27T20:40:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/27/entretien-avec-jonas-gahr-store-premier-ministre-du-royaume-de-norvege",
+      "title": "Entretien avec Jonas Gahr Støre, Premier ministre du Royaume de Norvège.",
+      "summary": "Le Président de la République a reçu le Premier ministre du Royaume de Norvège, Jonas Gahr Støre, mercredi 27 mai 2026 au Palais de l’Élysée.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "elysee-2090efcd36c0",
+      "politician_id": "pol-macron",
+      "source_type": "official_statement",
+      "channel": "Élysée (communiqué)",
+      "occurred_at": "2026-05-27T19:05:00.000Z",
+      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/27/journees-choose-france",
+      "title": "Journées Choose France.",
+      "summary": "Plus de 100 sites industriels et technologiques ouvrent leurs portes au public les 29, 30 et 31 mai 2026.",
+      "license": "Etalab 2.0",
+      "ingested_from": "elysee.fr/feed"
+    },
     {
       "id": "elysee-292a22ea93d7",
       "politician_id": "pol-macron",
@@ -213,54 +310,6 @@
       "ingested_from": "elysee.fr/feed"
     },
     {
-      "id": "elysee-49a7c68b58fa",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-05-13T19:15:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/13/deplacement-en-republique-federale-democratique-dethiopie",
-      "title": "Déplacement en République fédérale démocratique d'Éthiopie.",
-      "summary": "Le Président de la République s'est rendu en République fédérale démocratique d'Éthiopie ce mercredi 13 mai 2026.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-5fec49a374ce",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-05-13T10:00:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/13/declaration-de-nairobi-pour-la-paix-et-la-securite-en-afrique",
-      "title": "Déclaration de Nairobi pour la paix et la securité en Afrique.",
-      "summary": "Lire la déclaration.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-029036988638",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-05-12T21:20:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/12/sommet-africa-forward-au-kenya-deuxieme-journee",
-      "title": "Sommet Africa Forward au Kenya : deuxième journée.",
-      "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-8685eec81cd4",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-05-11T18:00:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/11/sommet-africa-forward-au-kenya-premiere-journee",
-      "title": "Sommet Africa Forward au Kenya : première journée.",
-      "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
       "id": "elysee-e40d2c45e92e",
       "politician_id": "pol-macron",
       "source_type": "official_statement",
@@ -269,54 +318,6 @@
       "url": "https://www.elysee.fr/emmanuel-macron/sommet-africa-forward-au-kenya",
       "title": "Sommet Africa Forward au Kenya.",
       "summary": "Co-organisé avec le Kenya les 11 et 12 mai 2026, ce Sommet est une étape importante qui témoigne du renouvellement en actes des relations de la France avec les pays africains.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-505d9fd69d7d",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-05-10T20:00:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/10/deplacement-au-kenya",
-      "title": "Déplacement au Kenya.",
-      "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-3bd286061a3a",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-05-09T20:00:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/09/deplacement-en-republique-arabe-degypte",
-      "title": "Déplacement en République arabe d'Égypte.",
-      "summary": "Le Président de la République s'est rendu en République arabe d'Égypte le samedi 9 mai 2026.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-4c39c3bbef48",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-05-08T07:55:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/08/ceremonie-de-commemoration-du-81e-anniversaire-de-la-victoire-du-8-mai-1945",
-      "title": "Cérémonie de commémoration du 81e anniversaire de la Victoire du 8 mai 1945.",
-      "summary": "Le chef de l’État a présidé la cérémonie de commémoration du 81e anniversaire de la Victoire du 8 mai 1945, le vendredi 8 mai 2026.",
-      "license": "Etalab 2.0",
-      "ingested_from": "elysee.fr/feed"
-    },
-    {
-      "id": "elysee-047768aedc52",
-      "politician_id": "pol-macron",
-      "source_type": "official_statement",
-      "channel": "Élysée (communiqué)",
-      "occurred_at": "2026-05-08T07:30:00.000Z",
-      "url": "https://www.elysee.fr/emmanuel-macron/2026/05/08/le-president-de-la-republique-a-charge-la-ministre-deleguee-aupres-de-la-ministre-des-armees-et-des-anciens-combattants-mme-alice-rufo-de-se-rendre-en-algerie-ce-8-mai",
-      "title": "Le Président de la République a chargé la Ministre déléguée auprès de la Ministre des Armées et des Anciens combattants, Mme Alice Rufo, de se rendre en Algérie ce 8 mai.",
-      "summary": "Lire le communiqué.",
       "license": "Etalab 2.0",
       "ingested_from": "elysee.fr/feed"
     },
@@ -607,10 +608,118 @@
       "summary": "Le Président Emmanuel Macron s'est rendu en Inde pour participer en tant qu’invité d’honneur à la fête de la Constitution indienne, \r\n« Republic Day ».",
       "license": "Etalab 2.0",
       "ingested_from": "elysee.fr/feed"
+    },
+    {
+      "id": "partis-7314405a3492",
+      "politician_id": "pol-melenchon",
+      "source_type": "official_statement",
+      "channel": "La France insoumise (communiqués)",
+      "occurred_at": "2026-05-26T09:41:40.000Z",
+      "url": "https://lafranceinsoumise.fr/2026/05/26/rdv-a-saint-denis-ce-dimanche-7-juin-pour-le-meeting-de-jean-luc-melenchon/",
+      "title": "RDV à Saint-Denis ce dimanche 7 juin pour le meeting de Jean-Luc Mélenchon !",
+      "summary": "Depuis le 3 mai, jour de sa déclaration de candidature, Jean-Luc Mélenchon a obtenu plus de 280 000 parrainages citoyens. Une puissante dynamique entoure sa candidature ! Même les instituts de sondage, dont nous avons vu pourtant à quel point ils avaient pu largement sous-estimer le vote insoumis ces dernières années, ont été contraints d’enregistrer cette dynamique en mettant Jean-Luc Mélenchon en nette progression, jusqu’à 16 % dans un sondage Odoxa paru en début de semaine. Ce dimanche 7 juin",
+      "license": "open web",
+      "ingested_from": "https://lafranceinsoumise.fr/feed/"
     }
   ],
   "by_politician": {
     "pol-macron": [
+      {
+        "id": "elysee-942433e0d01d",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-30T15:10:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/30/disparition-dedgar-morin",
+        "title": "Disparition d'Edgar Morin.",
+        "summary": "Philosophe, écrivain, Résistant et sociologue du temps présent, Edgar Morin incarnait pour des millions de Français l’idéal de l’intellectuel engagé et humaniste.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-db6b5eb06c79",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-29T18:15:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/29/deplacement-dans-leure-et-loir-dans-le-cadre-des-journees-choose-france",
+        "title": "Déplacement dans l'Eure-et-Loir dans le cadre des « Journées Choose France ».",
+        "summary": "Le Président de la République s'est rendu en Eure-et-Loir, le vendredi 29 mai 2026, dans le cadre des « Journées Choose France ».",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-b5f44c6c0ff0",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-28T20:15:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/28/declaration-sur-une-strategie-conjointe-franco-indonesienne-sur-leducation-la-recherche-et-la-mobilite",
+        "title": "Déclaration sur une stratégie conjointe franco-indonésienne sur l’éducation, la recherche et la mobilité.",
+        "summary": "Lire la déclaration.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-3939d33448a5",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-28T17:40:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/28/declaration-conjointe-a-loccasion-de-la-visite-detat-du-president-de-la-republique-dindonesie-en-france",
+        "title": "Déclaration conjointe à l’occasion de la visite d’État du Président de la République d’Indonésie en France.",
+        "summary": "Lire la déclaration.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-4c14aaa84683",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-28T16:30:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/28/visite-detat-de-prabowo-subianto-president-de-la-republique-dindonesie",
+        "title": "Visite d'État de Prabowo Subianto, Président de la République d'Indonésie.",
+        "summary": "Le Président de la République a reçu Prabowo Subianto, Président de la République d'Indonésie le jeudi 28 mai 2026 au Palais de l’Élysée, à l’occasion de sa visite d'État en France.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-b5c02d461583",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-28T11:15:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/28/proposition-de-nomination-de-pascal-chevremont-en-qualite-de-president-de-lautorite-nationale-des-jeux",
+        "title": "Proposition de nomination de Pascal Chevremont en qualité de président de l’Autorité nationale des jeux.",
+        "summary": "Le Président de la République envisage, sur proposition du Premier ministre, de nommer Pascal Chevremont en qualité de président de l’Autorité nationale des jeux.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-32c68010a0d5",
+        "politician_id": "pol-macron",
+        "source_type": "interview",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-27T20:40:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/27/entretien-avec-jonas-gahr-store-premier-ministre-du-royaume-de-norvege",
+        "title": "Entretien avec Jonas Gahr Støre, Premier ministre du Royaume de Norvège.",
+        "summary": "Le Président de la République a reçu le Premier ministre du Royaume de Norvège, Jonas Gahr Støre, mercredi 27 mai 2026 au Palais de l’Élysée.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
+      {
+        "id": "elysee-2090efcd36c0",
+        "politician_id": "pol-macron",
+        "source_type": "official_statement",
+        "channel": "Élysée (communiqué)",
+        "occurred_at": "2026-05-27T19:05:00.000Z",
+        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/27/journees-choose-france",
+        "title": "Journées Choose France.",
+        "summary": "Plus de 100 sites industriels et technologiques ouvrent leurs portes au public les 29, 30 et 31 mai 2026.",
+        "license": "Etalab 2.0",
+        "ingested_from": "elysee.fr/feed"
+      },
       {
         "id": "elysee-292a22ea93d7",
         "politician_id": "pol-macron",
@@ -816,54 +925,6 @@
         "ingested_from": "elysee.fr/feed"
       },
       {
-        "id": "elysee-49a7c68b58fa",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-05-13T19:15:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/13/deplacement-en-republique-federale-democratique-dethiopie",
-        "title": "Déplacement en République fédérale démocratique d'Éthiopie.",
-        "summary": "Le Président de la République s'est rendu en République fédérale démocratique d'Éthiopie ce mercredi 13 mai 2026.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-5fec49a374ce",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-05-13T10:00:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/13/declaration-de-nairobi-pour-la-paix-et-la-securite-en-afrique",
-        "title": "Déclaration de Nairobi pour la paix et la securité en Afrique.",
-        "summary": "Lire la déclaration.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-029036988638",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-05-12T21:20:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/12/sommet-africa-forward-au-kenya-deuxieme-journee",
-        "title": "Sommet Africa Forward au Kenya : deuxième journée.",
-        "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-8685eec81cd4",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-05-11T18:00:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/11/sommet-africa-forward-au-kenya-premiere-journee",
-        "title": "Sommet Africa Forward au Kenya : première journée.",
-        "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
         "id": "elysee-e40d2c45e92e",
         "politician_id": "pol-macron",
         "source_type": "official_statement",
@@ -872,54 +933,6 @@
         "url": "https://www.elysee.fr/emmanuel-macron/sommet-africa-forward-au-kenya",
         "title": "Sommet Africa Forward au Kenya.",
         "summary": "Co-organisé avec le Kenya les 11 et 12 mai 2026, ce Sommet est une étape importante qui témoigne du renouvellement en actes des relations de la France avec les pays africains.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-505d9fd69d7d",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-05-10T20:00:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/10/deplacement-au-kenya",
-        "title": "Déplacement au Kenya.",
-        "summary": "Le Président de la République s'est rendu au Kenya du 10 au 12 mai 2026 dans le cadre du Sommet Africa Forward.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-3bd286061a3a",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-05-09T20:00:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/09/deplacement-en-republique-arabe-degypte",
-        "title": "Déplacement en République arabe d'Égypte.",
-        "summary": "Le Président de la République s'est rendu en République arabe d'Égypte le samedi 9 mai 2026.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-4c39c3bbef48",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-05-08T07:55:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/08/ceremonie-de-commemoration-du-81e-anniversaire-de-la-victoire-du-8-mai-1945",
-        "title": "Cérémonie de commémoration du 81e anniversaire de la Victoire du 8 mai 1945.",
-        "summary": "Le chef de l’État a présidé la cérémonie de commémoration du 81e anniversaire de la Victoire du 8 mai 1945, le vendredi 8 mai 2026.",
-        "license": "Etalab 2.0",
-        "ingested_from": "elysee.fr/feed"
-      },
-      {
-        "id": "elysee-047768aedc52",
-        "politician_id": "pol-macron",
-        "source_type": "official_statement",
-        "channel": "Élysée (communiqué)",
-        "occurred_at": "2026-05-08T07:30:00.000Z",
-        "url": "https://www.elysee.fr/emmanuel-macron/2026/05/08/le-president-de-la-republique-a-charge-la-ministre-deleguee-aupres-de-la-ministre-des-armees-et-des-anciens-combattants-mme-alice-rufo-de-se-rendre-en-algerie-ce-8-mai",
-        "title": "Le Président de la République a chargé la Ministre déléguée auprès de la Ministre des Armées et des Anciens combattants, Mme Alice Rufo, de se rendre en Algérie ce 8 mai.",
-        "summary": "Lire le communiqué.",
         "license": "Etalab 2.0",
         "ingested_from": "elysee.fr/feed"
       },
@@ -1211,7 +1224,38 @@
         "license": "Etalab 2.0",
         "ingested_from": "elysee.fr/feed"
       }
+    ],
+    "pol-melenchon": [
+      {
+        "id": "partis-7314405a3492",
+        "politician_id": "pol-melenchon",
+        "source_type": "official_statement",
+        "channel": "La France insoumise (communiqués)",
+        "occurred_at": "2026-05-26T09:41:40.000Z",
+        "url": "https://lafranceinsoumise.fr/2026/05/26/rdv-a-saint-denis-ce-dimanche-7-juin-pour-le-meeting-de-jean-luc-melenchon/",
+        "title": "RDV à Saint-Denis ce dimanche 7 juin pour le meeting de Jean-Luc Mélenchon !",
+        "summary": "Depuis le 3 mai, jour de sa déclaration de candidature, Jean-Luc Mélenchon a obtenu plus de 280 000 parrainages citoyens. Une puissante dynamique entoure sa candidature ! Même les instituts de sondage, dont nous avons vu pourtant à quel point ils avaient pu largement sous-estimer le vote insoumis ces dernières années, ont été contraints d’enregistrer cette dynamique en mettant Jean-Luc Mélenchon en nette progression, jusqu’à 16 % dans un sondage Odoxa paru en début de semaine. Ce dimanche 7 juin",
+        "license": "open web",
+        "ingested_from": "https://lafranceinsoumise.fr/feed/"
+      }
     ]
   },
-  "errors": []
+  "errors": [
+    {
+      "source": "partis:https://www.jean-luc-melenchon.fr/feed/",
+      "message": "fetch failed"
+    },
+    {
+      "source": "partis:https://www.rassemblement-national.fr/feed/",
+      "message": "fetch failed"
+    },
+    {
+      "source": "factcheckers:AFP Factuel",
+      "message": "fetch https://factuel.afp.com/rss/fr → HTTP 403"
+    },
+    {
+      "source": "factcheckers:CheckNews (Libération)",
+      "message": "fetch https://www.liberation.fr/checknews/rss/ → HTTP 403"
+    }
+  ]
 }

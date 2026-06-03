@@ -8,8 +8,10 @@ import {
 } from "@/lib/fixtures";
 import { PoliticianCard } from "@/components/PoliticianCard";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { getTopPoliticiansByScore } from "@/lib/db/reads";
 
-export const dynamic = "force-static";
+// ISR: refresh every 10 min — region-level scores change slowly.
+export const revalidate = 600;
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -29,6 +31,12 @@ export default async function RegionPage({
   );
   const agg = regionAggregateScores()[region.id];
 
+  // Fetch real DB scores for member politicians.
+  const dbScores = await getTopPoliticiansByScore(50, 1);
+  const dbScoreMap = new Map(
+    dbScores.map((s) => [s.slug, { score: s.truth_score, n: s.n_verdicts }]),
+  );
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       <Link
@@ -46,7 +54,7 @@ export default async function RegionPage({
             {region.name}
           </h1>
           <p className="mt-3 text-sm text-[var(--color-ink-soft)]">
-            {elus.length} élu{elus.length > 1 ? "s" : ""} suivi{elus.length > 1 ? "s" : ""} 
+            {elus.length} élu{elus.length > 1 ? "s" : ""} suivi{elus.length > 1 ? "s" : ""}
           </p>
         </div>
         {agg && (
@@ -55,6 +63,9 @@ export default async function RegionPage({
               Score régional
             </p>
             <ScoreBadge score={agg.score} size="lg" />
+            <p className="mt-1 text-[10px] text-[var(--color-ink-soft)] italic">
+              données illustratives
+            </p>
           </div>
         )}
       </header>
@@ -64,9 +75,17 @@ export default async function RegionPage({
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {elus.map((p) => (
-            <PoliticianCard key={p.id} politician={p} />
-          ))}
+          {elus.map((p) => {
+            const db = dbScoreMap.get(p.slug);
+            return (
+              <PoliticianCard
+                key={p.id}
+                politician={p}
+                realScore={db?.score}
+                realVerdicts={db?.n}
+              />
+            );
+          })}
         </div>
       )}
     </div>

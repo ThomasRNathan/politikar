@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 216 48" role="img" aria-label="politikar">
+  <title>politikar</title>
+  <!-- Icon mark: dark rounded square, serif "p", accent dot -->
+  <rect x="0" y="4" width="40" height="40" rx="8" fill="#1a1a2e"/>
+  <text x="8" y="32" font-family="Georgia,'Times New Roman',serif" font-size="22" font-weight="700" fill="#fbf7ef">p</text>
+  <circle cx="33" cy="10" r="5" fill="#c2410c"/>
+  <!-- Wordmark -->
+  <text x="52" y="34" font-family="Georgia,'Times New Roman',serif" font-size="28" font-weight="600" fill="#1a1a2e">politikar</text>
+</svg>

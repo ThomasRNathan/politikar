@@ -1,0 +1,186 @@
+// Connector registry — one entry per source connector.
+//
+// Each ConnectorSpec ties a fetch function to the politician metadata
+// needed by the extraction and verification prompts. The pipeline
+// iterates this registry every cron run, fetching fresh items from each
+// source and routing them to the correct politician.
+//
+// To add a new politician + source:
+//   1. Add their fixture ID in lib/fixtures.ts (if not already there).
+//   2. Add a ConnectorSpec below.
+//   3. If a new ingest function is needed, create lib/ingest/newconnector.ts.
+
+import { fetchElysee, fetchArticleBody, type IngestedSource } from "@/lib/ingest/elysee";
+import { fetchGouvernement, fetchGouvernementBody } from "@/lib/ingest/gouvernement";
+import { fetchNosDéputes, TRACKED_DEPUTIES } from "@/lib/ingest/nosdeputes";
+import { fetchSenat } from "@/lib/ingest/senat";
+import { fetchPartisLeaders } from "@/lib/ingest/partis";
+import { fetchEuroparl } from "@/lib/ingest/europarl";
+
+export type PoliticianMeta = {
+  id: string;        // fixture politician id, e.g. "pol-macron"
+  full_name: string;
+  function_name: string;
+  party: string;
+  tier: "P0" | "P1";
+};
+
+// Lookup for politician metadata used by the extraction/verification prompts.
+// Must cover every politician that any connector can produce.
+export const POLITICIAN_META: Record<string, PoliticianMeta> = {
+  "pol-macron":      { id: "pol-macron",      full_name: "Emmanuel Macron",    function_name: "Président de la République", party: "Renaissance",        tier: "P0" },
+  "pol-attal":       { id: "pol-attal",        full_name: "Gabriel Attal",      function_name: "Président du groupe Renaissance à l'AN", party: "Renaissance", tier: "P0" },
+  "pol-bayrou":      { id: "pol-bayrou",       full_name: "François Bayrou",    function_name: "Premier ministre",           party: "MoDem",              tier: "P0" },
+  "pol-lecornu":     { id: "pol-lecornu",      full_name: "Sébastien Lecornu",  function_name: "Ministre des Armées",        party: "Horizons",           tier: "P0" },
+  "pol-retailleau":  { id: "pol-retailleau",   full_name: "Bruno Retailleau",   function_name: "Ministre de l'Intérieur",    party: "Les Républicains",   tier: "P0" },
+  "pol-vautrin":     { id: "pol-vautrin",      full_name: "Catherine Vautrin",  function_name: "Ministre du Travail",        party: "Horizons",           tier: "P1" },
+  "pol-barrot":      { id: "pol-barrot",       full_name: "Jean-Noël Barrot",   function_name: "Ministre des AE",            party: "MoDem",              tier: "P1" },
+  "pol-dati":        { id: "pol-dati",         full_name: "Rachida Dati",       function_name: "Ancienne Ministre de la Culture",  party: "Les Républicains", tier: "P1" },
+  "pol-le-maire":    { id: "pol-le-maire",     full_name: "Bruno Le Maire",     function_name: "Ancien Ministre des Finances", party: "Renaissance",      tier: "P0" },
+  "pol-borne":       { id: "pol-borne",        full_name: "Élisabeth Borne",    function_name: "Ancienne Première ministre", party: "Renaissance",        tier: "P0" },
+  "pol-fesneau":     { id: "pol-fesneau",      full_name: "Marc Fesneau",       function_name: "Ancien Ministre de l'Agriculture (Attal)",  party: "MoDem", tier: "P1" },
+  "pol-le-pen":      { id: "pol-le-pen",       full_name: "Marine Le Pen",      function_name: "Députée, Présidente du groupe RN", party: "Rassemblement national", tier: "P0" },
+  "pol-panot":       { id: "pol-panot",        full_name: "Mathilde Panot",     function_name: "Présidente du groupe LFI",   party: "La France insoumise", tier: "P0" },
+  "pol-vallaud":     { id: "pol-vallaud",      full_name: "Boris Vallaud",      function_name: "Président du groupe PS",     party: "Parti socialiste",   tier: "P0" },
+  "pol-chatelain":   { id: "pol-chatelain",    full_name: "Cyrielle Chatelain", function_name: "Présidente du groupe Verts", party: "Les Écologistes",    tier: "P1" },
+  "pol-marcangeli":  { id: "pol-marcangeli",   full_name: "Laurent Marcangeli", function_name: "Président du groupe HOR",    party: "Horizons",           tier: "P1" },
+  "pol-braun-pivet": { id: "pol-braun-pivet",  full_name: "Yaël Braun-Pivet",   function_name: "Présidente de l'AN",         party: "Renaissance",        tier: "P0" },
+  // pol-faure = Olivier Faure (député PS, Premier secrétaire PS).
+  "pol-faure":       { id: "pol-faure",        full_name: "Olivier Faure",      function_name: "Premier secrétaire PS",      party: "Parti socialiste",   tier: "P0" },
+  "pol-wauquiez":    { id: "pol-wauquiez",     full_name: "Laurent Wauquiez",  function_name: "Président du groupe LR",      party: "Les Républicains",   tier: "P0" },
+  "pol-roussel":     { id: "pol-roussel",      full_name: "Fabien Roussel",    function_name: "Secrétaire national PCF",     party: "Parti communiste français", tier: "P1" },
+  "pol-larcher":     { id: "pol-larcher",      full_name: "Gérard Larcher",    function_name: "Président du Sénat",         party: "Les Républicains",   tier: "P0" },
+  "pol-kanner":      { id: "pol-kanner",       full_name: "Patrick Kanner",    function_name: "Président du groupe PS au Sénat", party: "Parti socialiste", tier: "P1" },
+  // Party leaders — personal blog / party site feeds
+  "pol-melenchon":   { id: "pol-melenchon",    full_name: "Jean-Luc Mélenchon", function_name: "Fondateur de La France insoumise", party: "La France insoumise", tier: "P0" },
+  "pol-bardella":    { id: "pol-bardella",     full_name: "Jordan Bardella",   function_name: "Président du Rassemblement national", party: "Rassemblement national", tier: "P0" },
+  "pol-philippe":    { id: "pol-philippe",     full_name: "Édouard Philippe",  function_name: "Président d'Horizons, Maire du Havre", party: "Horizons",       tier: "P0" },
+  "pol-tondelier":   { id: "pol-tondelier",    full_name: "Marine Tondelier",  function_name: "Secrétaire nationale des Écologistes", party: "Les Écologistes", tier: "P0" },
+  // MEPs (via EP group press-release feeds)
+  "pol-aubry":       { id: "pol-aubry",        full_name: "Manon Aubry",       function_name: "Co-présidente du groupe The Left au PE", party: "La France insoumise", tier: "P0" },
+  "pol-glucksmann":  { id: "pol-glucksmann",   full_name: "Raphaël Glucksmann", function_name: "Président du groupe S&D au PE",       party: "Parti socialiste", tier: "P0" },
+  "pol-hayer":       { id: "pol-hayer",        full_name: "Valérie Hayer",     function_name: "Présidente du groupe Renew Europe",   party: "Renaissance",      tier: "P0" },
+  "pol-bellamy":     { id: "pol-bellamy",      full_name: "François-Xavier Bellamy", function_name: "Eurodéputé LR (groupe PPE)",  party: "Les Républicains", tier: "P1" },
+  "pol-marechal":    { id: "pol-marechal",     full_name: "Marion Maréchal",   function_name: "Eurodéputée (Patriots for Europe)", party: "Reconquête",       tier: "P1" },
+  "pol-toussaint":   { id: "pol-toussaint",    full_name: "Marie Toussaint",   function_name: "Co-présidente des Verts/ALE au PE",  party: "Les Écologistes",  tier: "P0" },
+};
+
+export type ConnectorBatch = {
+  sources: IngestedSource[];
+  meta: PoliticianMeta;
+  /** Optional: fetch article body given a source URL. */
+  fetchBody?: (url: string) => Promise<string | null>;
+};
+
+/** Fetch all sources from all connectors. */
+export async function fetchAllSources(): Promise<ConnectorBatch[]> {
+  const batches: ConnectorBatch[] = [];
+
+  // --- Élysée (Macron) ---
+  try {
+    const sources = await fetchElysee({ politicianId: "pol-macron" });
+    batches.push({
+      sources,
+      meta: POLITICIAN_META["pol-macron"],
+      fetchBody: fetchArticleBody,
+    });
+  } catch (e) {
+    console.warn("connector:elysee failed:", (e as Error).message);
+  }
+
+  // --- Gouvernement.fr (ministers) ---
+  // Returns sources already tagged with politician_id; we group by politician.
+  try {
+    const sources = await fetchGouvernement({ limitPerFeed: 50 });
+    // Group by politician_id so each batch has homogeneous metadata.
+    const byPol: Record<string, IngestedSource[]> = {};
+    for (const s of sources) {
+      (byPol[s.politician_id] ??= []).push(s);
+    }
+    for (const [polId, srcs] of Object.entries(byPol)) {
+      const meta = POLITICIAN_META[polId];
+      if (!meta) continue;
+      batches.push({ sources: srcs, meta, fetchBody: fetchGouvernementBody });
+    }
+  } catch (e) {
+    console.warn("connector:gouvernement failed:", (e as Error).message);
+  }
+
+  // --- NosDéputés (AN deputies) ---
+  try {
+    const { items, errors } = await fetchNosDéputes({ deputies: TRACKED_DEPUTIES });
+    if (errors.length > 0) {
+      console.warn("nosdeputes partial errors:", errors.map((e) => `${e.deputy}: ${e.message}`).join(", "));
+    }
+    const byPol: Record<string, IngestedSource[]> = {};
+    for (const s of items) {
+      (byPol[s.politician_id] ??= []).push(s);
+    }
+    for (const [polId, srcs] of Object.entries(byPol)) {
+      const meta = POLITICIAN_META[polId];
+      if (!meta) continue;
+      // NosDéputés items already contain full text in summary;
+      // no separate body fetch needed.
+      batches.push({ sources: srcs, meta });
+    }
+  } catch (e) {
+    console.warn("connector:nosdeputes failed:", (e as Error).message);
+  }
+
+  // --- Sénat (Larcher + Kanner) ---
+  try {
+    const sources = await fetchSenat({ limitPerFeed: 30 });
+    const byPol: Record<string, IngestedSource[]> = {};
+    for (const s of sources) {
+      (byPol[s.politician_id] ??= []).push(s);
+    }
+    for (const [polId, srcs] of Object.entries(byPol)) {
+      const meta = POLITICIAN_META[polId];
+      if (!meta) continue;
+      batches.push({ sources: srcs, meta });
+    }
+  } catch (e) {
+    console.warn("connector:senat failed:", (e as Error).message);
+  }
+
+  // --- Party leaders / opposition (Mélenchon, Bardella, Philippe, Tondelier) ---
+  try {
+    const { items, errors } = await fetchPartisLeaders({ limitPerFeed: 20 });
+    if (errors.length > 0) {
+      console.warn("partis partial errors:", errors.map((e) => `${e.feed}: ${e.message}`).join(", "));
+    }
+    const byPol: Record<string, IngestedSource[]> = {};
+    for (const s of items) {
+      (byPol[s.politician_id] ??= []).push(s);
+    }
+    for (const [polId, srcs] of Object.entries(byPol)) {
+      const meta = POLITICIAN_META[polId];
+      if (!meta) continue;
+      // No per-article body fetch for party feeds to stay polite.
+      batches.push({ sources: srcs, meta });
+    }
+  } catch (e) {
+    console.warn("connector:partis failed:", (e as Error).message);
+  }
+
+  // --- European Parliament group feeds (Aubry, Glucksmann, Hayer, Bellamy, Maréchal, Toussaint) ---
+  try {
+    const { items, errors } = await fetchEuroparl({ limitPerFeed: 20 });
+    if (errors.length > 0) {
+      console.warn("europarl partial errors:", errors.map((e) => `${e.feed}: ${e.message}`).join(", "));
+    }
+    const byPol: Record<string, IngestedSource[]> = {};
+    for (const s of items) {
+      (byPol[s.politician_id] ??= []).push(s);
+    }
+    for (const [polId, srcs] of Object.entries(byPol)) {
+      const meta = POLITICIAN_META[polId];
+      if (!meta) continue;
+      batches.push({ sources: srcs, meta });
+    }
+  } catch (e) {
+    console.warn("connector:europarl failed:", (e as Error).message);
+  }
+
+  return batches;
+}

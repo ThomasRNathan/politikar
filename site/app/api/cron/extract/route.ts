@@ -1,15 +1,16 @@
-// Daily full pipeline cron. Pulls fresh Élysée RSS items, extracts
-// claims via Mistral, embeds them via Voyage, runs the verification
-// cascade with fact-checker similarity, and persists everything to
-// Neon. Vercel calls this with `Authorization: Bearer ${CRON_SECRET}`
-// per the schedule in site/vercel.ts.
+// Daily full pipeline cron. Pulls fresh sources from all connectors
+// (Élysée, Gouvernement.fr, NosDéputés), extracts claims via Mistral,
+// embeds them via Voyage, runs the verification cascade with fact-checker
+// similarity, and persists everything to Neon. Vercel calls this with
+// `Authorization: Bearer ${CRON_SECRET}` per the schedule in vercel.ts.
 //
 // Manual trigger :
 //   curl -H "Authorization: Bearer $CRON_SECRET" \
-//        https://politikar.vercel.app/api/cron/extract?limit=5
+//        https://politikar.vercel.app/api/cron/extract?limit=15
 //
-// Limit is capped to 5 by default to fit in the 300 s Fluid Compute
-// budget while leaving headroom for slow Mistral free-tier responses.
+// Default limit is 15 (round-robin across 32 connectors: ~0.5 items per
+// connector per run). Each item takes ~8-10 s (fetch + Mistral + Voyage),
+// so 15 items ≈ 120-150 s — well within the 300 s Fluid Compute budget.
 
 import { NextResponse } from "next/server";
 import { runFullPipeline } from "@/lib/pipeline/run";
@@ -75,8 +76,8 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const limit = Math.min(
-    Math.max(parseInt(url.searchParams.get("limit") ?? "5", 10) || 5, 1),
-    10,
+    Math.max(parseInt(url.searchParams.get("limit") ?? "15", 10) || 15, 1),
+    30,
   );
   const startedAt = Date.now();
   log("info", correlationId, "cron.start", { limit });
@@ -90,6 +91,7 @@ export async function GET(req: Request) {
     inserted_claims: report.inserted_claims,
     verified_claims: report.verified_claims,
     published_verdicts: report.published_verdicts,
+    politicians_covered: report.politicians_covered,
     errors: report.errors.length,
     tokens: report.tokens,
   });

@@ -17,7 +17,7 @@ import { ClaimRow } from "@/components/ClaimRow";
 import { VerdictPill } from "@/components/VerdictPill";
 import { scoreColor, scoreColorSoft, formatDate } from "@/lib/format";
 import { realSourcesFor } from "@/lib/realdata";
-import { getClaimsForPolitician } from "@/lib/db/reads";
+import { getClaimsForPolitician, getRealScoreForPolitician, getTopPoliticiansByScore } from "@/lib/db/reads";
 
 // ISR : politician profiles regenerate at most every 5 minutes so the
 // daily extraction cron's new claims appear without a redeploy.
@@ -77,7 +77,30 @@ export default async function PoliticianProfile({
   // Real claims extracted by the LLM pipeline and persisted in Neon.
   // Falls back to an empty array on DB failure ; illustrative claims
   // below remain available so the page never breaks.
-  const dbClaims = await getClaimsForPolitician(p.slug, 20);
+  const [dbClaims, realScore, peerDbScores] = await Promise.all([
+    getClaimsForPolitician(p.slug, 20),
+    getRealScoreForPolitician(p.slug),
+    // Fetch real scores for peer comparison sidebar (min 1 verdict).
+    getTopPoliticiansByScore(50, 1),
+  ]);
+  const peerScoreMap = new Map(
+    peerDbScores.map((s) => [s.slug, s.truth_score]),
+  );
+
+  // Prefer real DB score when available, fall back to fixture
+  const displayScore = realScore?.is_significant
+    ? realScore.truth_score
+    : sig
+      ? p.stats.truth_score
+      : null;
+  const isRealScore = realScore?.is_significant ?? false;
+  const displayFactual = realScore?.is_significant
+    ? realScore.factual_score
+    : p.stats.factual_score;
+
+  // Merge real verdict distribution with fixture distribution
+  const realVerdictCounts = realScore?.verdict_counts ?? {};
+  const hasRealDistribution = Object.keys(realVerdictCounts).length > 0;
 
   // Distribution of factual verdicts (for the dot strip)
   const verdictCounts: Record<string, number> = {};
@@ -128,12 +151,26 @@ export default async function PoliticianProfile({
           </p>
         </div>
         <div className="text-center">
-          <ScoreBadge score={sig ? p.stats.truth_score : null} size="xl" />
-          {sig && (
-            <p className="mt-3 text-xs text-[var(--color-ink-soft)] font-mono">
-              IC95 {p.stats.ci_low}–{p.stats.ci_high}
-            </p>
-          )}
+          <ScoreBadge score={displayScore} size="xl" />
+          {isRealScore ? (
+            <div className="mt-3 space-y-1">
+              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-trust)] text-white font-medium uppercase tracking-wider">
+                score réel
+              </span>
+              <p className="text-xs text-[var(--color-ink-soft)] font-mono">
+                {realScore!.n_verdicts} verdicts publiés
+              </p>
+            </div>
+          ) : sig ? (
+            <div className="mt-3 space-y-1">
+              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-medium uppercase tracking-wider">
+                illustratif
+              </span>
+              <p className="text-xs text-[var(--color-ink-soft)] font-mono">
+                IC95 {p.stats.ci_low}–{p.stats.ci_high}
+              </p>
+            </div>
+          ) : null}
         </div>
       </header>
 
@@ -152,17 +189,24 @@ export default async function PoliticianProfile({
       <div className="mt-12 grid lg:grid-cols-[1fr_1.6fr] gap-10">
         <aside className="space-y-8">
           <section className="rounded-2xl bg-white border border-black/5 p-6">
-            <h2 className="font-serif text-lg font-semibold mb-4">Décomposition</h2>
+            <div className="flex items-baseline justify-between mb-4">
+              <h2 className="font-serif text-lg font-semibold">Décomposition</h2>
+              {isRealScore && (
+                <span className="text-[10px] text-[var(--color-trust)] uppercase tracking-wider font-medium">
+                  données réelles
+                </span>
+              )}
+            </div>
             <div className="space-y-4 text-sm">
               <div>
                 <div className="flex justify-between mb-1.5">
                   <span className="text-[var(--color-ink-soft)]">Factuel</span>
-                  <span className="font-medium">{p.stats.factual_score ?? "—"}</span>
+                  <span className="font-medium">{displayFactual ?? "—"}</span>
                 </div>
                 <ConfidenceBar
-                  score={p.stats.factual_score}
-                  ciLow={p.stats.factual_score ? p.stats.factual_score - 4 : null}
-                  ciHigh={p.stats.factual_score ? p.stats.factual_score + 4 : null}
+                  score={displayFactual}
+                  ciLow={displayFactual ? displayFactual - 4 : null}
+                  ciHigh={displayFactual ? displayFactual + 4 : null}
                 />
               </div>
               <div>
@@ -241,35 +285,55 @@ export default async function PoliticianProfile({
                 Pairs au {party?.name}
               </h2>
               <ul className="space-y-2">
-                {peers.map((pp) => (
-                  <li key={pp.id}>
-                    <Link
-                      href={`/politiciens/${pp.slug}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--color-bg-soft)] transition"
-                    >
-                      <PoliticianAvatar politician={pp} size={32} />
-                      <span className="text-sm flex-1 truncate">{pp.full_name}</span>
-                      <ScoreBadge score={pp.stats.truth_score} size="sm" />
-                    </Link>
-                  </li>
-                ))}
+                {peers.map((pp) => {
+                  const peerReal = peerScoreMap.get(pp.slug);
+                  const peerScore = peerReal ?? (pp.stats.is_significant ? pp.stats.truth_score : null);
+                  return (
+                    <li key={pp.id}>
+                      <Link
+                        href={`/politiciens/${pp.slug}`}
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--color-bg-soft)] transition"
+                      >
+                        <PoliticianAvatar politician={pp} size={32} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm truncate">{pp.full_name}</p>
+                          {peerReal !== undefined && (
+                            <p className="text-[10px] text-[var(--color-trust)] font-mono">score réel</p>
+                          )}
+                        </div>
+                        <ScoreBadge score={peerScore} size="sm" />
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           )}
         </aside>
 
         <section>
-          {factualClaims.length > 0 && (
+          {(factualClaims.length > 0 || hasRealDistribution) && (
             <div className="mb-10">
-              <h2 className="font-serif text-2xl font-semibold mb-4">
-                Distribution des verdicts factuels
-              </h2>
+              <div className="flex items-baseline gap-3 mb-4">
+                <h2 className="font-serif text-2xl font-semibold">
+                  Distribution des verdicts
+                </h2>
+                {hasRealDistribution && (
+                  <span className="text-xs text-[var(--color-trust)] font-mono">
+                    pipeline live
+                  </span>
+                )}
+              </div>
+              {(() => {
+                const activeVerdicts = hasRealDistribution ? realVerdictCounts : verdictCounts;
+                const total = Object.values(activeVerdicts).reduce((a, b) => a + b, 0);
+                return (
               <div className="rounded-2xl bg-white border border-black/5 p-5">
                 <div className="flex h-6 rounded-full overflow-hidden">
                   {verdictOrder.map((v) => {
-                    const n = verdictCounts[v] ?? 0;
+                    const n = activeVerdicts[v] ?? 0;
                     if (n === 0) return null;
-                    const pct = (n / factualClaims.length) * 100;
+                    const pct = (n / total) * 100;
                     return (
                       <div
                         key={v}
@@ -292,7 +356,7 @@ export default async function PoliticianProfile({
                 </div>
                 <div className="mt-4 flex flex-wrap gap-3 text-xs">
                   {verdictOrder.map((v) => {
-                    const n = verdictCounts[v] ?? 0;
+                    const n = activeVerdicts[v] ?? 0;
                     if (n === 0) return null;
                     return (
                       <div key={v} className="flex items-center gap-1.5">
@@ -303,6 +367,8 @@ export default async function PoliticianProfile({
                   })}
                 </div>
               </div>
+                );
+              })()}
             </div>
           )}
 
@@ -328,7 +394,7 @@ export default async function PoliticianProfile({
               </p>
               <div className="bg-white rounded-2xl border border-black/5 divide-y divide-black/5">
                 {dbClaims.slice(0, 8).map((c) => (
-                  <article key={c.id} className="p-4">
+                  <article key={c.id} className="p-4 group">
                     <div className="flex items-baseline gap-3 mb-2 flex-wrap">
                       <span className="shrink-0 px-2 py-0.5 text-[10px] uppercase tracking-wider rounded-full bg-[var(--color-trust)] text-white font-medium">
                         {c.claim_type.replace("_", " ")}
@@ -359,9 +425,18 @@ export default async function PoliticianProfile({
                         </span>
                       )}
                     </div>
-                    <p className="text-base text-[var(--color-ink)] leading-snug">
-                      « {c.claim_text} »
-                    </p>
+                    {c.verdict_is_published ? (
+                      <Link
+                        href={`/claims/${c.id}`}
+                        className="block text-base text-[var(--color-ink)] leading-snug group-hover:text-[var(--color-accent)] transition"
+                      >
+                        « {c.claim_text} »
+                      </Link>
+                    ) : (
+                      <p className="text-base text-[var(--color-ink)] leading-snug">
+                        « {c.claim_text} »
+                      </p>
+                    )}
                     {c.verdict && c.verdict_is_published && c.verdict_reasoning && (
                       <p className="mt-2 text-xs text-[var(--color-ink-soft)] leading-relaxed italic border-l-2 border-[var(--color-accent-soft)] pl-3">
                         {c.verdict_reasoning.length > 280

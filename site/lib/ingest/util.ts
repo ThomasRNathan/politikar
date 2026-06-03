@@ -176,6 +176,45 @@ export function htmlToPlainText(html: string): string {
 // including <content:encoded> (RSS Content module).
 export function parseRss(xml: string): RssItem[] {
   const items: RssItem[] = [];
+
+  // Detect Atom feed (<feed xmlns="...Atom..."> with <entry> elements)
+  const isAtom = /<feed\b[^>]*xmlns[^>]*Atom/i.test(xml) || /<entry\b/i.test(xml);
+
+  if (isAtom) {
+    // Atom 0.3 / 1.0 parser
+    const entryRegex = /<entry\b[^>]*>([\s\S]*?)<\/entry>/g;
+    const fieldRegex = (name: string) =>
+      new RegExp(`<${name}[^>]*>([\\s\\S]*?)<\\/${name}>`, "i");
+    // <link href="..."> — Atom uses an attribute, not text content
+    const linkRegex = /<link\b[^>]*href=["']([^"']+)["'][^>]*\/?>/i;
+    let m: RegExpExecArray | null;
+    while ((m = entryRegex.exec(xml))) {
+      const body = m[1];
+      const get = (name: string): string | null => {
+        const r = body.match(fieldRegex(name));
+        if (!r) return null;
+        const raw = r[1].trim();
+        const cdata = raw.match(/^<!\[CDATA\[([\s\S]*)\]\]>$/);
+        return decodeEntities(cdata ? cdata[1].trim() : raw);
+      };
+      // Atom <link> uses href attribute; fall back to text content for RSS-style
+      const linkAttr = body.match(linkRegex);
+      const link = linkAttr ? decodeEntities(linkAttr[1]) : get("link");
+      items.push({
+        title: get("title"),
+        description: get("summary") ?? get("content"),
+        link,
+        guid: get("id"),
+        pubDate: get("published") ?? get("updated"),
+        author: get("name"),   // nested inside <author><name>
+        category: get("category"),
+        contentEncoded: get("content"),
+      });
+    }
+    return items;
+  }
+
+  // RSS 2.0 / RSS 1.0 parser (original)
   const itemRegex = /<item\b[^>]*>([\s\S]*?)<\/item>/g;
   const fieldRegex = (name: string) =>
     new RegExp(`<${name}[^>]*>([\\s\\S]*?)<\\/${name}>`, "i");
