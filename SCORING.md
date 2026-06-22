@@ -171,7 +171,7 @@ Affichage : **84 (intervalle 80-88)**, significatif.
 - 80 claims factuels résolus.
 - 6 promesses résolues.
 - 1 correction publique enregistrée.
-- 12 % `misleading_context` (pattern cadrage).
+- 6 % `misleading_context` (5 claims sur 80).
 - 25 % avec `numeric_values`.
 
 Mix verdicts : 30 `true`, 18 `mostly_true`, 12 `mixed`, 10 `mostly_false`, 5 `false`, 5 `misleading_context`.
@@ -182,11 +182,11 @@ Promesses : 2 `kept`, 2 `partially_kept`, 2 `broken`.
 
 $p = \frac{2 \times 1.0 + 2 \times 0.5 + 2 \times 0.0}{6} \times 100 = \frac{3}{6} \times 100 = 50.0$
 
-$\tau = 50 + 15 - 15 = 50$ (correction publique +15, mais pattern misleading > 10 % -15).
+$\tau = 50 + 15 = 65$ (correction publique +15 ; la part `misleading_context` à 6 % reste sous le seuil de 10 % et la part numérique à 25 % sous celui de 40 %, donc ni pénalité ni bonus).
 
-$\text{TruthScore} = 0.60 \times 65.94 + 0.30 \times 50.0 + 0.10 \times 50 = 39.56 + 15.0 + 5.0 = 59.56$
+$\text{TruthScore} = 0.60 \times 65.94 + 0.30 \times 50.0 + 0.10 \times 65 = 39.56 + 15.0 + 6.5 = 61.06$
 
-Affichage : **60 (intervalle 55-64)**, significatif.
+Affichage : **61 (intervalle 56-65)**, significatif.
 
 ### 3.3 Exemple C : politique au volume insuffisant
 

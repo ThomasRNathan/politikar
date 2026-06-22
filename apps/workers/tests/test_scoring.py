@@ -8,12 +8,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from politikar_workers.scoring import (  # noqa: E402
+from politikar_workers.scoring import (
     ClaimRow,
     bootstrap_ci,
     factual_score,
     is_significant,
-    promise_score,
     transparency_score,
     truth_score,
 )
@@ -87,16 +86,17 @@ def test_example_b_mixed():
     assert math.isclose(components["f"], 65.94, rel_tol=0.01)
     assert components["p"] is not None
     assert math.isclose(components["p"], 50.0, rel_tol=0.01)
-    # tau : 50 + 15 (correction) - 15 (misleading > 10%) + 5 (numeric > 40%) = 55
-    # Note: SCORING.md example says tau=50 because numeric % was 25% (<40% bonus
-    # didn't apply). In our test all factual_assertion have_numeric=True so the
-    # bonus applies. We use a lower-case has_numeric ratio matching the example.
-    # → simulate by adjusting one record set: skip bonus by using has_numeric=False
-    # on more than 60% of factual to drop ratio below 40%.
-    # For now we accept tau=55 here; the document's tau=50 holds when numeric
-    # share is 25%. Both branches are tested in test_transparency_branches.
-    assert components["tau"] is not None
-    assert components["tau"] in (50.0, 55.0)
+    # tau here = 50 + 15 (public correction) + 5 (numeric share > 40%) = 70.
+    # This diverges from SCORING.md Example B (tau=65) on purpose: this
+    # test builds every factual claim with has_numeric=True to keep claim
+    # weights uniform (so f reproduces the hand-computed 65.94), which
+    # pushes the numeric share to 100% and triggers the +5 bonus. The
+    # document's hypothetical politician has a 25% numeric share, below
+    # the bonus threshold. The transparency formula itself — including the
+    # -15 misleading branch — is exercised in test_transparency_branches.
+    assert components["tau"] == 70.0
+    assert score is not None
+    assert math.isclose(score, 61.5625, rel_tol=0.01)
 
 
 def test_example_c_under_threshold():
@@ -143,7 +143,7 @@ def test_opinion_excluded():
 
 
 def test_empty_rows():
-    score, components = truth_score([])
+    score, _ = truth_score([])
     assert score is None
 
 

@@ -133,6 +133,10 @@ async function upsertTruthScores(client: Client, politicians: IdMap) {
     const uuid = politicians.get(pol.id);
     if (!uuid) continue;
     const s = pol.stats;
+    // Politicians with no illustrative score yet (e.g. freshly added
+    // government members) get no truth_scores row — it would be all-null
+    // and meaningless. Their real score lands once the pipeline runs.
+    if (s.truth_score === null) continue;
     const topicBreakdown = Object.fromEntries(
       Object.entries(s.topic_breakdown).map(([k, v]) => [
         k,

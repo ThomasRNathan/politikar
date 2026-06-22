@@ -6,11 +6,21 @@
 // government; info.gouv.fr is the post-2024 government portal that
 // publishes ministerial press releases.
 //
-// Attribution heuristic: each RSS item title and URL is matched against a
-// name + keyword registry to assign it to a tracked politician. Items that
-// match nobody are silently skipped.
+// Attribution policy : an item is assigned to a minister ONLY when their
+// family name appears in the title or URL. Ministry keywords alone
+// ("travail", "culture", …) are deliberately NOT used : a communiqué
+// about a ministry is not a statement BY its minister, and misattributed
+// claims are the worst failure mode for a véracité platform. The
+// extraction prompt provides a second guard (it only extracts claims
+// attributable to the named orator).
+//
+// Exception : "premier ministre" / "matignon" map to the sitting PM,
+// whose communiqués are signed by function more often than by name.
+//
+// Registry verified against the Lecornu II government as recomposed on
+// 26 February 2026 (vie-publique.fr / info.gouv.fr).
 
-import { fetchText, parseRss, isoDate, sha256Short, decodeEntities, sleep } from "./util";
+import { containsName, fetchText, parseRss, isoDate, sha256Short, decodeEntities, sleep } from "./util";
 
 const FEEDS = [
   "https://www.gouvernement.fr/rss",
@@ -30,67 +40,34 @@ export type IngestedSource = {
   ingested_from: string;
 };
 
-type PoliticianSpec = {
+type GovernmentMember = {
+  /** Fixture politician id — metadata is resolved from lib/fixtures.ts. */
   id: string;
-  full_name: string;
-  /** Lower-cased keyword patterns. Match ANY in title or URL wins. */
+  /** Lower-cased name variants. Match ANY in title or URL wins. */
   patterns: string[];
 };
 
-// Politicians tracked via gouvernement.fr communications.
-// Pattern list: politician name variants + ministry slug keywords.
-const GOVERNMENT_POLITICIANS: PoliticianSpec[] = [
-  {
-    id: "pol-bayrou",
-    full_name: "François Bayrou",
-    patterns: ["bayrou", "premier ministre", "matignon"],
-  },
-  {
-    id: "pol-lecornu",
-    full_name: "Sébastien Lecornu",
-    patterns: ["lecornu", "armees", "armées", "defense", "défense"],
-  },
-  {
-    id: "pol-retailleau",
-    full_name: "Bruno Retailleau",
-    patterns: ["retailleau", "interieur", "intérieur"],
-  },
-  {
-    id: "pol-vautrin",
-    full_name: "Catherine Vautrin",
-    patterns: ["vautrin", "travail", "sante", "santé"],
-  },
-  {
-    id: "pol-barrot",
-    full_name: "Jean-Noël Barrot",
-    patterns: ["barrot", "affaires-etrangeres", "affaires-étrangères", "europe"],
-  },
-  {
-    id: "pol-dati",
-    full_name: "Rachida Dati",
-    patterns: ["dati", "culture"],
-  },
-  {
-    id: "pol-le-maire",
-    full_name: "Bruno Le Maire",
-    patterns: ["le-maire", "lemaire", "economie", "économie", "finances"],
-  },
-  {
-    id: "pol-borne",
-    full_name: "Élisabeth Borne",
-    patterns: ["borne", "education", "éducation"],
-  },
-  {
-    id: "pol-fesneau",
-    full_name: "Marc Fesneau",
-    patterns: ["fesneau", "agriculture"],
-  },
+// Gouvernement Lecornu II, remaniement du 26 février 2026.
+export const GOVERNMENT_MEMBERS: GovernmentMember[] = [
+  { id: "pol-lecornu",  patterns: ["lecornu", "premier ministre", "matignon"] },
+  { id: "pol-vautrin",  patterns: ["vautrin"] },   // Armées et Anciens combattants
+  { id: "pol-nunez",    patterns: ["nuñez", "nunez"] }, // Intérieur
+  { id: "pol-lescure",  patterns: ["lescure"] },   // Économie et Finances
+  { id: "pol-farandou", patterns: ["farandou"] },  // Travail et Solidarités
+  { id: "pol-rist",     patterns: ["rist"] },      // Santé et Familles
+  { id: "pol-barrot",   patterns: ["barrot"] },    // Europe et Affaires étrangères
+  { id: "pol-pegard",   patterns: ["pégard", "pegard"] }, // Culture
+  { id: "pol-genevard", patterns: ["genevard"] },  // Agriculture
+  { id: "pol-geffray",  patterns: ["geffray"] },   // Éducation nationale
+  { id: "pol-darmanin", patterns: ["darmanin"] },  // Justice
 ];
 
-function detectPolitician(title: string, url: string): PoliticianSpec | null {
-  const haystack = `${title} ${url}`.toLowerCase();
-  for (const spec of GOVERNMENT_POLITICIANS) {
-    if (spec.patterns.some((p) => haystack.includes(p))) return spec;
+function detectPolitician(title: string, url: string): GovernmentMember | null {
+  // URLs use hyphens as separators ; turn them into spaces so the
+  // word-boundary matcher sees "laurent-nunez" as two words.
+  const haystack = `${title} ${url.replace(/[-_/]/g, " ")}`;
+  for (const spec of GOVERNMENT_MEMBERS) {
+    if (spec.patterns.some((p) => containsName(haystack, p))) return spec;
   }
   return null;
 }
@@ -133,7 +110,10 @@ export async function fetchGouvernementBody(
   url: string,
   { politeDelayMs = 600 }: { politeDelayMs?: number } = {},
 ): Promise<string | null> {
-  if (!url || !url.startsWith("https://www.gouvernement.fr/") && !url.startsWith("https://www.info.gouv.fr/")) {
+  const allowed =
+    url?.startsWith("https://www.gouvernement.fr/") ||
+    url?.startsWith("https://www.info.gouv.fr/");
+  if (!allowed) {
     return null;
   }
   try {

@@ -1,49 +1,54 @@
 // Connector registry — one entry per source connector.
 //
-// Each ConnectorSpec ties a fetch function to the politician metadata
-// needed by the extraction and verification prompts. The pipeline
-// iterates this registry every cron run, fetching fresh items from each
-// source and routing them to the correct politician.
+// Politician metadata (name, function, party, tier) is derived from
+// lib/fixtures.ts, the single source of truth for the referential. The
+// connectors themselves only decide WHICH politician an item belongs to;
+// everything the prompts need comes from the fixtures.
 //
-// To add a new politician + source:
-//   1. Add their fixture ID in lib/fixtures.ts (if not already there).
-//   2. Add a ConnectorSpec below.
-//   3. If a new ingest function is needed, create lib/ingest/newconnector.ts.
+// To track a new politician:
+//   1. Add them to POLITICIANS in lib/fixtures.ts (and run `npm run db:seed`).
+//   2. Reference their fixture id in a connector registry below
+//      (GOVERNMENT_MEMBERS, TRACKED_DEPUTIES, PARTY_FEEDS, …).
+//   3. If a new source type is needed, create lib/ingest/<connector>.ts
+//      and add a block to fetchAllSources().
 
+import { FUNCTIONS, PARTIES, POLITICIANS } from "@/lib/fixtures";
+import type { Tier } from "@/lib/types";
 import { fetchElysee, fetchArticleBody, type IngestedSource } from "@/lib/ingest/elysee";
 import { fetchGouvernement, fetchGouvernementBody } from "@/lib/ingest/gouvernement";
-import { fetchNosDéputes, TRACKED_DEPUTIES } from "@/lib/ingest/nosdeputes";
+import { fetchNosDeputes, TRACKED_DEPUTIES } from "@/lib/ingest/nosdeputes";
+import { fetchPartyFeeds } from "@/lib/ingest/partis";
 
 export type PoliticianMeta = {
   id: string;        // fixture politician id, e.g. "pol-macron"
   full_name: string;
   function_name: string;
   party: string;
-  tier: "P0" | "P1";
+  tier: Tier;
 };
 
-// Lookup for politician metadata used by the extraction/verification prompts.
-// Must cover every politician that any connector can produce.
-export const POLITICIAN_META: Record<string, PoliticianMeta> = {
-  "pol-macron":      { id: "pol-macron",      full_name: "Emmanuel Macron",    function_name: "Président de la République", party: "Renaissance",        tier: "P0" },
-  "pol-attal":       { id: "pol-attal",        full_name: "Gabriel Attal",      function_name: "Ancien Premier ministre",    party: "Renaissance",        tier: "P0" },
-  "pol-bayrou":      { id: "pol-bayrou",       full_name: "François Bayrou",    function_name: "Premier ministre",           party: "MoDem",              tier: "P0" },
-  "pol-lecornu":     { id: "pol-lecornu",      full_name: "Sébastien Lecornu",  function_name: "Ministre des Armées",        party: "Horizons",           tier: "P0" },
-  "pol-retailleau":  { id: "pol-retailleau",   full_name: "Bruno Retailleau",   function_name: "Ministre de l'Intérieur",    party: "Les Républicains",   tier: "P0" },
-  "pol-vautrin":     { id: "pol-vautrin",      full_name: "Catherine Vautrin",  function_name: "Ministre du Travail",        party: "Horizons",           tier: "P1" },
-  "pol-barrot":      { id: "pol-barrot",       full_name: "Jean-Noël Barrot",   function_name: "Ministre des AE",            party: "MoDem",              tier: "P1" },
-  "pol-dati":        { id: "pol-dati",         full_name: "Rachida Dati",       function_name: "Ministre de la Culture",     party: "Les Républicains",   tier: "P1" },
-  "pol-le-maire":    { id: "pol-le-maire",     full_name: "Bruno Le Maire",     function_name: "Ancien Ministre des Finances", party: "Renaissance",      tier: "P0" },
-  "pol-borne":       { id: "pol-borne",        full_name: "Élisabeth Borne",    function_name: "Ancienne Première ministre", party: "Renaissance",        tier: "P0" },
-  "pol-fesneau":     { id: "pol-fesneau",      full_name: "Marc Fesneau",       function_name: "Ministre de l'Agriculture",  party: "MoDem",              tier: "P1" },
-  "pol-le-pen":      { id: "pol-le-pen",       full_name: "Marine Le Pen",      function_name: "Députée, Présidente du groupe RN", party: "Rassemblement national", tier: "P0" },
-  "pol-panot":       { id: "pol-panot",        full_name: "Mathilde Panot",     function_name: "Présidente du groupe LFI",   party: "La France insoumise", tier: "P0" },
-  "pol-vallaud":     { id: "pol-vallaud",      full_name: "Boris Vallaud",      function_name: "Président du groupe PS",     party: "Parti socialiste",   tier: "P0" },
-  "pol-chatelain":   { id: "pol-chatelain",    full_name: "Cyrielle Chatelain", function_name: "Présidente du groupe Verts", party: "Les Écologistes",    tier: "P1" },
-  "pol-marcangeli":  { id: "pol-marcangeli",   full_name: "Laurent Marcangeli", function_name: "Président du groupe HOR",    party: "Horizons",           tier: "P1" },
-  "pol-braun-pivet": { id: "pol-braun-pivet",  full_name: "Yaël Braun-Pivet",   function_name: "Présidente de l'AN",         party: "Renaissance",        tier: "P0" },
-  "pol-aubry":       { id: "pol-aubry",        full_name: "Olivier Faure",      function_name: "Premier secrétaire PS",      party: "Parti socialiste",   tier: "P0" },
-};
+const POLITICIANS_BY_ID = new Map(POLITICIANS.map((p) => [p.id, p]));
+
+/**
+ * Metadata for the extraction/verification prompts, derived from fixtures.
+ * The function label prefers the first sentence of the bio (which carries
+ * the precise portfolio, e.g. "Ministre de l'Intérieur") over the generic
+ * function name ("Ministre").
+ */
+export function politicianMeta(politicianId: string): PoliticianMeta | null {
+  const p = POLITICIANS_BY_ID.get(politicianId);
+  if (!p) return null;
+  const party = PARTIES.find((x) => x.id === p.party_id)?.name ?? "Sans étiquette";
+  const generic = FUNCTIONS.find((f) => f.id === p.function_id)?.name ?? "";
+  const bioFirstSentence = p.bio_short.split(/\.\s/)[0]?.replace(/\.$/, "").trim();
+  return {
+    id: p.id,
+    full_name: p.full_name,
+    function_name: bioFirstSentence || generic,
+    party,
+    tier: p.tier,
+  };
+}
 
 export type ConnectorBatch = {
   sources: IngestedSource[];
@@ -52,59 +57,80 @@ export type ConnectorBatch = {
   fetchBody?: (url: string) => Promise<string | null>;
 };
 
-/** Fetch all sources from all connectors. */
+/** Group sources by politician and emit one batch per politician whose
+ * fixture metadata resolves. Unknown ids are dropped with a warning so a
+ * registry typo can't silently misattribute claims. */
+function batchesByPolitician(
+  sources: IngestedSource[],
+  fetchBody?: (url: string) => Promise<string | null>,
+): ConnectorBatch[] {
+  const byPol: Record<string, IngestedSource[]> = {};
+  for (const s of sources) {
+    (byPol[s.politician_id] ??= []).push(s);
+  }
+  const out: ConnectorBatch[] = [];
+  for (const [polId, srcs] of Object.entries(byPol)) {
+    const meta = politicianMeta(polId);
+    if (!meta) {
+      console.warn(`connector: unknown politician id ${polId} — ${srcs.length} item(s) dropped`);
+      continue;
+    }
+    out.push({ sources: srcs, meta, fetchBody });
+  }
+  return out;
+}
+
+/** Fetch all sources from all connectors. Each connector is isolated :
+ * one failing upstream never blocks the others. */
 export async function fetchAllSources(): Promise<ConnectorBatch[]> {
   const batches: ConnectorBatch[] = [];
 
-  // --- Élysée (Macron) ---
+  // --- Élysée (président de la République) ---
   try {
     const sources = await fetchElysee({ politicianId: "pol-macron" });
-    batches.push({
-      sources,
-      meta: POLITICIAN_META["pol-macron"],
-      fetchBody: fetchArticleBody,
-    });
+    batches.push(...batchesByPolitician(sources, fetchArticleBody));
   } catch (e) {
     console.warn("connector:elysee failed:", (e as Error).message);
   }
 
-  // --- Gouvernement.fr (ministers) ---
-  // Returns sources already tagged with politician_id; we group by politician.
+  // --- Gouvernement.fr / info.gouv.fr (Premier ministre + ministres) ---
   try {
     const sources = await fetchGouvernement({ limitPerFeed: 50 });
-    // Group by politician_id so each batch has homogeneous metadata.
-    const byPol: Record<string, IngestedSource[]> = {};
-    for (const s of sources) {
-      (byPol[s.politician_id] ??= []).push(s);
-    }
-    for (const [polId, srcs] of Object.entries(byPol)) {
-      const meta = POLITICIAN_META[polId];
-      if (!meta) continue;
-      batches.push({ sources: srcs, meta, fetchBody: fetchGouvernementBody });
-    }
+    batches.push(...batchesByPolitician(sources, fetchGouvernementBody));
   } catch (e) {
     console.warn("connector:gouvernement failed:", (e as Error).message);
   }
 
-  // --- NosDéputés (AN deputies) ---
+  // --- NosDéputés (interventions à l'Assemblée nationale) ---
+  // Upstream serves the XVIe législature only (Regards Citoyens never
+  // relaunched for the XVIIe) ; the connector stays wired so coverage
+  // resumes automatically if the API comes back, but expect 0 items.
   try {
-    const { items, errors } = await fetchNosDéputes({ deputies: TRACKED_DEPUTIES });
+    const { items, errors } = await fetchNosDeputes({ deputies: TRACKED_DEPUTIES });
     if (errors.length > 0) {
-      console.warn("nosdeputes partial errors:", errors.map((e) => `${e.deputy}: ${e.message}`).join(", "));
+      console.warn(
+        "nosdeputes partial errors:",
+        errors.map((e) => `${e.deputy}: ${e.message}`).join(", "),
+      );
     }
-    const byPol: Record<string, IngestedSource[]> = {};
-    for (const s of items) {
-      (byPol[s.politician_id] ??= []).push(s);
-    }
-    for (const [polId, srcs] of Object.entries(byPol)) {
-      const meta = POLITICIAN_META[polId];
-      if (!meta) continue;
-      // NosDéputés items already contain full text in summary;
-      // no separate body fetch needed.
-      batches.push({ sources: srcs, meta });
-    }
+    batches.push(...batchesByPolitician(items));
   } catch (e) {
     console.warn("connector:nosdeputes failed:", (e as Error).message);
+  }
+
+  // --- Party press feeds (opposition + majorité hors exécutif) ---
+  // Full article text already travels in `summary` ; no body fetcher.
+  try {
+    const { items, errors } = await fetchPartyFeeds();
+    if (errors.length > 0) {
+      console.warn(
+        "partis partial errors:",
+        errors.map((e) => `${e.party}: ${e.message}`).join(", "),
+      );
+    }
+    batches.push(...batchesByPolitician(items));
+  } catch (e) {
+    console.warn("connector:partis failed:", (e as Error).message);
   }
 
   return batches;

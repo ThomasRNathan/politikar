@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import feedparser
@@ -26,7 +26,7 @@ class ElyseeItem:
 
 def _parse_date(d: feedparser.FeedParserDict) -> datetime | None:
     if "published_parsed" in d and d.published_parsed:
-        return datetime(*d.published_parsed[:6], tzinfo=timezone.utc)
+        return datetime(*d.published_parsed[:6], tzinfo=UTC)
     return None
 
 

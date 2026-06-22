@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "https://politikar.vercel.app";
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "https://politikar.com";
 
 export default defineConfig({
   testDir: "./tests",

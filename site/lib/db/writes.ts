@@ -3,6 +3,7 @@
 // sources, source_id + claim_normalized for claims).
 
 import { getPool } from "./client";
+import { POLITICIANS } from "@/lib/fixtures";
 import type { IngestedSource } from "@/lib/ingest/elysee";
 import type { Claim as ExtractedClaim } from "@/lib/llm/schemas";
 
@@ -121,65 +122,12 @@ export async function insertClaims(
   return { inserted, skipped_duplicate: skipped };
 }
 
-// Maps a fixture id like "pol-macron" to its corresponding slug
-// "emmanuel-macron". Static map for the 50 seeded politicians.
-const FIXTURE_TO_SLUG: Record<string, string> = {
-  "pol-macron": "emmanuel-macron",
-  "pol-attal": "gabriel-attal",
-  "pol-le-pen": "marine-le-pen",
-  "pol-bardella": "jordan-bardella",
-  "pol-melenchon": "jean-luc-melenchon",
-  "pol-philippe": "edouard-philippe",
-  "pol-bayrou": "francois-bayrou",
-  "pol-marechal": "marion-marechal",
-  "pol-faure": "olivier-faure",
-  "pol-tondelier": "marine-tondelier",
-  "pol-roussel": "fabien-roussel",
-  "pol-wauquiez": "laurent-wauquiez",
-  "pol-borne": "elisabeth-borne",
-  "pol-le-maire": "bruno-le-maire",
-  "pol-aubry": "manon-aubry",
-  "pol-braun-pivet": "yael-braun-pivet",
-  // Government
-  "pol-retailleau": "bruno-retailleau",
-  "pol-vautrin": "catherine-vautrin",
-  "pol-dati": "rachida-dati",
-  "pol-lecornu": "sebastien-lecornu",
-  "pol-barrot": "jean-noel-barrot",
-  // Mayors
-  "pol-hidalgo": "anne-hidalgo",
-  "pol-doucet": "gregory-doucet",
-  "pol-payan": "benoit-payan",
-  "pol-hurmic": "pierre-hurmic",
-  "pol-rolland": "johanna-rolland",
-  "pol-barseghian": "jeanne-barseghian",
-  "pol-estrosi": "christian-estrosi",
-  "pol-appere": "nathalie-appere",
-  "pol-delafosse": "michael-delafosse",
-  "pol-lisnard": "david-lisnard",
-  // Regional
-  "pol-pecresse": "valerie-pecresse",
-  "pol-bertrand": "xavier-bertrand",
-  "pol-delga": "carole-delga",
-  "pol-muselier": "renaud-muselier",
-  "pol-morancais": "christelle-morancais",
-  "pol-rousset": "alain-rousset",
-  "pol-morin": "herve-morin",
-  "pol-simeoni": "gilles-simeoni",
-  // Parliamentary
-  "pol-panot": "mathilde-panot",
-  "pol-chatelain": "cyrielle-chatelain",
-  "pol-vallaud": "boris-vallaud",
-  "pol-fesneau": "marc-fesneau",
-  "pol-marcangeli": "laurent-marcangeli",
-  "pol-larcher": "gerard-larcher",
-  "pol-kanner": "patrick-kanner",
-  // MEPs
-  "pol-bellamy": "francois-xavier-bellamy",
-  "pol-glucksmann": "raphael-glucksmann",
-  "pol-hayer": "valerie-hayer",
-  "pol-toussaint": "marie-toussaint",
-};
+// Maps a fixture id like "pol-macron" to its DB slug "emmanuel-macron".
+// Derived from the fixtures so it never drifts as politicians are added —
+// fixtures.ts is the single source of truth for the referential.
+const FIXTURE_TO_SLUG: Record<string, string> = Object.fromEntries(
+  POLITICIANS.map((p) => [p.id, p.slug]),
+);
 
 function polSlugFromFixtureId(id: string): string {
   return FIXTURE_TO_SLUG[id] ?? id.replace(/^pol-/, "");

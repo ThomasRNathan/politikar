@@ -24,6 +24,7 @@
 | Élysée communiqués | `elysee.fr/actualites` | scrape HTML + RSS | Licence ouverte Etalab 2.0 | 5 | journalière | P0 |
 | Matignon / info.gouv.fr | `info.gouv.fr/actualite` | scrape HTML + RSS | Licence ouverte Etalab 2.0 | 5 | journalière | P0 |
 | Conseil des ministres | `gouvernement.fr/conseil-des-ministres` | scrape HTML | Licence ouverte Etalab 2.0 | 5 | hebdomadaire | P0 |
+| Communiqués de partis | sites officiels des partis (RSS WordPress) | RSS + scrape | citation obligatoire (extraits courts) | 3 | journalière | P1 |
 | Wikidata SPARQL | `query.wikidata.org` | endpoint SPARQL | CC0 | 4 | hebdomadaire (seeding) | P0 |
 | INSEE BDM | `bdm.insee.fr/series/sdmx` | API SDMX | Licence ouverte Etalab 2.0 | 5 | hebdomadaire | P0 |
 | Eurostat REST | `ec.europa.eu/eurostat/api/dissemination` | API JSON | Licence Eurostat (libre) | 5 | hebdomadaire | P0 |
@@ -96,6 +97,12 @@
 - **Rate limit** : aucun documenté, courtoisie 1 req/s.
 - **Plan B** : reconstruire à partir de l'open data AN/Sénat (plus de travail).
 - **Note** : excellente normalisation, à privilégier comme source de référentiel.
+- **⚠ Statut (juin 2026)** : Regards Citoyens n'a pas relancé le site pour la
+  XVIIe législature ; `/<slug>/interventions/json` renvoie `{}` pour les
+  députés actuels. Le connecteur (`lib/ingest/nosdeputes.ts`) reste branché et
+  reprendra automatiquement si l'API revient, mais la couverture des voix
+  parlementaires passe pour l'instant par les communiqués de partis
+  (`lib/ingest/partis.ts`) et, à terme, par l'open data officiel de l'AN.
 
 ### 3.4 Élysée
 
@@ -113,6 +120,30 @@
 - **Parser cible** : `selectolax` HTML, scraping politely (1 req/2s).
 - **Fréquence** : journalière 04:30 UTC.
 - **Plan B** : flux RSS officiels si disponibles.
+- **⚠ Attribution** : un communiqué *au sujet d'*un ministère n'est pas une
+  déclaration *de* son ministre. Le connecteur n'attribue donc un item à un
+  ministre que si son nom de famille apparaît dans le titre ou l'URL
+  (`containsName`, frontières de mots Unicode), jamais sur un mot-clé de
+  portefeuille seul.
+
+### 3.5bis Communiqués de partis
+
+- **URL** : flux RSS WordPress des sites de partis (ex. `lafranceinsoumise.fr/feed/`,
+  `republicains.fr/feed/`). Ajout d'un parti = une entrée dans `PARTY_FEEDS`
+  (`lib/ingest/partis.ts`).
+- **Raison d'être** : l'Élysée et gouvernement.fr ne couvrent que l'exécutif ;
+  sans cette source le corpus pencherait pro-gouvernement. Les communiqués de
+  partis font entrer l'opposition et les voix hors exécutif.
+- **Attribution** : un item est rattaché à un politique seulement s'il (a)
+  appartient au même parti dans les fixtures et (b) est nommé dans le titre
+  (priorité) ou le corps. Les attaques d'adversaires ne créent donc jamais de
+  source pour la personne visée ; le garde-fou de l'orateur dans le prompt
+  d'extraction écarte en plus les citations qui ne sont pas de la personne.
+- **Licence** : non-Etalab — stockage d'un extrait court + lien (citation
+  courte), même politique que les fact-checkers.
+- **Statut (juin 2026)** : LFI et LR servent un flux WordPress standard. PS, RN,
+  Renaissance renvoient 404 sur les chemins habituels et Les Écologistes est
+  derrière Cloudflare — à ajouter dès qu'une URL de flux fonctionnelle est connue.
 
 ### 3.6 Wikidata SPARQL (seeding du référentiel)
 

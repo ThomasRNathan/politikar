@@ -6,8 +6,9 @@ list of `ClaimRow` records. No I/O. The CLI wraps it for batch scoring.
 from __future__ import annotations
 
 import random
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable, Literal
+from typing import Literal
 
 SCORING_VERSION = "v1.0.0"
 
@@ -195,11 +196,15 @@ def truth_score(
     f = factual_score(rows)
     p = promise_score(rows)
     tau = transparency_score(rows, has_public_correction)
-    weights = {"f": 0.6, "p": 0.3, "tau": 0.1}
     components: dict[str, float | None] = {"f": f, "p": p, "tau": tau}
-    used = {k: weights[k] for k, v in components.items() if v is not None}
-    if not used:
+    # A composite TruthScore needs at least one substantive signal. With
+    # no resolved factual claims and no resolved promises, transparency
+    # alone (which defaults to 50) is not a meaningful score — return
+    # None so the UI shows "no score yet" rather than a phantom 50.
+    if f is None and p is None:
         return None, components
+    weights = {"f": 0.6, "p": 0.3, "tau": 0.1}
+    used = {k: weights[k] for k, v in components.items() if v is not None}
     norm = sum(used.values())
     score = sum(used[k] * components[k] for k in used) / norm  # type: ignore[operator]
     return score, components

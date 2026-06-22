@@ -2,6 +2,15 @@
 // License: Open Data Commons Open Database License (ODbL).
 // https://www.nosdeputes.fr/api
 //
+// ⚠ UPSTREAM STATUS (vérifié juin 2026) : nosdeputes.fr sert toujours la
+// XVIe législature (2022-2024) ; l'API interventions renvoie `{}` pour
+// tous les députés actuels. Le connecteur reste branché — il se remettra
+// à produire des items si Regards Citoyens relance le site pour la
+// XVIIe — mais il faut s'attendre à 0 item d'ici là. La couverture des
+// voix parlementaires passe en attendant par lib/ingest/partis.ts.
+// Piste de remplacement : open data officiel de l'Assemblée nationale
+// (data.assemblee-nationale.fr, dumps de comptes rendus).
+//
 // Fetches recent parliamentary interventions (speeches, questions) for a
 // set of tracked deputies. Each intervention is treated as a Source with
 // `source_type: "speech"` and `channel: "Assemblée nationale"`.
@@ -35,15 +44,20 @@ type DeputySpec = {
 };
 
 // Deputies tracked via NosDéputés. Only current AN members are included —
-// ministers who gave up their seat are NOT listed here.
+// ministers who gave up their seat are NOT listed here. The politician_id
+// MUST reference the same person in lib/fixtures.ts : claims are
+// attributed to it directly.
 export const TRACKED_DEPUTIES: DeputySpec[] = [
-  { politician_id: "pol-le-pen",      nosdeputes_slug: "marine-le-pen",         full_name: "Marine Le Pen" },
-  { politician_id: "pol-panot",       nosdeputes_slug: "mathilde-panot",         full_name: "Mathilde Panot" },
-  { politician_id: "pol-vallaud",     nosdeputes_slug: "boris-vallaud",          full_name: "Boris Vallaud" },
-  { politician_id: "pol-chatelain",   nosdeputes_slug: "cyrielle-chatelain",     full_name: "Cyrielle Chatelain" },
-  { politician_id: "pol-marcangeli",  nosdeputes_slug: "laurent-marcangeli",     full_name: "Laurent Marcangeli" },
-  { politician_id: "pol-braun-pivet", nosdeputes_slug: "yael-braun-pivet",       full_name: "Yaël Braun-Pivet" },
-  { politician_id: "pol-aubry",       nosdeputes_slug: "julien-bayou",           full_name: "Julien Bayou" },   // fallback if aubry not deputy
+  { politician_id: "pol-le-pen",      nosdeputes_slug: "marine-le-pen",     full_name: "Marine Le Pen" },
+  { politician_id: "pol-panot",       nosdeputes_slug: "mathilde-panot",    full_name: "Mathilde Panot" },
+  { politician_id: "pol-vallaud",     nosdeputes_slug: "boris-vallaud",     full_name: "Boris Vallaud" },
+  { politician_id: "pol-chatelain",   nosdeputes_slug: "cyrielle-chatelain", full_name: "Cyrielle Chatelain" },
+  { politician_id: "pol-marcangeli",  nosdeputes_slug: "laurent-marcangeli", full_name: "Laurent Marcangeli" },
+  { politician_id: "pol-braun-pivet", nosdeputes_slug: "yael-braun-pivet",  full_name: "Yaël Braun-Pivet" },
+  { politician_id: "pol-faure",       nosdeputes_slug: "olivier-faure",     full_name: "Olivier Faure" },
+  { politician_id: "pol-fesneau",     nosdeputes_slug: "marc-fesneau",      full_name: "Marc Fesneau" },
+  { politician_id: "pol-wauquiez",    nosdeputes_slug: "laurent-wauquiez",  full_name: "Laurent Wauquiez" },
+  { politician_id: "pol-attal",       nosdeputes_slug: "gabriel-attal",     full_name: "Gabriel Attal" },
 ];
 
 const BASE = "https://www.nosdeputes.fr";
@@ -132,7 +146,7 @@ export type FetchResult = {
  * Fetch recent interventions for all tracked deputies. Politely paced
  * at 500 ms between each HTTP request.
  */
-export async function fetchNosDéputes(
+export async function fetchNosDeputes(
   { deputies = TRACKED_DEPUTIES }: { deputies?: DeputySpec[] } = {},
 ): Promise<FetchResult> {
   const items: IngestedSource[] = [];

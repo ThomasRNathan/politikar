@@ -228,3 +228,15 @@ export function sha256Short(s: string): string {
 export function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
+
+/**
+ * Case-insensitive whole-word test for a name inside free text. Plain
+ * `String.includes` is unsafe for short family names ("Rist" matches
+ * "touriste") ; this anchors the pattern between non-letter boundaries,
+ * Unicode-aware so accented French letters count as letters.
+ */
+export function containsName(haystack: string, name: string): boolean {
+  const escaped = name.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`(?<!\\p{L})${escaped}(?!\\p{L})`, "iu");
+  return re.test(haystack);
+}

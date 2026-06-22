@@ -24,10 +24,10 @@ export default function PoliticiansIndex() {
           {POLITICIANS.length} figures nationales suivies.
         </h1>
         <p className="mt-5 text-base text-[var(--color-ink-soft)] leading-relaxed">
-          Top 50 figures de la politique française au MVP : Président,
-          gouvernement, leaders de partis, têtes de listes principales,
-          eurodéputés notables. Cliquez sur un nom pour voir le profil
-          complet.
+          Figures de la politique française : Président, gouvernement,
+          leaders de partis, têtes de listes principales, présidents de
+          région et eurodéputés notables. Cliquez sur un nom pour voir le
+          profil complet.
         </p>
       </header>
 
@@ -82,10 +82,10 @@ export default function PoliticiansIndex() {
             Périmètre
           </p>
           <p className="text-sm text-[var(--color-ink-soft)] leading-relaxed">
-            Le périmètre actuel couvre 16 figures nationales. La cible MVP
-            est de 50 politiques actifs (Président, gouvernement, leaders de
-            partis, têtes de listes), avec extension prévue aux 925
-            parlementaires français en post-MVP.
+            Le périmètre actuel couvre {POLITICIANS.length} figures nationales
+            (Président, gouvernement, leaders de partis, têtes de listes,
+            présidents de région et eurodéputés notables), avec extension
+            prévue aux 925 parlementaires français en post-MVP.
           </p>
         </div>
       </div>
