@@ -45,16 +45,50 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+const SITE_TITLE =
+  "politikar : analyse de véracité du discours politique français";
+const SITE_DESCRIPTION =
+  "Plateforme open-source de fact-checking systématique des discours politiques français.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "politikar : analyse de véracité du discours politique français",
-  description:
-    "Plateforme open-source de fact-checking systématique des discours politiques français.",
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  applicationName: "politikar",
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: SITE_URL,
+    siteName: "politikar",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: { card: "summary", title: SITE_TITLE, description: SITE_DESCRIPTION },
   // Indexing is gated on SITE_INDEXABLE (see lib/seo.ts). Kept noindex
   // until the public scores are computed from real verdicts.
   robots: SITE_INDEXABLE
     ? { index: true, follow: true }
     : { index: false, follow: false },
+};
+
+// Site-wide structured data (Organization + WebSite). Inert while the
+// site is noindex; picked up by search engines once indexing is enabled.
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      name: "politikar",
+      url: SITE_URL,
+      logo: `${SITE_URL}/icon.svg`,
+    },
+    {
+      "@type": "WebSite",
+      name: "politikar",
+      url: SITE_URL,
+      inLanguage: "fr-FR",
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -66,6 +100,10 @@ export default function RootLayout({
       className={`${inter.variable} ${sourceSerif.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-screen flex flex-col bg-[var(--color-bg)] text-[var(--color-ink)]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        />
         <Suspense fallback={<StatusNoticeFallback />}>
           <StatusNotice />
         </Suspense>
