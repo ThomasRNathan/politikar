@@ -4,6 +4,7 @@ import Link from "next/link";
 import "./globals.css";
 import { Suspense } from "react";
 import { StatusNotice } from "@/components/DemoBanner";
+import { SITE_INDEXABLE, SITE_URL } from "@/lib/seo";
 
 // Static fallback rendered while StatusNotice fetches live DB counts.
 // Keeps the layout shell instant even on cold DB starts.
@@ -45,10 +46,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "politikar : analyse de véracité du discours politique français",
   description:
     "Plateforme open-source de fact-checking systématique des discours politiques français.",
-  robots: { index: false, follow: false },
+  // Indexing is gated on SITE_INDEXABLE (see lib/seo.ts). Kept noindex
+  // until the public scores are computed from real verdicts.
+  robots: SITE_INDEXABLE
+    ? { index: true, follow: true }
+    : { index: false, follow: false },
 };
 
 export default function RootLayout({
