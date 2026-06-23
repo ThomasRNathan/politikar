@@ -5,6 +5,7 @@ import { PoliticianCard } from "@/components/PoliticianCard";
 export const metadata = {
   title: "Politiques : politikar",
   description: "Annuaire des figures nationales suivies par politikar.",
+  alternates: { canonical: "/politiciens" },
 };
 
 export default function PoliticiansIndex() {

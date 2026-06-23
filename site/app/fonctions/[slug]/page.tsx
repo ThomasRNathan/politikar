@@ -31,6 +31,7 @@ export async function generateMetadata({
   return {
     title: `${f.name} : politikar`,
     description: `Analyse agrégée des politiques exerçant la fonction ${f.name}.`,
+    alternates: { canonical: `/fonctions/${f.slug}` },
   };
 }
 

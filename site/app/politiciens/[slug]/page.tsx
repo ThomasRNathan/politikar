@@ -36,9 +36,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const p = politicianBySlug(slug);
   if (!p) return {};
+  const title = `${p.full_name} : politikar`;
+  const description = `Profil de véracité de ${p.full_name}. ${p.bio_short}`;
   return {
-    title: `${p.full_name} : politikar`,
-    description: `Profil de véracité de ${p.full_name}. ${p.bio_short}`,
+    title,
+    description,
+    alternates: { canonical: `/politiciens/${p.slug}` },
+    openGraph: { title, description, url: `/politiciens/${p.slug}`, type: "profile" },
   };
 }
 

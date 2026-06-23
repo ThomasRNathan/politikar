@@ -5,6 +5,7 @@ import { ScoreBadge } from "@/components/ScoreBadge";
 export const metadata = {
   title: "Fonctions : politikar",
   description: "Analyse par fonction politique : exécutif, parlementaires, européens, locaux.",
+  alternates: { canonical: "/fonctions" },
 };
 
 function functionAggScore(functionId: string): { score: number; n: number } | null {

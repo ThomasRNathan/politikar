@@ -19,6 +19,10 @@ import {
   ingestionTotals,
 } from "@/lib/realdata";
 
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
 export default function Home() {
   const regionScores = regionAggregateScores();
 

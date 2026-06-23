@@ -7,6 +7,7 @@ import { PartyLogo } from "@/components/PartyLogo";
 export const metadata = {
   title: "Partis : politikar",
   description: "Partis politiques suivis par politikar, score moyen pondéré par membre.",
+  alternates: { canonical: "/partis" },
 };
 
 function partyAggScore(partyId: string): number | null {

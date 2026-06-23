@@ -16,6 +16,21 @@ export async function generateStaticParams() {
   return REGIONS.map((r) => ({ slug: r.slug }));
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const region = regionBySlug(slug);
+  if (!region) return {};
+  return {
+    title: `${region.name} : politikar`,
+    description: `Score de véracité moyen des élus de ${region.name} suivis par politikar.`,
+    alternates: { canonical: `/regions/${region.slug}` },
+  };
+}
+
 export default async function RegionPage({
   params,
 }: {

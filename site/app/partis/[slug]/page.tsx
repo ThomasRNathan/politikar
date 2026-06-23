@@ -12,6 +12,21 @@ export async function generateStaticParams() {
   return PARTIES.map((p) => ({ slug: p.slug }));
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const party = partyBySlug(slug);
+  if (!party) return {};
+  return {
+    title: `${party.name} : politikar`,
+    description: `${party.name} (${party.short_name}) : politiques suivis et score de véracité moyen pondéré par politikar.`,
+    alternates: { canonical: `/partis/${party.slug}` },
+  };
+}
+
 export default async function PartyPage({
   params,
 }: {
