@@ -182,6 +182,7 @@ export default function RootLayout({
                     GitHub
                   </a>
                 </li>
+                <li><Link href="/a-propos" className="hover:text-[var(--color-accent)]">À propos</Link></li>
                 <li><Link href="/docs" className="hover:text-[var(--color-accent)]">Documents de cadrage</Link></li>
               </ul>
             </div>

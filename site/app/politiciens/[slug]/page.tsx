@@ -9,7 +9,8 @@ import {
   politiciansInParty,
   regionById,
 } from "@/lib/fixtures";
-import { TOPIC_LABELS } from "@/lib/types";
+import { TOPIC_LABELS, VERDICT_LABELS } from "@/lib/types";
+import { SITE_INDEXABLE, SITE_URL } from "@/lib/seo";
 import { PoliticianAvatar } from "@/components/PoliticianAvatar";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { ConfidenceBar } from "@/components/ConfidenceBar";
@@ -83,6 +84,40 @@ export default async function PoliticianProfile({
   // below remain available so the page never breaks.
   const dbClaims = await getClaimsForPolitician(p.slug, 20);
 
+  // ClaimReview structured data → Google fact-check rich results.
+  // Emitted ONLY for real, published, rateable verdicts, and only once the
+  // site is indexable — never for illustrative scores or "unverifiable".
+  const CLAIM_RATING: Record<string, number> = {
+    true: 5, mostly_true: 4, mixed: 3, misleading_context: 2, mostly_false: 2, false: 1,
+  };
+  const claimReviews = SITE_INDEXABLE
+    ? dbClaims
+        .filter((c) => c.verdict_is_published && c.verdict && CLAIM_RATING[c.verdict] !== undefined)
+        .map((c) => ({
+          "@context": "https://schema.org",
+          "@type": "ClaimReview",
+          url: `${SITE_URL}/politiciens/${p.slug}`,
+          datePublished: c.occurred_at ?? undefined,
+          claimReviewed: c.claim_text,
+          itemReviewed: {
+            "@type": "Claim",
+            author: { "@type": "Person", name: p.full_name },
+            ...(c.source_url
+              ? { appearance: { "@type": "CreativeWork", url: c.source_url } }
+              : {}),
+          },
+          author: { "@type": "Organization", name: "politikar", url: SITE_URL },
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: CLAIM_RATING[c.verdict!],
+            bestRating: 5,
+            worstRating: 1,
+            alternateName:
+              VERDICT_LABELS[c.verdict as keyof typeof VERDICT_LABELS] ?? c.verdict,
+          },
+        }))
+    : [];
+
   // Distribution of factual verdicts (for the dot strip)
   const verdictCounts: Record<string, number> = {};
   for (const c of factualClaims) {
@@ -92,6 +127,12 @@ export default async function PoliticianProfile({
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
+      {claimReviews.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(claimReviews) }}
+        />
+      )}
       <Link
         href="/politiciens"
         className="text-sm text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] inline-flex items-center gap-2"

@@ -6,6 +6,7 @@ export const metadata = {
   title: "Méthodologie : politikar",
   description:
     "Comment politikar évalue les discours politiques : sources, prompts, scoring, garde-fous.",
+  alternates: { canonical: "/methode" },
 };
 
 // ISR : pipeline panel refreshes every 5 minutes — fast enough to

@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/fonctions",
     "/methode",
     "/classement",
+    "/a-propos",
   ];
 
   const entityPaths = [
