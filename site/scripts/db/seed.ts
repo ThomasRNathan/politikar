@@ -127,54 +127,10 @@ async function upsertPoliticians(
   return map;
 }
 
-async function upsertTruthScores(client: Client, politicians: IdMap) {
-  let count = 0;
-  for (const pol of POLITICIANS) {
-    const uuid = politicians.get(pol.id);
-    if (!uuid) continue;
-    const s = pol.stats;
-    // Politicians with no illustrative score yet (e.g. freshly added
-    // government members) get no truth_scores row — it would be all-null
-    // and meaningless. Their real score lands once the pipeline runs.
-    if (s.truth_score === null) continue;
-    const topicBreakdown = Object.fromEntries(
-      Object.entries(s.topic_breakdown).map(([k, v]) => [
-        k,
-        v ? { score: v.score, n: v.n, ci: v.ci } : null,
-      ])
-    );
-    await client.query(
-      `insert into politician_truth_scores (
-         politician_id, truth_score, factual_score, promise_score,
-         transparency_score, ci_low, ci_high, topic_breakdown,
-         is_significant, scoring_version, computed_at
-       ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'v1.0.0', now())
-       on conflict (politician_id) do update set
-         truth_score = excluded.truth_score,
-         factual_score = excluded.factual_score,
-         promise_score = excluded.promise_score,
-         transparency_score = excluded.transparency_score,
-         ci_low = excluded.ci_low,
-         ci_high = excluded.ci_high,
-         topic_breakdown = excluded.topic_breakdown,
-         is_significant = excluded.is_significant,
-         computed_at = now()`,
-      [
-        uuid,
-        s.truth_score,
-        s.factual_score,
-        s.promise_score,
-        s.transparency_score,
-        s.ci_low,
-        s.ci_high,
-        JSON.stringify(topicBreakdown),
-        s.is_significant,
-      ]
-    );
-    count++;
-  }
-  return count;
-}
+// NOTE: truth scores are intentionally NOT seeded. politician_truth_scores
+// is owned exclusively by recomputeAllTruthScores() (lib/db/scores.ts), which
+// computes real values from published verdicts. Seeding illustrative scores
+// here previously made them indistinguishable from real ones in that table.
 
 async function main() {
   const url = process.env.DATABASE_URL_UNPOOLED;
@@ -191,9 +147,7 @@ async function main() {
     console.log(`  functions : ${functions.size}`);
     const politicians = await upsertPoliticians(client, parties, functions, regions);
     console.log(`  politicians : ${politicians.size}`);
-    const scoresN = await upsertTruthScores(client, politicians);
-    console.log(`  truth_scores: ${scoresN}`);
-    console.log("\n✓ seed complete");
+    console.log("\n✓ seed complete (referential only; scores via pipeline)");
   } finally {
     await client.end();
   }
