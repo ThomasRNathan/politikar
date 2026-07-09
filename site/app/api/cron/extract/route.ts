@@ -13,6 +13,7 @@
 
 import { NextResponse } from "next/server";
 import { runFullPipeline } from "@/lib/pipeline/run";
+import { recomputeAllTruthScores } from "@/lib/db/scores";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -83,6 +84,16 @@ export async function GET(req: Request) {
 
   const report = await runFullPipeline(limit);
 
+  // Recompute real TruthScores from the (now updated) published verdicts.
+  // Cheap relative to the pipeline; a failure here must not fail the cron.
+  let scores: unknown = null;
+  try {
+    scores = await recomputeAllTruthScores();
+    log("info", correlationId, "scores.recomputed", scores as Record<string, unknown>);
+  } catch (e) {
+    log("error", correlationId, "scores.failed", { message: (e as Error).message });
+  }
+
   log("info", correlationId, "cron.done", {
     elapsed_ms: Date.now() - startedAt,
     candidates: report.candidates,
@@ -99,6 +110,7 @@ export async function GET(req: Request) {
     ok: true,
     correlation_id: correlationId,
     elapsed_ms: Date.now() - startedAt,
+    scores,
     ...report,
   });
 }

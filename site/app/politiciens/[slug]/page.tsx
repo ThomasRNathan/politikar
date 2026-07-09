@@ -19,6 +19,7 @@ import { VerdictPill } from "@/components/VerdictPill";
 import { scoreColor, scoreColorSoft, formatDate } from "@/lib/format";
 import { realSourcesFor } from "@/lib/realdata";
 import { getClaimsForPolitician } from "@/lib/db/reads";
+import { getRealScoreMap } from "@/lib/db/scores";
 
 // ISR : politician profiles regenerate at most every 5 minutes so the
 // daily extraction cron's new claims appear without a redeploy.
@@ -66,22 +67,37 @@ export default async function PoliticianProfile({
   const factualClaims = claims.filter((c) => c.claim_type === "factual_assertion");
   const promiseClaims = claims.filter((c) => c.claim_type === "promise");
 
+  // Real TruthScore from published verdicts (replaces the illustrative seed).
+  // One cached query serves this profile and its peer cards.
+  const scoreMap = await getRealScoreMap();
+  const real = scoreMap.get(p.slug) ?? null;
+  const realScoreOf = (slug: string): number | null => {
+    const r = scoreMap.get(slug);
+    return r && r.is_significant ? r.truth_score : null;
+  };
+
   const peers = party
     ? politiciansInParty(party.id)
-        .filter((pp) => pp.id !== p.id && pp.stats.is_significant)
-        .sort((a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0))
+        .filter((pp) => pp.id !== p.id)
+        .sort((a, b) => (realScoreOf(b.slug) ?? -1) - (realScoreOf(a.slug) ?? -1))
         .slice(0, 4)
     : [];
 
-  const sortedTopics = Object.entries(p.stats.topic_breakdown).sort(
-    (a, b) => b[1]!.n - a[1]!.n
-  );
+  // Per-topic breakdown from real verdicts needs volume; hidden until then
+  // rather than surfacing illustrative sub-scores.
+  const sortedTopics: [string, { score: number; n: number }][] = [];
 
-  const sig = p.stats.is_significant;
+  const sig = real?.is_significant ?? false;
+  const truth = real?.truth_score ?? null;
+  const factual = real?.factual_score ?? null;
+  const promise = real?.promise_score ?? null;
+  const transparency = real?.transparency_score ?? null;
+  const nFactual = real?.n_factual ?? 0;
+  const nPromises = real?.n_promises ?? 0;
+  const ciLow = real?.ci_low ?? null;
+  const ciHigh = real?.ci_high ?? null;
 
   // Real claims extracted by the LLM pipeline and persisted in Neon.
-  // Falls back to an empty array on DB failure ; illustrative claims
-  // below remain available so the page never breaks.
   const dbClaims = await getClaimsForPolitician(p.slug, 20);
 
   // ClaimReview structured data → Google fact-check rich results.
@@ -173,10 +189,10 @@ export default async function PoliticianProfile({
           </p>
         </div>
         <div className="text-center">
-          <ScoreBadge score={sig ? p.stats.truth_score : null} size="xl" />
-          {sig && (
+          <ScoreBadge score={sig ? truth : null} size="xl" />
+          {sig && ciLow !== null && (
             <p className="mt-3 text-xs text-[var(--color-ink-soft)] font-mono">
-              IC95 {p.stats.ci_low}–{p.stats.ci_high}
+              IC95 {ciLow}–{ciHigh}
             </p>
           )}
         </div>
@@ -186,8 +202,8 @@ export default async function PoliticianProfile({
         <div className="mt-10 p-6 rounded-2xl bg-[var(--color-bg-soft)] border border-[var(--color-accent-soft)]">
           <p className="text-sm">
             <strong className="font-semibold">Score non significatif.</strong>{" "}
-            Volume sous-jacent insuffisant ({p.stats.n_factual} affirmations
-            factuelles, {p.stats.n_promises} promesses résolues). Plancher
+            Volume sous-jacent insuffisant ({nFactual} affirmations
+            factuelles, {nPromises} promesses résolues). Plancher
             requis : 30 affirmations ou 5 promesses. Aucun classement public
             n&apos;inclut ce profil.
           </p>
@@ -202,34 +218,34 @@ export default async function PoliticianProfile({
               <div>
                 <div className="flex justify-between mb-1.5">
                   <span className="text-[var(--color-ink-soft)]">Factuel</span>
-                  <span className="font-medium">{p.stats.factual_score ?? "—"}</span>
+                  <span className="font-medium">{factual ?? "—"}</span>
                 </div>
                 <ConfidenceBar
-                  score={p.stats.factual_score}
-                  ciLow={p.stats.factual_score ? p.stats.factual_score - 4 : null}
-                  ciHigh={p.stats.factual_score ? p.stats.factual_score + 4 : null}
+                  score={factual}
+                  ciLow={factual ? factual - 4 : null}
+                  ciHigh={factual ? factual + 4 : null}
                 />
               </div>
               <div>
                 <div className="flex justify-between mb-1.5">
                   <span className="text-[var(--color-ink-soft)]">Promesses</span>
-                  <span className="font-medium">{p.stats.promise_score ?? "—"}</span>
+                  <span className="font-medium">{promise ?? "—"}</span>
                 </div>
                 <ConfidenceBar
-                  score={p.stats.promise_score}
-                  ciLow={p.stats.promise_score ? p.stats.promise_score - 5 : null}
-                  ciHigh={p.stats.promise_score ? p.stats.promise_score + 5 : null}
+                  score={promise}
+                  ciLow={promise ? promise - 5 : null}
+                  ciHigh={promise ? promise + 5 : null}
                 />
               </div>
               <div>
                 <div className="flex justify-between mb-1.5">
                   <span className="text-[var(--color-ink-soft)]">Transparence</span>
-                  <span className="font-medium">{p.stats.transparency_score}</span>
+                  <span className="font-medium">{transparency ?? "—"}</span>
                 </div>
                 <ConfidenceBar
-                  score={p.stats.transparency_score}
-                  ciLow={p.stats.transparency_score - 3}
-                  ciHigh={p.stats.transparency_score + 3}
+                  score={transparency}
+                  ciLow={transparency !== null ? transparency - 3 : null}
+                  ciHigh={transparency !== null ? transparency + 3 : null}
                 />
               </div>
             </div>
@@ -237,13 +253,13 @@ export default async function PoliticianProfile({
               <div>
                 <p className="text-[var(--color-ink-soft)] uppercase tracking-wider">Affirmations</p>
                 <p className="text-base font-serif font-semibold mt-0.5">
-                  {p.stats.n_factual}
+                  {nFactual}
                 </p>
               </div>
               <div>
                 <p className="text-[var(--color-ink-soft)] uppercase tracking-wider">Promesses</p>
                 <p className="text-base font-serif font-semibold mt-0.5">
-                  {p.stats.n_promises}
+                  {nPromises}
                 </p>
               </div>
             </div>
@@ -294,7 +310,7 @@ export default async function PoliticianProfile({
                     >
                       <PoliticianAvatar politician={pp} size={32} />
                       <span className="text-sm flex-1 truncate">{pp.full_name}</span>
-                      <ScoreBadge score={pp.stats.truth_score} size="sm" />
+                      <ScoreBadge score={realScoreOf(pp.slug)} size="sm" />
                     </Link>
                   </li>
                 ))}
