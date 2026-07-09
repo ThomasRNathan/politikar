@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   POLITICIANS,
-  claimsForPolitician,
   functionById,
   partyById,
   politicianBySlug,
@@ -14,7 +13,6 @@ import { SITE_INDEXABLE, SITE_URL } from "@/lib/seo";
 import { PoliticianAvatar } from "@/components/PoliticianAvatar";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { ConfidenceBar } from "@/components/ConfidenceBar";
-import { ClaimRow } from "@/components/ClaimRow";
 import { VerdictPill } from "@/components/VerdictPill";
 import { scoreColor, scoreColorSoft, formatDate } from "@/lib/format";
 import { realSourcesFor } from "@/lib/realdata";
@@ -61,11 +59,6 @@ export default async function PoliticianProfile({
   const func = functionById(p.function_id);
   const region = regionById(p.region_id);
 
-  const claims = claimsForPolitician(p.id).sort((a, b) =>
-    b.occurred_at.localeCompare(a.occurred_at)
-  );
-  const factualClaims = claims.filter((c) => c.claim_type === "factual_assertion");
-  const promiseClaims = claims.filter((c) => c.claim_type === "promise");
 
   // Real TruthScore from published verdicts (replaces the illustrative seed).
   // One cached query serves this profile and its peer cards.
@@ -135,9 +128,13 @@ export default async function PoliticianProfile({
     : [];
 
   // Distribution of factual verdicts (for the dot strip)
+  // Real verdict distribution: published factual verdicts only.
+  const publishedFactual = dbClaims.filter(
+    (c) => c.claim_type === "factual_assertion" && c.verdict_is_published && c.verdict,
+  );
   const verdictCounts: Record<string, number> = {};
-  for (const c of factualClaims) {
-    verdictCounts[c.verdict] = (verdictCounts[c.verdict] ?? 0) + 1;
+  for (const c of publishedFactual) {
+    if (c.verdict) verdictCounts[c.verdict] = (verdictCounts[c.verdict] ?? 0) + 1;
   }
   const verdictOrder = ["true", "mostly_true", "mixed", "misleading_context", "mostly_false", "false", "unverifiable"];
 
@@ -320,7 +317,7 @@ export default async function PoliticianProfile({
         </aside>
 
         <section>
-          {factualClaims.length > 0 && (
+          {publishedFactual.length > 0 && (
             <div className="mb-10">
               <h2 className="font-serif text-2xl font-semibold mb-4">
                 Distribution des verdicts factuels
@@ -330,7 +327,7 @@ export default async function PoliticianProfile({
                   {verdictOrder.map((v) => {
                     const n = verdictCounts[v] ?? 0;
                     if (n === 0) return null;
-                    const pct = (n / factualClaims.length) * 100;
+                    const pct = (n / publishedFactual.length) * 100;
                     return (
                       <div
                         key={v}
@@ -509,48 +506,14 @@ export default async function PoliticianProfile({
             );
           })()}
 
-          <h2 className="font-serif text-2xl font-semibold mb-2">
-            Affirmations et promesses
-          </h2>
-          <p className="text-sm text-[var(--color-ink-soft)] mb-6">
-            Échantillon illustratif basé sur la méthode publiée. Les claims
-            seront remplacés par ceux extraits par le pipeline LLM dès que
-            celui-ci sera opérationnel.
-          </p>
-          <div className="bg-white rounded-2xl border border-black/5 p-2 sm:p-4">
-            {claims.length === 0 ? (
-              <p className="p-4 text-sm text-[var(--color-ink-soft)]">
-                Aucune affirmation pour ce politique.
+          {dbClaims.length === 0 && (
+            <div className="bg-white rounded-2xl border border-black/5 p-6">
+              <p className="text-sm text-[var(--color-ink-soft)]">
+                Aucune affirmation n&apos;a encore été extraite pour ce
+                politique. Le pipeline analyse de nouvelles communications
+                officielles chaque jour ; les claims et leurs verdicts
+                apparaîtront ici automatiquement.
               </p>
-            ) : (
-              claims.map((c) => <ClaimRow key={c.id} claim={c} />)
-            )}
-          </div>
-
-          {promiseClaims.length > 0 && (
-            <div className="mt-10">
-              <h2 className="font-serif text-2xl font-semibold mb-4">
-                Suivi des promesses
-              </h2>
-              <div className="space-y-3">
-                {promiseClaims.map((c) => (
-                  <Link
-                    key={c.id}
-                    href={`/claims/${c.id}`}
-                    className="block bg-white rounded-2xl border border-black/5 p-5 hover:border-[var(--color-accent)] transition"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <p className="font-serif text-base flex-1">
-                        « {c.claim_text} »
-                      </p>
-                      <VerdictPill verdict={c.verdict} />
-                    </div>
-                    <p className="mt-3 text-sm text-[var(--color-ink-soft)] leading-relaxed line-clamp-2">
-                      {c.reasoning}
-                    </p>
-                  </Link>
-                ))}
-              </div>
             </div>
           )}
         </section>
