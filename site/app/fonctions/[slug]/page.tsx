@@ -12,6 +12,7 @@ import { PoliticianCard } from "@/components/PoliticianCard";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { ConfidenceBar } from "@/components/ConfidenceBar";
 import { scoreColor } from "@/lib/format";
+import { getRealScoreMap, withRealStatsList } from "@/lib/db/scores";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -116,7 +117,8 @@ export default async function FunctionPage({
   const func = functionBySlug(slug);
   if (!func) notFound();
 
-  const members = politiciansInFunction(func.id).sort(
+  const scoreMap = await getRealScoreMap();
+  const members = withRealStatsList(politiciansInFunction(func.id), scoreMap).sort(
     (a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0)
   );
   const agg = aggregate(members);

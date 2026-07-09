@@ -4,6 +4,7 @@ import { PARTIES, partyBySlug, politiciansInParty } from "@/lib/fixtures";
 import { FAMILY_LABELS } from "@/lib/types";
 import { PoliticianCard } from "@/components/PoliticianCard";
 import { PartyLogo } from "@/components/PartyLogo";
+import { getRealScoreMap, withRealStatsList } from "@/lib/db/scores";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -35,7 +36,8 @@ export default async function PartyPage({
   const { slug } = await params;
   const party = partyBySlug(slug);
   if (!party) notFound();
-  const members = politiciansInParty(party.id).sort(
+  const scoreMap = await getRealScoreMap();
+  const members = withRealStatsList(politiciansInParty(party.id), scoreMap).sort(
     (a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0)
   );
 

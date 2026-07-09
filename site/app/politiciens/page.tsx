@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { POLITICIANS, FUNCTIONS, PARTIES } from "@/lib/fixtures";
 import { PoliticianCard } from "@/components/PoliticianCard";
+import { getRealScoreMap, withRealStatsList } from "@/lib/db/scores";
 
 export const metadata = {
   title: "Politiques : politikar",
@@ -8,8 +9,9 @@ export const metadata = {
   alternates: { canonical: "/politiciens" },
 };
 
-export default function PoliticiansIndex() {
-  const sorted = [...POLITICIANS].sort((a, b) => {
+export default async function PoliticiansIndex() {
+  const scoreMap = await getRealScoreMap();
+  const sorted = withRealStatsList([...POLITICIANS], scoreMap).sort((a, b) => {
     const sa = a.stats.is_significant ? a.stats.truth_score ?? 0 : -1;
     const sb = b.stats.is_significant ? b.stats.truth_score ?? 0 : -1;
     return sb - sa;

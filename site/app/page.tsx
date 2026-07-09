@@ -1,18 +1,10 @@
 import Link from "next/link";
-import {
-  CLAIMS,
-  POLITICIANS,
-  TOP_STORIES,
-  claimById,
-  politicianById,
-  regionAggregateScores,
-  sourceById,
-} from "@/lib/fixtures";
+import { POLITICIANS, REGIONS, politicianById } from "@/lib/fixtures";
 import { FranceMap } from "@/components/FranceMap";
-import { ClaimRow } from "@/components/ClaimRow";
 import { PoliticianAvatar } from "@/components/PoliticianAvatar";
 import { ScoreBadge } from "@/components/ScoreBadge";
-import { formatRelativeShort, formatDate } from "@/lib/format";
+import { formatDate } from "@/lib/format";
+import { getRealScoreMap, withRealStatsList } from "@/lib/db/scores";
 import {
   recentRealSources,
   recentFactchecks,
@@ -23,23 +15,33 @@ export const metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function Home() {
-  const regionScores = regionAggregateScores();
+export default async function Home() {
+  const scoreMap = await getRealScoreMap();
 
-  const topPoliticians = [...POLITICIANS]
+  // Real weighted region aggregates (significant profiles only). Mostly
+  // empty until the pipeline accumulates enough verdicts — those regions
+  // render neutral rather than showing fabricated averages.
+  const regionScores: Record<string, { score: number; n: number } | null> = {};
+  for (const region of REGIONS) {
+    let sum = 0;
+    let weight = 0;
+    let n = 0;
+    for (const p of POLITICIANS) {
+      if (p.region_id !== region.id) continue;
+      const s = scoreMap.get(p.slug);
+      if (!s || !s.is_significant || s.truth_score === null) continue;
+      const w = p.tier === "P0" ? 2 : p.tier === "P1" ? 1.5 : 1;
+      sum += s.truth_score * w;
+      weight += w;
+      n += 1;
+    }
+    regionScores[region.id] = weight > 0 ? { score: Math.round(sum / weight), n } : null;
+  }
+
+  const topPoliticians = withRealStatsList([...POLITICIANS], scoreMap)
     .filter((p) => p.stats.is_significant && p.stats.truth_score !== null)
     .sort((a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0))
     .slice(0, 5);
-
-  const recentClaims = [...CLAIMS]
-    .sort((a, b) => b.occurred_at.localeCompare(a.occurred_at))
-    .slice(0, 5);
-
-  const topStories = TOP_STORIES.map((t) => ({
-    ...t,
-    claim: claimById(t.claim_id)!,
-    politician: politicianById(claimById(t.claim_id)!.politician_id)!,
-  }));
 
   return (
     <div className="flex-1">
@@ -108,113 +110,62 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[var(--color-bg-soft)] border-y border-black/5 py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
-                Top stories de la semaine
-              </p>
-              <h2 className="font-serif text-3xl font-semibold tracking-tight">
-                Ce que la cascade a vérifié.
-              </h2>
-            </div>
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
+          Classement
+        </p>
+        <h2 className="font-serif text-3xl font-semibold tracking-tight mb-4">
+          Top 5 par véracité.
+        </h2>
+        <p className="text-sm text-[var(--color-ink-soft)] mb-6 leading-relaxed max-w-2xl">
+          Calculé sur l&apos;ensemble des claims factuels et promesses résolus,
+          à partir de verdicts publiés. Volume minimum requis pour entrer au
+          classement : 30 affirmations factuelles ou 5 promesses résolues.
+        </p>
+        {topPoliticians.length > 0 ? (
+          <ol className="space-y-2 max-w-xl">
+            {topPoliticians.map((p, i) => (
+              <li key={p.id}>
+                <Link
+                  href={`/politiciens/${p.slug}`}
+                  className="group flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--color-bg-soft)] transition"
+                >
+                  <span className="font-mono text-sm text-[var(--color-ink-soft)] w-6">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <PoliticianAvatar politician={p} size={36} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate group-hover:text-[var(--color-accent)]">
+                      {p.full_name}
+                    </p>
+                    <p className="text-[11px] text-[var(--color-ink-soft)] truncate">
+                      {p.bio_short.split(".")[0]}
+                    </p>
+                  </div>
+                  <ScoreBadge score={p.stats.truth_score} size="sm" />
+                </Link>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <div className="max-w-2xl rounded-2xl bg-[var(--color-bg-soft)] border border-[var(--color-accent-soft)] p-6">
+            <p className="text-sm leading-relaxed">
+              <strong className="font-semibold">
+                Classement en cours de constitution.
+              </strong>{" "}
+              Aucun profil n&apos;a encore atteint le volume minimum pour un
+              score significatif. Le pipeline extrait et vérifie de nouvelles
+              affirmations chaque jour ; les scores apparaîtront ici dès que le
+              seuil sera franchi.
+            </p>
             <Link
               href="/politiciens"
-              className="text-sm text-[var(--color-accent)] hover:underline hidden sm:inline"
+              className="mt-4 inline-flex text-sm text-[var(--color-accent)] hover:underline"
             >
-              Tous les politiques →
+              Parcourir l&apos;annuaire →
             </Link>
           </div>
-          <div className="grid lg:grid-cols-2 gap-4">
-            {topStories.map((s) => {
-              const source = sourceById(s.claim.source_id);
-              return (
-                <Link
-                  key={s.claim_id}
-                  href={`/claims/${s.claim_id}`}
-                  className="group block bg-white rounded-2xl p-6 border border-black/5 hover:border-[var(--color-accent)] transition"
-                >
-                  <div className="flex items-start gap-4">
-                    <PoliticianAvatar politician={s.politician} size={44} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className="font-medium text-sm">{s.politician.full_name}</p>
-                        <span className="text-[11px] text-[var(--color-ink-soft)] shrink-0">
-                          {formatRelativeShort(s.claim.occurred_at)}
-                        </span>
-                      </div>
-                      <p className="text-xs text-[var(--color-ink-soft)]">
-                        {source?.channel}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="mt-4 font-serif text-lg leading-snug group-hover:text-[var(--color-accent)]">
-                    « {s.claim.claim_text} »
-                  </p>
-                  <p className="mt-3 text-xs text-[var(--color-ink-soft)] italic">
-                    {s.note}
-                  </p>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
-              Classement
-            </p>
-            <h2 className="font-serif text-3xl font-semibold tracking-tight mb-4">
-              Top 5 par véracité.
-            </h2>
-            <p className="text-sm text-[var(--color-ink-soft)] mb-6 leading-relaxed">
-              Calculé sur l&apos;ensemble des claims factuels et promesses
-              résolus de la période. Volume minimum requis pour entrer au
-              classement : 30 affirmations factuelles ou 5 promesses résolues.
-            </p>
-            <ol className="space-y-2">
-              {topPoliticians.map((p, i) => (
-                <li key={p.id}>
-                  <Link
-                    href={`/politiciens/${p.slug}`}
-                    className="group flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--color-bg-soft)] transition"
-                  >
-                    <span className="font-mono text-sm text-[var(--color-ink-soft)] w-6">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <PoliticianAvatar politician={p} size={36} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate group-hover:text-[var(--color-accent)]">
-                        {p.full_name}
-                      </p>
-                      <p className="text-[11px] text-[var(--color-ink-soft)] truncate">
-                        {p.bio_short.split(".")[0]}
-                      </p>
-                    </div>
-                    <ScoreBadge score={p.stats.truth_score} size="sm" />
-                  </Link>
-                </li>
-              ))}
-            </ol>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-widest text-[var(--color-accent)] mb-2">
-              Affirmations récentes
-            </p>
-            <h2 className="font-serif text-3xl font-semibold tracking-tight mb-4">
-              Dernières vérifications.
-            </h2>
-            <div className="bg-white rounded-2xl border border-black/5 p-2 sm:p-4">
-              {recentClaims.map((c) => (
-                <ClaimRow key={c.id} claim={c} />
-              ))}
-            </div>
-          </div>
-        </div>
+        )}
       </section>
 
       {(() => {

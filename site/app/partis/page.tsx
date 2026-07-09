@@ -3,6 +3,7 @@ import { PARTIES, politiciansInParty } from "@/lib/fixtures";
 import { FAMILY_LABELS } from "@/lib/types";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { PartyLogo } from "@/components/PartyLogo";
+import { getRealScoreMap, withRealStatsList, type DbTruthScore } from "@/lib/db/scores";
 
 export const metadata = {
   title: "Partis : politikar",
@@ -10,8 +11,8 @@ export const metadata = {
   alternates: { canonical: "/partis" },
 };
 
-function partyAggScore(partyId: string): number | null {
-  const ps = politiciansInParty(partyId).filter(
+function partyAggScore(partyId: string, scoreMap: Map<string, DbTruthScore>): number | null {
+  const ps = withRealStatsList(politiciansInParty(partyId), scoreMap).filter(
     (p) => p.stats.is_significant && p.stats.truth_score !== null
   );
   if (ps.length === 0) return null;
@@ -25,10 +26,11 @@ function partyAggScore(partyId: string): number | null {
   return Math.round(total.sum / total.w);
 }
 
-export default function PartiesIndex() {
+export default async function PartiesIndex() {
+  const scoreMap = await getRealScoreMap();
   const partiesWithScores = PARTIES.map((p) => ({
     ...p,
-    agg: partyAggScore(p.id),
+    agg: partyAggScore(p.id, scoreMap),
     n: politiciansInParty(p.id).length,
   })).sort((a, b) => (b.agg ?? -1) - (a.agg ?? -1));
 

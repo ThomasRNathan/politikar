@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FUNCTIONS, POLITICIANS, politiciansInFunction } from "@/lib/fixtures";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { getRealScoreMap, withRealStatsList, type DbTruthScore } from "@/lib/db/scores";
 
 export const metadata = {
   title: "Fonctions : politikar",
@@ -8,8 +9,11 @@ export const metadata = {
   alternates: { canonical: "/fonctions" },
 };
 
-function functionAggScore(functionId: string): { score: number; n: number } | null {
-  const ps = politiciansInFunction(functionId).filter(
+function functionAggScore(
+  functionId: string,
+  scoreMap: Map<string, DbTruthScore>,
+): { score: number; n: number } | null {
+  const ps = withRealStatsList(politiciansInFunction(functionId), scoreMap).filter(
     (p) => p.stats.is_significant && p.stats.truth_score !== null
   );
   if (ps.length === 0) return null;
@@ -31,7 +35,8 @@ const LEVEL_LABELS: Record<string, string> = {
   party_leadership: "Direction de parti",
 };
 
-export default function FunctionsIndex() {
+export default async function FunctionsIndex() {
+  const scoreMap = await getRealScoreMap();
   const groups = FUNCTIONS.reduce<Record<string, typeof FUNCTIONS>>((acc, f) => {
     (acc[f.level] ??= []).push(f);
     return acc;
@@ -64,7 +69,7 @@ export default function FunctionsIndex() {
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {funcs.map((f) => {
-              const agg = functionAggScore(f.id);
+              const agg = functionAggScore(f.id, scoreMap);
               const n = politiciansInFunction(f.id).length;
               return (
                 <Link

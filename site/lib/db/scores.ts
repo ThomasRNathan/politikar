@@ -10,6 +10,7 @@
 import { cache } from "react";
 import { getPool, getSql } from "./client";
 import { computeTruthScore, SCORING_VERSION, type ScoringClaim, type TruthScoreResult } from "@/lib/scoring";
+import type { Politician } from "@/lib/types";
 
 type ScoringRow = ScoringClaim & { politician_id: string };
 
@@ -201,4 +202,35 @@ export const getRealScoreMap = cache(async (): Promise<Map<string, DbTruthScore>
 /** Real score for one politician (by slug), or null if not computed yet. */
 export async function getRealTruthScore(slug: string): Promise<DbTruthScore | null> {
   return (await getRealScoreMap()).get(slug) ?? null;
+}
+
+/** Overlay real scores onto a fixture politician for card/list rendering.
+ * Displayed truth_score / CI are gated by significance (like the profile);
+ * politicians without a significant real row render an honest empty state. */
+export function withRealStats(p: Politician, map: Map<string, DbTruthScore>): Politician {
+  const r = map.get(p.slug);
+  const sig = r?.is_significant ?? false;
+  return {
+    ...p,
+    stats: {
+      truth_score: sig ? r?.truth_score ?? null : null,
+      factual_score: r?.factual_score ?? null,
+      promise_score: r?.promise_score ?? null,
+      transparency_score: r?.transparency_score ?? 50,
+      ci_low: sig ? r?.ci_low ?? null : null,
+      ci_high: sig ? r?.ci_high ?? null : null,
+      is_significant: sig,
+      n_factual: r?.n_factual ?? 0,
+      n_promises: r?.n_promises ?? 0,
+      topic_breakdown: {},
+    },
+  };
+}
+
+/** Convenience: overlay real scores onto a list, preserving order. */
+export function withRealStatsList(
+  politicians: Politician[],
+  map: Map<string, DbTruthScore>,
+): Politician[] {
+  return politicians.map((p) => withRealStats(p, map));
 }
