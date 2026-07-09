@@ -52,8 +52,11 @@ test.describe("politikar platform", () => {
     await expect(page.getByText(/Promesses/i).first()).toBeVisible();
     await expect(page.getByText(/Transparence/i).first()).toBeVisible();
     await expect(page.getByText(/Distribution des verdicts/i)).toBeVisible();
-    const claimLinks = page.locator("a[href^='/claims/']");
-    expect(await claimLinks.count()).toBeGreaterThanOrEqual(1);
+    // Real pipeline-extracted claims are shown (Macron has published verdicts);
+    // no fixture claim-detail links remain.
+    await expect(
+      page.getByText(/Claims extraits par le pipeline/i)
+    ).toBeVisible();
     // Real photo from Wikimedia
     const macronPhoto = page.locator('img[alt*="Emmanuel Macron"]').first();
     await expect(macronPhoto).toBeVisible();
