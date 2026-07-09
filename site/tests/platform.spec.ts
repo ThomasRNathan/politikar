@@ -21,9 +21,8 @@ test.describe("politikar platform", () => {
     await expect(page.getByLabel(/Carte de France/i)).toBeVisible();
     // Search form
     await expect(page.getByPlaceholder(/Chercher un politique/i)).toBeVisible();
-    // Top stories section
-    await expect(page.getByText(/Top stories de la semaine/i)).toBeVisible();
-    // Top 5 ranking section
+    // Ranking section (real; shows a "classement en cours de constitution"
+    // panel while no profile is yet significant)
     await expect(page.getByText(/Top 5 par véracité/i)).toBeVisible();
   });
 
@@ -45,13 +44,13 @@ test.describe("politikar platform", () => {
     await expect(
       page.getByRole("heading", { name: "Emmanuel Macron" })
     ).toBeVisible();
-    await expect(page.getByLabel(/TruthScore 64/i)).toBeVisible();
-    await expect(page.getByText(/IC95/i)).toBeVisible();
+    // Real score badge — shows "non significatif" until the volume floor is
+    // met; no fabricated number is displayed.
+    await expect(page.getByLabel(/TruthScore/i).first()).toBeVisible();
     await expect(page.getByText(/Décomposition/i).first()).toBeVisible();
     await expect(page.getByText(/Factuel/i).first()).toBeVisible();
     await expect(page.getByText(/Promesses/i).first()).toBeVisible();
     await expect(page.getByText(/Transparence/i).first()).toBeVisible();
-    await expect(page.getByText(/Par sujet/i)).toBeVisible();
     await expect(page.getByText(/Distribution des verdicts/i)).toBeVisible();
     const claimLinks = page.locator("a[href^='/claims/']");
     expect(await claimLinks.count()).toBeGreaterThanOrEqual(1);
@@ -121,24 +120,10 @@ test.describe("politikar platform", () => {
     await expect(
       page.getByRole("heading", { name: "Leader de parti" })
     ).toBeVisible();
-    // Aggregate score box (label appears in header; footer also mentions "score moyen pondéré")
-    await expect(page.getByText(/Score moyen pondéré/i).first()).toBeVisible();
-    // Three score cards
-    await expect(page.getByText(/Score factuel/i).first()).toBeVisible();
-    await expect(page.getByText(/Score promesses/i).first()).toBeVisible();
-    await expect(page.getByText(/Volume total/i).first()).toBeVisible();
-    // Distribution by party section
-    await expect(
-      page.getByRole("heading", { name: /Distribution par parti/i })
-    ).toBeVisible();
-    // Topics section
-    await expect(
-      page.getByRole("heading", { name: /Sujets les plus traités/i })
-    ).toBeVisible();
-    // Ranking section
-    await expect(
-      page.getByRole("heading", { name: /Ranking interne/i })
-    ).toBeVisible();
+    // Aggregate score boxes only appear once at least one member is
+    // significant (none are yet) — assert the function lists its members.
+    const members = page.locator("a[href^='/politiciens/']");
+    expect(await members.count()).toBeGreaterThanOrEqual(1);
   });
 
   test("methode page renders all six steps", async ({ page }) => {
