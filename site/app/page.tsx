@@ -56,6 +56,10 @@ export default async function Home() {
               <span className="text-[var(--color-accent)]">mesurée</span> en
               méthode publique.
             </h1>
+            <p className="mt-6 font-serif text-xl sm:text-2xl italic leading-snug text-[var(--color-ink)] max-w-xl">
+              Mettons-nous d&apos;accord sur les faits avant de savoir comment y
+              aller et où aller.
+            </p>
             <p className="mt-6 text-lg leading-relaxed text-[var(--color-ink-soft)] max-w-xl">
               Pour chaque homme et femme politique, parti, fonction et région,
               des métriques traçables sur les discours factuels, les promesses
