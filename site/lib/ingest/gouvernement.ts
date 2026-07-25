@@ -25,6 +25,10 @@ import { containsName, fetchText, parseRss, isoDate, sha256Short, decodeEntities
 const FEEDS = [
   "https://www.gouvernement.fr/rss",
   "https://www.info.gouv.fr/flux-rss",
+  // Ministry feed that is NOT Cloudflare-blocked (unlike the two portals
+  // above): items naming a tracked minister (e.g. Darmanin) are attributed
+  // to them via the whole-word name matcher.
+  "https://www.justice.gouv.fr/rss.xml",
 ];
 
 export type IngestedSource = {

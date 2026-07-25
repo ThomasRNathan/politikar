@@ -39,6 +39,7 @@ type PartyFeed = {
 export const PARTY_FEEDS: PartyFeed[] = [
   { partyId: "p-lfi", outlet: "La France insoumise", url: "https://lafranceinsoumise.fr/feed/" },
   { partyId: "p-lr",  outlet: "Les Républicains",    url: "https://republicains.fr/feed/" },
+  { partyId: "p-ps",  outlet: "Parti socialiste",    url: "https://parti-socialiste.fr/feed/" },
 ];
 
 const MAX_BODY_CHARS = 6000;
