@@ -14,7 +14,8 @@ import { ConfidenceBar } from "@/components/ConfidenceBar";
 import { scoreColor } from "@/lib/format";
 import { getRealScoreMap, withRealStatsList } from "@/lib/db/scores";
 
-export const dynamic = "force-static";
+// ISR: refresh every 5 min so new claims/verdicts appear without a redeploy.
+export const revalidate = 300;
 export const dynamicParams = false;
 
 export async function generateStaticParams() {

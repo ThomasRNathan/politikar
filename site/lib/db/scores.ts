@@ -177,14 +177,10 @@ export const getRealScoreMap = cache(async (): Promise<Map<string, DbTruthScore>
         coalesce(ts.is_significant, false) as is_significant,
         ts.computed_at,
         (select count(*) from claims c
-           join verifications v on v.claim_id = c.id
           where c.politician_id = p.id and c.claim_type = 'factual_assertion'
-            and v.is_published and v.superseded_by_verification_id is null
             and c.deleted_at is null)::int as n_factual,
         (select count(*) from claims c
-           join verifications v on v.claim_id = c.id
           where c.politician_id = p.id and c.claim_type = 'promise'
-            and v.is_published and v.superseded_by_verification_id is null
             and c.deleted_at is null)::int as n_promises
       from politicians p
       left join politician_truth_scores ts on ts.politician_id = p.id

@@ -199,10 +199,10 @@ export default async function PoliticianProfile({
         <div className="mt-10 p-6 rounded-2xl bg-[var(--color-bg-soft)] border border-[var(--color-accent-soft)]">
           <p className="text-sm">
             <strong className="font-semibold">Score non significatif.</strong>{" "}
-            Volume sous-jacent insuffisant ({nFactual} affirmations
-            factuelles, {nPromises} promesses résolues). Plancher
-            requis : 30 affirmations ou 5 promesses. Aucun classement public
-            n&apos;inclut ce profil.
+            {nFactual} affirmations factuelles et {nPromises} promesses
+            extraites à ce jour. Le score devient significatif au-delà de 30
+            affirmations factuelles ou 5 promesses aux verdicts résolus.
+            Aucun classement public n&apos;inclut ce profil.
           </p>
         </div>
       )}
