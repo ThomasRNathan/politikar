@@ -195,10 +195,13 @@ test.describe("politikar platform", () => {
     await page.goto("/politiciens/marine-le-pen");
     const photo = page.locator('img[alt*="Marine Le Pen"]').first();
     await expect(photo).toBeVisible();
-    // Wait for image to actually load by checking naturalWidth
-    const naturalWidth = await photo.evaluate(
-      (img: HTMLImageElement) => img.naturalWidth
-    );
-    expect(naturalWidth).toBeGreaterThan(0);
+    // Poll naturalWidth until the image bytes load — next/image loads async
+    // and the mobile srcset variant can lag behind toBeVisible(). A genuinely
+    // broken image still fails via the poll timeout.
+    await expect
+      .poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth), {
+        timeout: 10000,
+      })
+      .toBeGreaterThan(0);
   });
 });
