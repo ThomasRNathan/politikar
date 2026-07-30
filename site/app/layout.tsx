@@ -183,6 +183,7 @@ export default function RootLayout({
                   </a>
                 </li>
                 <li><Link href="/a-propos" className="hover:text-[var(--color-accent)]">À propos</Link></li>
+                <li><Link href="/mentions-legales" className="hover:text-[var(--color-accent)]">Mentions légales</Link></li>
                 <li><Link href="/docs" className="hover:text-[var(--color-accent)]">Documents de cadrage</Link></li>
               </ul>
             </div>

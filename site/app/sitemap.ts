@@ -13,8 +13,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/partis",
     "/fonctions",
     "/methode",
-    "/classement",
     "/a-propos",
+    "/mentions-legales",
   ];
 
   const entityPaths = [
