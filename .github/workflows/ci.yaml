@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15
+        image: pgvector/pgvector:pg15
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: politikar_test
@@ -61,10 +61,6 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      - name: install pgvector
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-15-pgvector
       - name: apply migrations
         env:
           PGPASSWORD: postgres
