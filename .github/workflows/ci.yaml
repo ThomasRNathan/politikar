@@ -33,10 +33,12 @@ jobs:
         uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
+          # uv.lock is gitignored, so key the cache on the manifests instead.
+          cache-dependency-glob: "**/pyproject.toml"
       - name: install Python 3.11
         run: uv python install 3.11
       - name: sync workspace
-        run: uv sync --all-extras --workspace
+        run: uv sync --all-extras --all-packages
       - name: ruff check
         run: uv run ruff check apps
       - name: pytest workers
