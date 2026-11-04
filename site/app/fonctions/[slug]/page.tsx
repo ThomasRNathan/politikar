@@ -12,8 +12,10 @@ import { PoliticianCard } from "@/components/PoliticianCard";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { ConfidenceBar } from "@/components/ConfidenceBar";
 import { scoreColor } from "@/lib/format";
+import { getRealScoreMap, withRealStatsList } from "@/lib/db/scores";
 
-export const dynamic = "force-static";
+// ISR: refresh every 5 min so new claims/verdicts appear without a redeploy.
+export const revalidate = 300;
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -31,6 +33,7 @@ export async function generateMetadata({
   return {
     title: `${f.name} : politikar`,
     description: `Analyse agrégée des politiques exerçant la fonction ${f.name}.`,
+    alternates: { canonical: `/fonctions/${f.slug}` },
   };
 }
 
@@ -115,7 +118,8 @@ export default async function FunctionPage({
   const func = functionBySlug(slug);
   if (!func) notFound();
 
-  const members = politiciansInFunction(func.id).sort(
+  const scoreMap = await getRealScoreMap();
+  const members = withRealStatsList(politiciansInFunction(func.id), scoreMap).sort(
     (a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0)
   );
   const agg = aggregate(members);

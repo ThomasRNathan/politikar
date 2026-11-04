@@ -4,6 +4,7 @@ import { DOCS } from "@/lib/docs";
 export const metadata = {
   title: "Documents de cadrage : politikar",
   description: "Six documents de design publiés avant tout code.",
+  alternates: { canonical: "/docs" },
 };
 
 export default function DocsIndex() {

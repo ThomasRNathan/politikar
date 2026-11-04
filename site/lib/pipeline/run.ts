@@ -2,16 +2,21 @@
 // /api/diag/* manual triggers. Keeps one canonical end-to-end flow.
 //
 // Steps :
-//   1. Pull Élysée RSS items
-//   2. For each item :
-//      - fetch article body (replaces RSS summary when available)
+//   1. Pull sources from all connectors (Élysée, Gouvernement, NosDéputés)
+//   2. For each source across all connectors :
+//      - fetch article body when a fetchBody function is provided
 //      - upsert into sources (dedup sha256)
-//      - extract claims via Mistral
+//      - extract claims via Mistral with politician-specific context
 //      - insert claims (dedup by politician + normalized text)
 //      - for each newly inserted claim : embed (Voyage) + verify (Mistral)
 //        with fact-checker similarity, publish or queue per policy.
+//
+// The `limit` parameter caps the total number of sources processed per
+// invocation. Sources are prioritised by summary length (proxy for
+// substantive content) across all connectors combined.
 
-import { fetchElysee, fetchArticleBody, type IngestedSource } from "@/lib/ingest/elysee";
+import type { IngestedSource } from "@/lib/ingest/elysee";
+import { fetchAllSources, type ConnectorBatch, type PoliticianMeta } from "./connectors";
 import { extractClaims } from "@/lib/llm/extract";
 import { verifyClaim } from "@/lib/llm/verify";
 import { embed, pgVectorLiteral } from "@/lib/llm/embed";
@@ -132,9 +137,9 @@ export async function verifyOneClaim(
     claimText: c.claim_text,
     topicTags: c.topic_tags ?? [],
     politicianFullName: c.politician_full,
-    politicianFunction: c.function_name ?? "—",
+    politicianFunction: c.function_name ?? "",
     occurredAt: c.occurred_at ?? "",
-    channel: c.channel ?? "—",
+    channel: c.channel ?? "",
     factCheckHits: hits,
   });
 
@@ -189,6 +194,12 @@ export async function verifyOneClaim(
   };
 }
 
+type TargetItem = {
+  source: IngestedSource;
+  meta: PoliticianMeta;
+  fetchBody?: (url: string) => Promise<string | null>;
+};
+
 export type FullPipelineReport = {
   candidates: number;
   inserted_sources: number;
@@ -196,6 +207,7 @@ export type FullPipelineReport = {
   inserted_claims: number;
   verified_claims: number;
   published_verdicts: number;
+  politicians_covered: string[];
   errors: { stage: string; url?: string; message: string }[];
   tokens: {
     extract_in: number;
@@ -205,6 +217,7 @@ export type FullPipelineReport = {
     verify_out: number;
   };
   per_item: Array<{
+    politician: string;
     url: string | null;
     title: string | null;
     inserted_source: boolean;
@@ -215,11 +228,13 @@ export type FullPipelineReport = {
 };
 
 /**
- * Run the full daily pipeline. `limit` caps how many freshest Élysée
- * items are processed in this invocation (rate-limit / time budget).
+ * Run the full daily pipeline across all connectors. `limit` caps the
+ * total number of sources processed this invocation. Sources are ranked
+ * by summary length and distributed across all politicians so no single
+ * connector monopolises the budget.
  */
 export async function runFullPipeline(
-  limit: number = 5,
+  limit: number = 10,
 ): Promise<FullPipelineReport> {
   const report: FullPipelineReport = {
     candidates: 0,
@@ -228,6 +243,7 @@ export async function runFullPipeline(
     inserted_claims: 0,
     verified_claims: 0,
     published_verdicts: 0,
+    politicians_covered: [],
     errors: [],
     tokens: {
       extract_in: 0,
@@ -239,22 +255,44 @@ export async function runFullPipeline(
     per_item: [],
   };
 
-  let items: IngestedSource[];
+  // 1) Fetch sources from all connectors
+  let batches: ConnectorBatch[];
   try {
-    items = await fetchElysee();
+    batches = await fetchAllSources();
   } catch (e) {
-    report.errors.push({ stage: "ingest", message: (e as Error).message });
+    report.errors.push({ stage: "fetch_all", message: (e as Error).message });
     return report;
   }
 
-  // Prefer items with the longest summaries — proxy for substantive content.
-  const ranked = [...items].sort(
-    (a, b) => (b.summary?.length ?? 0) - (a.summary?.length ?? 0),
+  if (batches.length === 0) {
+    report.errors.push({ stage: "fetch_all", message: "No connector batches returned" });
+    return report;
+  }
+
+  // 2) Flatten and rank: interleave connectors so all politicians get
+  //    coverage even with a small limit. Round-robin by connector,
+  //    within each connector sorted by summary length desc.
+  const perConnector: TargetItem[][] = batches.map((b) =>
+    [...b.sources]
+      .sort((a, c) => (c.summary?.length ?? 0) - (a.summary?.length ?? 0))
+      .map((s) => ({ source: s, meta: b.meta, fetchBody: b.fetchBody })),
   );
-  const targets = ranked.slice(0, limit);
+
+  const targets: TargetItem[] = [];
+  let hasMore = true;
+  while (hasMore && targets.length < limit) {
+    hasMore = false;
+    for (const conn of perConnector) {
+      if (conn.length > 0) {
+        targets.push(conn.shift()!);
+        hasMore = true;
+        if (targets.length >= limit) break;
+      }
+    }
+  }
   report.candidates = targets.length;
 
-  // Embed fact-check corpus once
+  // 3) Embed fact-check corpus once for the whole run
   let fcEmbeddings: FcVec[];
   try {
     fcEmbeddings = await getFactcheckEmbeddings();
@@ -263,43 +301,56 @@ export async function runFullPipeline(
     return report;
   }
 
+  const pool = getPool();
+
+  // 4) Process each target source
   for (const target of targets) {
+    const { source, meta, fetchBody } = target;
     const itemReport: FullPipelineReport["per_item"][number] = {
-      url: target.url,
-      title: target.title,
+      politician: meta.full_name,
+      url: source.url,
+      title: source.title,
       inserted_source: false,
       n_claims: 0,
       n_inserted: 0,
       verdicts: [],
     };
+
     try {
+      // Fetch full article body when a fetcher is available
       let body: string | null = null;
-      if (target.url) body = await fetchArticleBody(target.url);
+      if (fetchBody && source.url) {
+        body = await fetchBody(source.url);
+      }
+
       const rawText =
         body && body.length > 200
-          ? `${target.title}\n\n${body}`
-          : [target.title, target.summary].filter(Boolean).join("\n\n");
+          ? `${source.title}\n\n${body}`
+          : [source.title, source.summary].filter(Boolean).join("\n\n");
+
       if (!rawText.trim() || rawText.length < 30) {
         report.per_item.push(itemReport);
         continue;
       }
 
-      const up = await upsertSource(target, rawText);
+      const up = await upsertSource(source, rawText);
       itemReport.inserted_source = up.inserted;
       if (up.inserted) report.inserted_sources++;
 
       if (!up.inserted) {
+        // Already processed previously — skip re-extraction.
         report.per_item.push(itemReport);
-        continue; // dedup → no need to re-extract this content
+        continue;
       }
 
+      // Extract claims using politician-specific context
       const extr = await extractClaims({
-        politicianFullName: "Emmanuel Macron",
-        politicianFunction: "Président de la République",
-        politicianParty: "Renaissance",
-        occurredAt: target.occurred_at ?? "",
-        channel: target.channel,
-        sourceType: target.source_type,
+        politicianFullName: meta.full_name,
+        politicianFunction: meta.function_name,
+        politicianParty: meta.party,
+        occurredAt: source.occurred_at ?? "",
+        channel: source.channel,
+        sourceType: source.source_type,
         text: rawText,
       });
       report.tokens.extract_in += extr.usage.input_tokens ?? 0;
@@ -309,15 +360,18 @@ export async function runFullPipeline(
 
       const written = await insertClaims(
         up.source_id,
-        target.politician_id,
+        source.politician_id,
         extr.output.claims,
         { modelId: extr.model_id, promptVersion: extr.prompt_version },
       );
       report.inserted_claims += written.inserted;
       itemReport.n_inserted = written.inserted;
 
-      // Fetch the IDs of the just-inserted claims so we can verify them
-      const pool = getPool();
+      if (!report.politicians_covered.includes(meta.full_name)) {
+        report.politicians_covered.push(meta.full_name);
+      }
+
+      // Verify each newly inserted claim
       const { rows: newClaimIds } = await pool.query<{ id: string }>(
         `select id::text from claims
          where source_id = $1 and deleted_at is null
@@ -343,7 +397,7 @@ export async function runFullPipeline(
         } catch (e) {
           report.errors.push({
             stage: "verify",
-            url: target.url ?? undefined,
+            url: source.url ?? undefined,
             message: (e as Error).message,
           });
         }
@@ -351,7 +405,7 @@ export async function runFullPipeline(
     } catch (e) {
       report.errors.push({
         stage: "item",
-        url: target.url ?? undefined,
+        url: source.url ?? undefined,
         message: (e as Error).message,
       });
     }

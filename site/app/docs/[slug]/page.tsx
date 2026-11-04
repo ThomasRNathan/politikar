@@ -24,6 +24,7 @@ export async function generateMetadata({
   return {
     title: `${doc.label} : politikar`,
     description: doc.description,
+    alternates: { canonical: `/docs/${doc.slug}` },
   };
 }
 

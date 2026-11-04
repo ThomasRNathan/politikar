@@ -85,8 +85,10 @@ async def admin_extract(
     """
     try:
         from politikar_workers.extraction import ExtractionInput, extract_claims
-    except ImportError:
+    except ImportError as err:
         logger.exception("workers package not installed")
-        raise HTTPException(status_code=503, detail="workers package not installed")
+        raise HTTPException(
+            status_code=503, detail="workers package not installed"
+        ) from err
     inp = ExtractionInput(**body.model_dump())
     return extract_claims(inp)

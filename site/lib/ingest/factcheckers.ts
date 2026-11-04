@@ -11,10 +11,31 @@ const FEEDS = [
   {
     outlet: "Les Décodeurs (Le Monde)",
     url: "https://www.lemonde.fr/les-decodeurs/rss_full.xml",
+    // Full article body available via content:encoded on Le Monde RSS.
+    // Paywalled articles return partial text, but the lead paragraph is
+    // usually sufficient for the verification cascade.
   },
   {
     outlet: "Les Surligneurs",
     url: "https://www.lessurligneurs.eu/feed",
+    // CC BY-NC-SA — full body exposed via content:encoded.
+  },
+  {
+    outlet: "AFP Factuel",
+    url: "https://factuel.afp.com/rss/fr",
+    // AFP Factuel publishes structured fact-checks in French.
+    // Free RSS feed with titles + summaries; no full body.
+  },
+  {
+    outlet: "Vrai ou Faux (France Info)",
+    url: "https://www.francetvinfo.fr/faux-et-usage-de-faux.rss",
+    // France Televisions / FTVInfo — CC BY-NC-SA.
+    // Rich summaries with verdict labels.
+  },
+  {
+    outlet: "CheckNews (Libération)",
+    url: "https://www.liberation.fr/checknews/rss/",
+    // Libération CheckNews RSS — titles only (paywalled).
   },
 ];
 

@@ -11,14 +11,16 @@ politique français.
 
 ## Démo en ligne
 
-👉 **<https://politikar.vercel.app>**
+👉 **<https://politikar.com>**
 
 Ce que tu y vois aujourd'hui :
 
-- Référentiel réel (16 figures nationales, 10 partis, 13 régions) avec
+- Référentiel réel (59 figures nationales, 14 partis, 13 régions) avec
   photos et logos depuis Wikimedia Commons.
-- Communications officielles ingérées en temps réel depuis Élysée RSS.
-- Corpus de fact-checks de référence (Les Décodeurs, Les Surligneurs).
+- Communications officielles ingérées en temps réel depuis Élysée RSS,
+  gouvernement.fr / info.gouv.fr et les communiqués de partis.
+- Corpus de fact-checks de référence (Les Décodeurs, Les Surligneurs,
+  AFP Factuel, France Info, CheckNews).
 - Maquette d'analyse (TruthScore, intervalles de confiance,
   décomposition par sujet et par fonction) sur des verdicts illustratifs
   en attendant que la cascade tourne.
@@ -151,8 +153,8 @@ Référence : section "Plan de livraison" du master prompt.
 | Phase | Statut | Notes |
 |---|---|---|
 | 0. Fondations | ⏳ partiel | Monorepo, migrations Supabase, scaffolds Python, CI GitHub Actions, .env.example |
-| 1. Référentiel et données statiques | ✓ MVP | 16 figures via Wikidata + Wikipedia, photos + logos. Reste à pousser dans Supabase. |
-| 2. Pipeline d'ingestion v1 | ⏳ partiel | Élysée RSS + corpus fact-checkers. NosDéputés en attente XVIIe légis. AN open data à brancher. |
+| 1. Référentiel et données statiques | ✓ MVP | 59 figures via Wikidata + Wikipedia (gouvernement Lecornu II à jour), photos + logos, seedées dans Neon. |
+| 2. Pipeline d'ingestion v1 | ✓ MVP | Connecteurs Élysée, gouvernement.fr/info.gouv.fr, communiqués de partis (LFI, LR) et corpus fact-checkers. NosDéputés branché mais en sommeil (API sur la XVIe légis. uniquement) ; AN open data à brancher. |
 | 3. Extraction et classification de claims | ⏳ scaffold | Prompts versionnés et runnable via `politikar extract`, nécessite ANTHROPIC_API_KEY |
 | 4. Moteur de vérification v1 | ⏳ scaffold | Prompt v1 + tool schema définis. Cascade Python à coder, après Supabase. |
 | 5. Agrégations et scoring | ✓ formule | TruthScore v1.0.0 implémenté en Python avec tests reproduisant les exemples de SCORING.md |

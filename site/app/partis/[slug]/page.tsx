@@ -4,12 +4,29 @@ import { PARTIES, partyBySlug, politiciansInParty } from "@/lib/fixtures";
 import { FAMILY_LABELS } from "@/lib/types";
 import { PoliticianCard } from "@/components/PoliticianCard";
 import { PartyLogo } from "@/components/PartyLogo";
+import { getRealScoreMap, withRealStatsList } from "@/lib/db/scores";
 
-export const dynamic = "force-static";
+// ISR: refresh every 5 min so new claims/verdicts appear without a redeploy.
+export const revalidate = 300;
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
   return PARTIES.map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const party = partyBySlug(slug);
+  if (!party) return {};
+  return {
+    title: `${party.name} : politikar`,
+    description: `${party.name} (${party.short_name}) : politiques suivis et score de véracité moyen pondéré par politikar.`,
+    alternates: { canonical: `/partis/${party.slug}` },
+  };
 }
 
 export default async function PartyPage({
@@ -20,7 +37,8 @@ export default async function PartyPage({
   const { slug } = await params;
   const party = partyBySlug(slug);
   if (!party) notFound();
-  const members = politiciansInParty(party.id).sort(
+  const scoreMap = await getRealScoreMap();
+  const members = withRealStatsList(politiciansInParty(party.id), scoreMap).sort(
     (a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0)
   );
 

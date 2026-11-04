@@ -30,6 +30,7 @@ export async function generateMetadata({
   return {
     title: `Vérification d'une affirmation de ${p?.full_name} : politikar`,
     description: claim.claim_text.slice(0, 150),
+    alternates: { canonical: `/claims/${claim.id}` },
   };
 }
 

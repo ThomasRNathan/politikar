@@ -4,16 +4,32 @@ import {
   REGIONS,
   regionBySlug,
   politiciansInRegion,
-  regionAggregateScores,
 } from "@/lib/fixtures";
 import { PoliticianCard } from "@/components/PoliticianCard";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { getRealScoreMap, withRealStatsList } from "@/lib/db/scores";
 
-export const dynamic = "force-static";
+// ISR: refresh every 5 min so new claims/verdicts appear without a redeploy.
+export const revalidate = 300;
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
   return REGIONS.map((r) => ({ slug: r.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const region = regionBySlug(slug);
+  if (!region) return {};
+  return {
+    title: `${region.name} : politikar`,
+    description: `Score de véracité moyen des élus de ${region.name} suivis par politikar.`,
+    alternates: { canonical: `/regions/${region.slug}` },
+  };
 }
 
 export default async function RegionPage({
@@ -24,10 +40,24 @@ export default async function RegionPage({
   const { slug } = await params;
   const region = regionBySlug(slug);
   if (!region) notFound();
-  const elus = politiciansInRegion(region.id).sort(
+  const scoreMap = await getRealScoreMap();
+  const elus = withRealStatsList(politiciansInRegion(region.id), scoreMap).sort(
     (a, b) => (b.stats.truth_score ?? 0) - (a.stats.truth_score ?? 0)
   );
-  const agg = regionAggregateScores()[region.id];
+  const sigElus = elus.filter(
+    (p) => p.stats.is_significant && p.stats.truth_score !== null
+  );
+  let agg: { score: number } | null = null;
+  if (sigElus.length > 0) {
+    let sum = 0;
+    let w = 0;
+    for (const p of sigElus) {
+      const ww = p.tier === "P0" ? 2 : p.tier === "P1" ? 1.5 : 1;
+      sum += (p.stats.truth_score ?? 0) * ww;
+      w += ww;
+    }
+    agg = { score: Math.round(sum / w) };
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
